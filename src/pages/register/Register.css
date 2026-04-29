@@ -1,0 +1,1675 @@
+/* ═══════════════════════════════════════════════════════
+   SAFORA REGISTER — Orange/White/Red theme
+   v2.1 — Password Eye Toggle qo'shilgan
+═══════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────
+   📦 Page Container
+───────────────────────────────────────────── */
+.reg-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(170deg, #ffffff 0%, #fffaf5 30%, #fff5eb 70%, #fefcfa 100%);
+  padding: 30px 16px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1a1a1a;
+}
+
+.reg-page *,
+.reg-page *::before,
+.reg-page *::after {
+  box-sizing: border-box;
+}
+
+/* ─────────────────────────────────────────────
+   🎨 Background Decorations
+───────────────────────────────────────────── */
+.reg-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.reg-bg-shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.reg-bg-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.08), transparent 70%);
+  top: -120px;
+  right: -80px;
+}
+
+.reg-bg-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(220, 38, 38, 0.04), transparent 70%);
+  bottom: -100px;
+  left: -60px;
+}
+
+.reg-bg-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(251, 146, 60, 0.06), transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.reg-3d-shape {
+  position: absolute;
+  pointer-events: none;
+}
+
+.reg-3d-1 {
+  width: 60px;
+  height: 60px;
+  top: 12%;
+  left: 8%;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(220, 38, 38, 0.04));
+  border-radius: 16px;
+  border: 1px solid rgba(249, 115, 22, 0.06);
+  transform: perspective(600px) rotateX(22deg) rotateY(-12deg) rotateZ(8deg);
+  animation: regFloat 9s ease-in-out infinite;
+}
+
+.reg-3d-2 {
+  width: 45px;
+  height: 45px;
+  bottom: 18%;
+  right: 10%;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(249, 115, 22, 0.06));
+  border-radius: 50%;
+  border: 1px solid rgba(220, 38, 38, 0.05);
+  transform: perspective(600px) rotateX(-18deg) rotateY(18deg);
+  animation: regFloat 11s ease-in-out infinite reverse;
+}
+
+@keyframes regFloat {
+  0%, 100% {
+    transform: perspective(600px) rotateX(22deg) rotateY(-12deg) rotateZ(8deg) translateY(0);
+  }
+  50% {
+    transform: perspective(600px) rotateX(14deg) rotateY(-20deg) rotateZ(4deg) translateY(-18px);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   📐 Container
+───────────────────────────────────────────── */
+.reg-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 700px;
+}
+
+/* ─────────────────────────────────────────────
+   🎯 Header
+───────────────────────────────────────────── */
+.reg-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.reg-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  display: block;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.25);
+  animation: logoFadeIn 0.6s ease-out;
+  transition: transform 0.3s ease;
+}
+
+.reg-logo:hover {
+  transform: scale(1.05) rotate(-3deg);
+}
+
+.reg-logo-fallback {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 900;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+  animation: logoFadeIn 0.6s ease-out;
+}
+
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.reg-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+
+.reg-subtitle {
+  font-size: 13.5px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────
+   📊 Step Progress Bar
+───────────────────────────────────────────── */
+.reg-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+  padding: 0 10px;
+}
+
+.reg-step-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #a3a3a3;
+  transition: color 0.3s;
+}
+
+.reg-step-item.active { color: #1a1a1a; }
+.reg-step-item.done   { color: #f97316; }
+
+.reg-step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  color: #a3a3a3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.reg-step-item.active .reg-step-num {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
+  animation: stepPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes stepPulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2); }
+  50%      { box-shadow: 0 2px 12px rgba(249, 115, 22, 0.4); }
+}
+
+.reg-step-item.done .reg-step-num {
+  background: #f97316;
+  color: #fff;
+}
+
+.reg-step-line {
+  flex: 0 0 22px;
+  height: 2px;
+  background: #f5f5f5;
+  margin: 0 4px;
+  border-radius: 2px;
+  transition: background 0.4s;
+}
+
+.reg-step-line.done {
+  background: linear-gradient(90deg, #f97316, #fb923c);
+}
+
+/* ─────────────────────────────────────────────
+   ⚠️ Alert
+───────────────────────────────────────────── */
+.reg-alert {
+  background: rgba(220, 38, 38, 0.04);
+  border: 1px solid rgba(220, 38, 38, 0.12);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  animation: alertSlideIn 0.3s ease;
+}
+
+@keyframes alertSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   🎴 Panel
+───────────────────────────────────────────── */
+.reg-panel {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(249, 115, 22, 0.06);
+  box-shadow: 0 4px 24px rgba(249, 115, 22, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 32px 30px;
+  animation: regFadeIn 0.35s ease;
+}
+
+@keyframes regFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reg-panel-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.reg-panel-desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 24px;
+}
+
+/* ─────────────────────────────────────────────
+   🎨 Step Icons (Email / Telegram)
+───────────────────────────────────────────── */
+.reg-step-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(220, 38, 38, 0.04));
+  border: 2px solid rgba(249, 115, 22, 0.12);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #f97316;
+  margin: 0 auto 16px;
+}
+
+.reg-step-icon-tg {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, rgba(0, 136, 204, 0.1), rgba(37, 99, 235, 0.06));
+  border: 2px solid rgba(0, 136, 204, 0.18);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #0088cc;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 14px rgba(0, 136, 204, 0.15);
+  animation: tgIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes tgIconPulse {
+  0%, 100% {
+    box-shadow: 0 4px 14px rgba(0, 136, 204, 0.15);
+  }
+  50% {
+    box-shadow: 0 4px 22px rgba(0, 136, 204, 0.3);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   🔐 Google Verified Box
+───────────────────────────────────────────── */
+.reg-google-verified {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: rgba(22, 163, 74, 0.04);
+  border: 1.5px solid rgba(22, 163, 74, 0.15);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  animation: regFadeIn 0.4s ease;
+}
+
+/* Google Signup Button */
+.google-signup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  width: 100%;
+  background: #fff;
+  color: #3c4043;
+  border: 1.5px solid #dadce0;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s;
+  cursor: pointer;
+}
+
+.google-signup-btn:hover {
+  background: #f8f9fa;
+  border-color: #c6c9cc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────
+   ➖ Divider
+───────────────────────────────────────────── */
+.reg-divider {
+  text-align: center;
+  position: relative;
+  margin: 20px 0;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.reg-divider span {
+  background: #fff;
+  padding: 0 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.reg-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(249, 115, 22, 0.08);
+}
+
+/* ─────────────────────────────────────────────
+   🎯 Service Type Cards
+───────────────────────────────────────────── */
+.stype-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stype-card {
+  position: relative;
+  border: 2px solid #f0f0f0;
+  border-radius: 18px;
+  padding: 28px 22px 22px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #fafafa;
+}
+
+.stype-card:hover {
+  border-color: #e5e5e5;
+  background: #fff;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+.stype-card.selected {
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.02);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08), 0 12px 32px rgba(249, 115, 22, 0.08);
+}
+
+.stype-card-qr.selected {
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.02);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08), 0 12px 32px rgba(124, 58, 237, 0.06);
+}
+
+.stype-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.04));
+  color: #f97316;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 14px;
+  transition: all 0.3s;
+}
+
+.stype-icon-purple {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(124, 58, 237, 0.04));
+  color: #7c3aed;
+}
+
+.stype-card.selected .stype-icon {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
+  transform: scale(1.05);
+}
+
+.stype-card-qr.selected .stype-icon {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+}
+
+.stype-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.stype-desc {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.stype-features {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stype-feat {
+  font-size: 11.5px;
+  color: #404040;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stype-feat i {
+  color: #16a34a;
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.stype-ribbon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stype-check {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.stype-check-purple {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+.stype-card.selected .stype-check { display: flex; }
+
+/* ─────────────────────────────────────────────
+   🏨 Business Type Cards
+───────────────────────────────────────────── */
+.btype-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.btype-card {
+  position: relative;
+  border: 2px solid #f5f5f5;
+  border-radius: 16px;
+  padding: 24px 16px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #fafafa;
+}
+
+.btype-card:hover {
+  border-color: #e5e5e5;
+  background: #fff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.06);
+}
+
+.btype-card.selected {
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.02);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08), 0 8px 24px rgba(249, 115, 22, 0.06);
+}
+
+.btype-card[data-type="hostel"].selected {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.02);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.06), 0 8px 24px rgba(220, 38, 38, 0.04);
+}
+
+.btype-card[data-type="guest_house"].selected {
+  border-color: #ea580c;
+  background: rgba(234, 88, 12, 0.02);
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.06), 0 8px 24px rgba(234, 88, 12, 0.04);
+}
+
+.btype-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(249, 115, 22, 0.06);
+  color: #f97316;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin: 0 auto 14px;
+  transition: all 0.3s;
+}
+
+.btype-icon-red  { background: rgba(220, 38, 38, 0.05); color: #dc2626; }
+.btype-icon-warm { background: rgba(234, 88, 12, 0.06); color: #ea580c; }
+
+.btype-card:hover .btype-icon {
+  transform: scale(1.05) rotate(-3deg);
+}
+
+.btype-card.selected .btype-icon {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.btype-card[data-type="hostel"].selected .btype-icon {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+.btype-card[data-type="guest_house"].selected .btype-icon {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+}
+
+.btype-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 6px;
+}
+
+.btype-desc {
+  font-size: 11.5px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.btype-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.btype-check-red  { background: linear-gradient(135deg, #dc2626, #ef4444); }
+.btype-check-warm { background: linear-gradient(135deg, #ea580c, #f97316); }
+
+.btype-card.selected .btype-check { display: flex; }
+
+/* ─────────────────────────────────────────────
+   📝 Form Fields
+───────────────────────────────────────────── */
+.reg-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reg-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.reg-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.reg-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #404040;
+  margin-bottom: 6px;
+}
+
+.req { color: #dc2626; }
+
+.reg-hint {
+  font-weight: 400;
+  color: #a3a3a3;
+  font-size: 11.5px;
+}
+
+.reg-hint-text {
+  font-size: 11px;
+  color: #a3a3a3;
+  margin-top: 4px;
+}
+
+.reg-error {
+  font-size: 11.5px;
+  color: #dc2626;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reg-page .form-control,
+.reg-page .form-select,
+.reg-page textarea {
+  background: #fafafa;
+  border: 1.5px solid #e5e5e5;
+  color: #1a1a1a;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  transition: all 0.2s;
+  width: 100%;
+  font-family: inherit;
+}
+
+.reg-page .form-control:focus,
+.reg-page .form-select:focus,
+.reg-page textarea:focus {
+  background: #fff;
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
+  outline: none;
+}
+
+.reg-page .form-control::placeholder,
+.reg-page textarea::placeholder {
+  color: #a3a3a3;
+}
+
+.reg-page textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   👁 PASSWORD INPUT — Eye Toggle (YANGI v2.1)
+═══════════════════════════════════════════════════════ */
+.password-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrap .password-input {
+  padding-right: 44px !important; /* Eye tugmasi uchun joy */
+  width: 100%;
+  letter-spacing: 1px;
+  font-family: 'Inter', sans-serif;
+}
+
+.password-input-wrap .password-input::placeholder {
+  letter-spacing: normal;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #a3a3a3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  padding: 0;
+  z-index: 2;
+}
+
+.password-toggle-btn:hover {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.08);
+}
+
+.password-toggle-btn:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+  color: #f97316;
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid rgba(249, 115, 22, 0.4);
+  outline-offset: 1px;
+}
+
+/* Browser'ning default eye iconini yashirish (Edge, IE) */
+.password-input::-ms-reveal,
+.password-input::-ms-clear {
+  display: none;
+}
+
+/* Password input focus holatida wrap ham vizual effekt */
+.password-input-wrap:focus-within .password-toggle-btn {
+  color: #6b7280;
+}
+
+.password-input-wrap:focus-within .password-toggle-btn:hover {
+  color: #f97316;
+}
+
+/* ─────────────────────────────────────────────
+   🔘 Buttons
+───────────────────────────────────────────── */
+.reg-btn {
+  height: 46px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.reg-btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.15);
+}
+
+.reg-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.25);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.reg-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reg-btn-submit {
+  flex: 1;
+  background: linear-gradient(135deg, #f97316, #dc2626);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.2);
+}
+
+.reg-btn-submit:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.reg-btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reg-btn-back {
+  flex: 0 0 100px;
+  background: #fafafa;
+  color: #6b7280;
+  border: 1px solid #e5e5e5;
+}
+
+.reg-btn-back:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+  border-color: #d4d4d4;
+}
+
+.reg-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.reg-btn-link {
+  background: none;
+  border: none;
+  color: #f97316;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reg-btn-link:hover:not(:disabled) {
+  color: #ea580c;
+}
+
+.reg-btn-link:disabled {
+  color: #a3a3a3;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────
+   🦶 Footer
+───────────────────────────────────────────── */
+.reg-footer-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.reg-footer-link a {
+  font-size: 13px;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.reg-footer-link a:hover {
+  color: #f97316;
+}
+
+/* ─────────────────────────────────────────────
+   ✨ Features Strip
+───────────────────────────────────────────── */
+.reg-features {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 0 10px;
+}
+
+.reg-feat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #a3a3a3;
+  font-weight: 500;
+}
+
+.reg-feat i {
+  color: #f97316;
+  font-size: 11px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   📱 TELEGRAM GATEWAY OTP (kelajakda yoqamiz)
+═══════════════════════════════════════════════════════ */
+
+/* Telegram CTA Button */
+.tg-get-code-btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #0088cc 0%, #2563eb 100%);
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgba(0, 136, 204, 0.3);
+  transition: all 0.25s;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.tg-get-code-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
+}
+
+.tg-get-code-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 24px rgba(0, 136, 204, 0.4);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.tg-get-code-btn:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.tg-get-code-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tg-open-bot-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(0, 136, 204, 0.06);
+  border: 1.5px solid rgba(0, 136, 204, 0.2);
+  color: #0088cc;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s;
+}
+
+.tg-open-bot-btn:hover {
+  background: rgba(0, 136, 204, 0.1);
+  border-color: #0088cc;
+  box-shadow: 0 2px 10px rgba(0, 136, 204, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────
+   🔢 OTP Input Boxes
+───────────────────────────────────────────── */
+.otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.otp-digit {
+  width: 50px;
+  height: 60px;
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a1a;
+  background: #fafafa;
+  transition: all 0.2s;
+  outline: none;
+  font-family: inherit;
+  caret-color: #0088cc;
+}
+
+.otp-digit:focus {
+  border-color: #0088cc;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 136, 204, 0.12);
+  transform: scale(1.05);
+}
+
+.otp-digit.filled {
+  border-color: #0088cc;
+  background: rgba(0, 136, 204, 0.04);
+  color: #0088cc;
+}
+
+.otp-digit.verified {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.06);
+  color: #16a34a;
+  animation: otpVerify 0.5s ease;
+}
+
+.otp-digit.error {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.04);
+  color: #dc2626;
+  animation: otpShake 0.4s;
+}
+
+.otp-digit:disabled {
+  cursor: not-allowed;
+}
+
+@keyframes otpVerify {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+@keyframes otpShake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  50%      { transform: translateX(6px); }
+  75%      { transform: translateX(-3px); }
+}
+
+/* ─────────────────────────────────────────────
+   📨 Telegram Delivery Banner
+───────────────────────────────────────────── */
+.tg-delivery-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  animation: bannerSlideIn 0.4s ease;
+}
+
+@keyframes bannerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tg-delivery-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 6px 14px rgba(14, 165, 233, 0.35);
+}
+
+.tg-delivery-text {
+  flex: 1;
+}
+
+.tg-delivery-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0c4a6e;
+  margin-bottom: 2px;
+}
+
+.tg-delivery-sub {
+  font-size: 12px;
+  color: #0369a1;
+}
+
+/* ─────────────────────────────────────────────
+   🛠 Dev Mode Banner
+───────────────────────────────────────────── */
+.dev-code-banner {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  border: 1px dashed #f59e0b;
+  font-size: 12.5px;
+  color: #78350f;
+  text-align: center;
+  animation: alertSlideIn 0.3s ease;
+}
+
+.dev-code-banner code {
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #dc2626;
+  letter-spacing: 2px;
+  display: inline-block;
+  margin-left: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+/* ─────────────────────────────────────────────
+   ℹ️ Info Banner
+───────────────────────────────────────────── */
+.tg-info-banner {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tg-info-banner i {
+  color: #0ea5e9;
+  font-size: 14px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.tg-info-banner-text {
+  font-size: 12px;
+  color: #0c4a6e;
+  line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────────
+   ✅ Phone Verified Box
+───────────────────────────────────────────── */
+.phone-verified-box {
+  text-align: center;
+  font-size: 13px;
+  color: #16a34a;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.06) 0%, rgba(34, 197, 94, 0.04) 100%);
+  border: 1px solid rgba(22, 163, 74, 0.15);
+  border-radius: 10px;
+  font-weight: 600;
+  animation: verifySuccess 0.5s ease;
+}
+
+@keyframes verifySuccess {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   📞 Resend / Change Number Row
+───────────────────────────────────────────── */
+.otp-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ─────────────────────────────────────────────
+   🪜 Telegram Step (legacy)
+───────────────────────────────────────────── */
+.tg-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tg-step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #f5f5f5;
+  color: #a3a3a3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tg-step-num.done {
+  background: linear-gradient(135deg, #0088cc, #0077b5);
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════
+   📷 Photo Upload
+═══════════════════════════════════════════════════════ */
+.photo-upload-zone {
+  border: 2px dashed rgba(249, 115, 22, 0.2);
+  border-radius: 14px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(249, 115, 22, 0.02);
+  transition: all 0.25s;
+  position: relative;
+}
+
+.photo-upload-zone:hover,
+.photo-upload-zone.drag-over {
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.04);
+}
+
+.photo-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.photo-upload-placeholder i {
+  font-size: 28px;
+  color: #f97316;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.photo-upload-zone.has-photos .photo-upload-placeholder {
+  flex-direction: row;
+  padding: 6px 0;
+  gap: 10px;
+}
+
+.photo-upload-zone.has-photos .photo-upload-placeholder i {
+  font-size: 16px;
+  margin-bottom: 0;
+}
+
+.photo-upload-zone.has-photos .photo-upload-placeholder div:last-child {
+  display: none;
+}
+
+.photo-preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.photo-thumb {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid rgba(249, 115, 22, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  animation: regFadeIn 0.3s ease;
+}
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-thumb-remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.85);
+  color: #fff;
+  border: none;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.photo-thumb:hover .photo-thumb-remove {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   💻 PC Count
+═══════════════════════════════════════════════════════ */
+.pc-count-wrap {
+  background: #fafafa;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: border-color 0.2s;
+}
+
+.pc-count-wrap:hover {
+  border-color: #d4d4d4;
+}
+
+.pc-count-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 14px;
+}
+
+.pc-count-info i {
+  color: #f97316;
+  font-size: 16px;
+}
+
+.pc-count-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+}
+
+.pc-count-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e5e5;
+  background: #fff;
+  color: #6b7280;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.pc-count-btn:hover {
+  border-color: #f97316;
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.04);
+}
+
+.pc-count-btn:active {
+  transform: scale(0.95);
+}
+
+#id_reception_pc_count,
+.pc-count-control input[type="number"] {
+  width: 60px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 6px 8px;
+  background: #fff;
+  font-family: inherit;
+}
+
+#id_reception_pc_count:focus,
+.pc-count-control input[type="number"]:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
+  outline: none;
+}
+
+.pc-count-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  justify-content: center;
+}
+
+.pc-label {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(249, 115, 22, 0.06);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.12);
+}
+
+/* ═══════════════════════════════════════════════════════
+   🛠 Utility classes
+═══════════════════════════════════════════════════════ */
+.ms-1 { margin-left: 0.25rem; }
+.ms-2 { margin-left: 0.5rem; }
+.me-1 { margin-right: 0.25rem; }
+.me-2 { margin-right: 0.5rem; }
+
+/* ═══════════════════════════════════════════════════════
+   📱 Responsive (Mobile)
+═══════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .reg-page {
+    padding: 20px 12px;
+  }
+
+  .stype-grid { grid-template-columns: 1fr; }
+
+  .btype-grid { grid-template-columns: 1fr; }
+
+  .btype-card {
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .btype-icon {
+    margin: 0;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    font-size: 17px;
+  }
+
+  .btype-name {
+    margin-bottom: 2px;
+  }
+
+  .btype-check {
+    top: 50%;
+    transform: translateY(-50%);
+    right: 14px;
+  }
+
+  .reg-row { grid-template-columns: 1fr; }
+
+  .reg-panel { padding: 24px 20px; }
+
+  .reg-steps {
+    padding: 0;
+    gap: 0;
+  }
+
+  .reg-step-item span { display: none; }
+
+  .reg-step-line {
+    flex: 1 1 auto;
+  }
+
+  /* OTP smaller on mobile */
+  .otp-digit {
+    width: 42px;
+    height: 52px;
+    font-size: 22px;
+  }
+
+  .otp-inputs {
+    gap: 6px;
+  }
+
+  /* Telegram banner mobile */
+  .tg-delivery-banner {
+    padding: 14px;
+  }
+
+  .tg-delivery-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  /* Resend / Change row stacks on mobile */
+  .otp-actions {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  /* Buttons full width */
+  .reg-btn-row {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .reg-btn-back {
+    flex: 1;
+    width: 100%;
+  }
+
+  .reg-btn-submit,
+  .reg-btn-primary {
+    width: 100%;
+  }
+
+  /* Phone code select wider */
+  .reg-fields select.form-control {
+    font-size: 13px;
+  }
+
+  /* Password toggle button mobile — kichikroq */
+  .password-toggle-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .password-input-wrap .password-input {
+    padding-right: 40px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .otp-digit {
+    width: 36px;
+    height: 46px;
+    font-size: 18px;
+  }
+
+  .otp-inputs {
+    gap: 4px;
+  }
+
+  .reg-title {
+    font-size: 20px;
+  }
+
+  .reg-panel {
+    padding: 20px 16px;
+  }
+
+  /* Password toggle button — eng kichik ekranda */
+  .password-toggle-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   🌙 Reduced Motion
+═══════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .reg-page *,
+  .reg-page *::before,
+  .reg-page *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
