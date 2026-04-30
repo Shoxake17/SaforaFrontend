@@ -1,6 +1,7 @@
+// src/components/Navbar.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import logoImg from '../../assets/logo.png';
+import logoImg from '../assets/logo.png';
 import './Navbar.css';
 
 const Navbar = () => {

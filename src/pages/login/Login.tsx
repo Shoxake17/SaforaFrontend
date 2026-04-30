@@ -1,16 +1,20 @@
+// src/pages/login/Login.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logoImg from '../../assets/logo.png';
 import './Login.css';
+import { loginPortal } from '../../services/auth';
 
-const Login = () => {
+const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [hotelName, setHotelName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  // ═══════════════════════════════════════════════════
+  // SUBMIT — Portal login + redirect
+  // ═══════════════════════════════════════════════════
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -20,33 +24,39 @@ const Login = () => {
     }
 
     setLoading(true);
-    try {
-      // Replace with your actual API endpoint
-      const response = await fetch('/login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          hotel_name: hotelName,
-          portal_password: password,
-        }),
-      });
 
-      const data = await response.json();
-      if (data.ok || response.ok) {
-        window.location.href = data.redirect || '/dashboard/';
+    const result = await loginPortal(hotelName.trim(), password);
+
+    if (result.success) {
+      // ✅ Backend response'dagi redirect URL'ga yo'naltirish
+      // Backend: redirect: "/dashboard/grand-palace-hotel"
+      // Yoki: hotel.slug bo'yicha o'zimiz yaratamiz
+      let portalUrl: string;
+
+      if (result.redirect) {
+        portalUrl = result.redirect;
+      } else if (result.user?.hotel_id) {
+        // Hotel slug ni yaratamiz hotel name'dan
+        const slug = hotelName
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-');
+        portalUrl = `/portal/${slug}`;
       } else {
-        setError(data.error || 'Invalid credentials. Please try again.');
+        portalUrl = '/dashboard';
       }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
+
+      window.location.href = portalUrl;
+    } else {
+      setError(result.error || 'Invalid credentials. Please try again.');
       setLoading(false);
     }
   };
 
   return (
     <div className="portal-root">
-
       {/* ════════ LEFT — Brand Panel ════════ */}
       <div className="p-left">
         <div className="p-grid"></div>
@@ -57,11 +67,12 @@ const Login = () => {
         <div className="p-3d-3"></div>
 
         <div className="p-left-inner">
-
           {/* Logo */}
           <div className="p-logo-row">
             <div className="p-logo-mark">
-              <div className="p-logo-fallback">S</div>
+              <div className="nav-logo-icon">
+                <img src="/logo.png" alt="Safora" className="navbar-logo" />
+              </div>
             </div>
             <span className="p-logo-text">SAFORA</span>
           </div>
@@ -125,13 +136,11 @@ const Login = () => {
               <strong>100+ hotels</strong> across Central Asia
             </div>
           </div>
-
         </div>
       </div>
 
       {/* ════════ RIGHT — Login Form ════════ */}
       <div className="p-right">
-
         <div className="p-form-card">
           <span className="pnc pnc-tl"></span>
           <span className="pnc pnc-tr"></span>
@@ -155,7 +164,6 @@ const Login = () => {
           <div className="pf-div">Enter Credentials</div>
 
           <form onSubmit={handleSubmit} autoComplete="off">
-
             <div className="pf-field">
               <label className="pf-label">Hotel Name</label>
               <div className="pf-input-wrap">
@@ -169,6 +177,7 @@ const Login = () => {
                   onChange={(e) => setHotelName(e.target.value)}
                   autoFocus
                   required
+                  autoComplete="organization"
                 />
               </div>
             </div>
@@ -185,6 +194,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -219,7 +229,6 @@ const Login = () => {
           <div className="pf-brand">Safora • Intelligent Hotel Management</div>
         </div>
       </div>
-
     </div>
   );
 };

@@ -1,11 +1,5 @@
-/* ═══════════════════════════════════════════════════════
-   SAFORA REGISTER — Orange/White/Red theme
-   v2.1 — Password Eye Toggle qo'shilgan
-═══════════════════════════════════════════════════════ */
+/* src/pages/register/Register.css */
 
-/* ─────────────────────────────────────────────
-   📦 Page Container
-───────────────────────────────────────────── */
 .reg-page {
   min-height: 100vh;
   display: flex;

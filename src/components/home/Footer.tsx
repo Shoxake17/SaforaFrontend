@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="footer-brand">
             <div className="footer-logo">
-              <div className="footer-logo-mark">S</div>
+              <img src="/logo.png" alt="Safora" className="reg-logo" />
               <span className="footer-logo-text">SAFORA</span>
             </div>
             <p className="footer-tagline">
