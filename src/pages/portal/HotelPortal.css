@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    HotelPortal.css — Hotel Portal sahifasi
+   (Lucide ikonalar bilan moslashgan)
 ═══════════════════════════════════════════════════════ */
 
 :root {
@@ -51,6 +52,15 @@
   margin: 0;
 }
 
+/* ─── Loading spinner (Lucide Loader2) ─── */
+.hp-spin {
+  animation: hp-spin-rotate 1s linear infinite;
+}
+@keyframes hp-spin-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .hp-btn-back {
   margin-top: 16px;
   padding: 12px 24px;
@@ -61,6 +71,9 @@
   font-weight: 700;
   font-size: 14px;
   transition: all 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .hp-btn-back:hover {
@@ -173,7 +186,7 @@
 
 @keyframes fb3d {
   0%, 100% { transform: perspective(600px) rotateX(20deg) rotateY(-15deg) rotateZ(10deg) translateY(0); }
-  50% { transform: perspective(600px) rotateX(12deg) rotateY(-22deg) rotateZ(6deg) translateY(-18px); }
+  50%      { transform: perspective(600px) rotateX(12deg) rotateY(-22deg) rotateZ(6deg) translateY(-18px); }
 }
 
 /* Carousel */
@@ -265,7 +278,7 @@
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+  50%      { opacity: 0.35; }
 }
 
 .carousel-nav {
@@ -286,17 +299,21 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  padding: 0;
 }
 
 .carousel-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+.carousel-btn:active {
+  transform: scale(0.95);
 }
 
 .carousel-dots {
@@ -313,6 +330,7 @@
   cursor: pointer;
   background: rgba(255, 255, 255, 0.25);
   transition: all 0.3s;
+  padding: 0;
 }
 
 .carousel-dot.active {
@@ -327,7 +345,7 @@
   top: 20px;
   left: 20px;
   z-index: 5;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 7px 16px;
@@ -335,7 +353,7 @@
   background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
@@ -345,7 +363,7 @@
 .carousel-back:hover {
   color: #fff;
   background: rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 /* ─── RIGHT — Cards ─── */
@@ -403,7 +421,7 @@
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .p-emblem {
@@ -475,7 +493,7 @@
   padding: 18px 30px 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 10px;
   font-weight: 700;
   color: #9ca3af;
@@ -489,6 +507,7 @@
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, rgba(249, 115, 22, 0.12), transparent);
+  margin-left: 6px;
 }
 
 /* Cards */
@@ -572,6 +591,7 @@
   gap: 12px;
 }
 
+/* ─── Card icon (Lucide SVG) ─── */
 .s-icon {
   width: 44px;
   height: 44px;
@@ -579,10 +599,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.05rem;
   flex-shrink: 0;
   transition: all 0.3s;
   position: relative;
+  color: #fff;
+}
+.s-icon svg {
+  position: relative;
+  z-index: 1;
 }
 
 .s-card:hover .s-icon {
@@ -645,15 +669,16 @@
   transition: gap 0.2s;
 }
 
+/* ─── Card arrow (Lucide SVG) ─── */
 .s-arrow {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  display: flex;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
   transition: all 0.25s;
+  flex-shrink: 0;
 }
 
 .s-card:hover .s-signin {
@@ -661,41 +686,41 @@
 }
 
 .s-card:hover .s-arrow {
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
 
-/* Color themes */
+/* ─── Color themes ─── */
 .t-orange .s-stripe { background: linear-gradient(90deg, #f97316, #fb923c); }
-.t-orange .s-icon { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
-.t-orange .s-label { color: var(--orange); }
+.t-orange .s-icon   { background: linear-gradient(135deg, #f97316, #ea580c); box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
+.t-orange .s-label  { color: var(--orange); }
 .t-orange .s-signin { color: #f97316; }
-.t-orange .s-arrow { background: rgba(249, 115, 22, 0.08); color: #f97316; }
-.t-orange .s-glow { background: radial-gradient(circle, rgba(249, 115, 22, 0.04), transparent 60%); }
-.t-orange:hover { border-color: rgba(249, 115, 22, 0.2); }
+.t-orange .s-arrow  { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+.t-orange .s-glow   { background: radial-gradient(circle, rgba(249, 115, 22, 0.04), transparent 60%); }
+.t-orange:hover     { border-color: rgba(249, 115, 22, 0.2); }
 
 .t-red .s-stripe { background: linear-gradient(90deg, #dc2626, #ef4444); }
-.t-red .s-icon { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.18); }
-.t-red .s-label { color: #dc2626; }
+.t-red .s-icon   { background: linear-gradient(135deg, #dc2626, #b91c1c); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.18); }
+.t-red .s-label  { color: #dc2626; }
 .t-red .s-signin { color: #dc2626; }
-.t-red .s-arrow { background: rgba(220, 38, 38, 0.06); color: #dc2626; }
-.t-red .s-glow { background: radial-gradient(circle, rgba(220, 38, 38, 0.03), transparent 60%); }
-.t-red:hover { border-color: rgba(220, 38, 38, 0.18); }
+.t-red .s-arrow  { background: rgba(220, 38, 38, 0.1); color: #dc2626; }
+.t-red .s-glow   { background: radial-gradient(circle, rgba(220, 38, 38, 0.03), transparent 60%); }
+.t-red:hover     { border-color: rgba(220, 38, 38, 0.18); }
 
 .t-warm .s-stripe { background: linear-gradient(90deg, #ea580c, #f97316); }
-.t-warm .s-icon { background: linear-gradient(135deg, #ea580c, #c2410c); color: #fff; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.18); }
-.t-warm .s-label { color: #ea580c; }
+.t-warm .s-icon   { background: linear-gradient(135deg, #ea580c, #c2410c); box-shadow: 0 4px 12px rgba(234, 88, 12, 0.18); }
+.t-warm .s-label  { color: #ea580c; }
 .t-warm .s-signin { color: #ea580c; }
-.t-warm .s-arrow { background: rgba(234, 88, 12, 0.06); color: #ea580c; }
-.t-warm .s-glow { background: radial-gradient(circle, rgba(234, 88, 12, 0.03), transparent 60%); }
-.t-warm:hover { border-color: rgba(234, 88, 12, 0.18); }
+.t-warm .s-arrow  { background: rgba(234, 88, 12, 0.1); color: #ea580c; }
+.t-warm .s-glow   { background: radial-gradient(circle, rgba(234, 88, 12, 0.03), transparent 60%); }
+.t-warm:hover     { border-color: rgba(234, 88, 12, 0.18); }
 
 .t-rose .s-stripe { background: linear-gradient(90deg, #ef4444, #f97316); }
-.t-rose .s-icon { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18); }
-.t-rose .s-label { color: #ef4444; }
+.t-rose .s-icon   { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18); }
+.t-rose .s-label  { color: #ef4444; }
 .t-rose .s-signin { color: #ef4444; }
-.t-rose .s-arrow { background: rgba(239, 68, 68, 0.06); color: #ef4444; }
-.t-rose .s-glow { background: radial-gradient(circle, rgba(239, 68, 68, 0.03), transparent 60%); }
-.t-rose:hover { border-color: rgba(239, 68, 68, 0.18); }
+.t-rose .s-arrow  { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.t-rose .s-glow   { background: radial-gradient(circle, rgba(239, 68, 68, 0.03), transparent 60%); }
+.t-rose:hover     { border-color: rgba(239, 68, 68, 0.18); }
 
 /* Footer */
 .p-footer {

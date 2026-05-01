@@ -1,29 +1,36 @@
 // vite.config.ts
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'path'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-// https://vite.dev/config/
+// ✅ ESM-friendly __dirname
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 export default defineConfig(({ mode }) => {
-  // .env fayllardan o'zgaruvchilarni yuklash
   const env = loadEnv(mode, process.cwd(), '')
   const API_URL = env.VITE_API_URL || 'http://localhost:5000'
 
   return {
     plugins: [react()],
 
-    // Path aliases — toza importlar uchun
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
         '@components': path.resolve(__dirname, './src/components'),
         '@pages': path.resolve(__dirname, './src/pages'),
-        '@assets': path.resolve(__dirname, './src/assets'),
+        '@hooks': path.resolve(__dirname, './src/hooks'),
+        '@services': path.resolve(__dirname, './src/services'),
         '@utils': path.resolve(__dirname, './src/utils'),
+        '@apptypes': path.resolve(__dirname, './src/types'),
+        '@config': path.resolve(__dirname, './src/config'),
+        '@contexts': path.resolve(__dirname, './src/contexts'),
+        '@assets': path.resolve(__dirname, './src/assets'),
       },
     },
 
-    // Dev server sozlamalari
     server: {
       port: 5173,
       strictPort: false,
@@ -31,53 +38,37 @@ export default defineConfig(({ mode }) => {
       host: true,
       cors: true,
 
-      // ═══════════════════════════════════════════════
-      // Backend proxy — MUHIM bypass logikasi
-      // ═══════════════════════════════════════════════
       proxy: {
-        // ─── /auth/* — backend'ga, faqat google success bypass ───
         '/auth': {
           target: API_URL,
           changeOrigin: true,
           secure: false,
           bypass: (req) => {
-            // /auth/google/success — frontend route
             if (req.url?.startsWith('/auth/google/success')) {
               return req.url
             }
           },
         },
-
-        // ─── /portal — frontend route'lar va API ajratish ───
         '/portal': {
           target: API_URL,
           changeOrigin: true,
           secure: false,
           bypass: (req) => {
-            // ✅ Faqat ACCEPT: text/html bo'lsa frontend (brauzer to'g'ridan-to'g'ri kirgan)
-            // Bu /portal/{slug} ko'rinishidagi URL'lar uchun
             if (req.headers.accept?.includes('text/html')) {
-              return req.url // Vite o'zi handle qiladi (React Router)
+              return req.url
             }
-            // Aks holda backend'ga uzatiladi (API so'rovlari uchun)
           },
         },
-
-        // ─── /api/* — har doim backend ───
         '/api': {
           target: API_URL,
           changeOrigin: true,
           secure: false,
         },
-
-        // ─── /uploads/* — har doim backend (fayllar) ───
         '/uploads': {
           target: API_URL,
           changeOrigin: true,
           secure: false,
         },
-
-        // ─── /telegram/* — har doim backend ───
         '/telegram': {
           target: API_URL,
           changeOrigin: true,
@@ -86,26 +77,36 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // Preview server
     preview: {
       port: 4173,
       host: true,
     },
 
-    // Production build sozlamalari
     build: {
       outDir: 'dist',
       sourcemap: false,
-      minify: 'esbuild',
+      minify: 'oxc',
       target: 'esnext',
       cssCodeSplit: true,
       assetsInlineLimit: 4096,
+      cssMinify: 'esbuild',
 
       rollupOptions: {
         output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          manualChunks: (id: string) => {
+            if (
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react-router-dom/') ||
+              id.includes('node_modules/react-router/')
+            ) {
+              return 'react-vendor'
+            }
+            if (id.includes('node_modules')) {
+              return 'vendor'
+            }
           },
+
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
@@ -113,12 +114,10 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // CSS sozlamalari
     css: {
       devSourcemap: true,
     },
 
-    // Optimizatsiya
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
     },

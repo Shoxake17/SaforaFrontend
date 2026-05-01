@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { registerBusiness } from '../services/auth';
+import { generateSlug } from '../utils/slug';   // ✅ YANGI — markaziy slug utility
 import type {
   GoogleUser,
   HotelData,
@@ -33,18 +34,8 @@ const DEFAULT_MANAGER_DATA: ManagerData = {
   password2: '',
 };
 
-// ═══════════════════════════════════════════════════════
-// Helper — Hotel name'dan slug yaratish (backup)
-// ═══════════════════════════════════════════════════════
-const generateSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-};
+// ❌ generateSlug funksiyasi BU YERDAN OLIB TASHLANDI
+// ✅ Endi src/utils/slug.ts da
 
 // ═══════════════════════════════════════════════════════
 // HOOK
@@ -129,9 +120,6 @@ const useRegisterForm = () => {
     if (!managerData.last_name.trim()) return 'Last name kiritilishi shart';
     if (!managerData.username.trim()) return 'Username kiritilishi shart';
 
-    // ═══════════════════════════════════════════════════
-    // PAROL VALIDATSIYASI
-    // ═══════════════════════════════════════════════════
     if (!googleUser) {
       // Email user — parol MAJBURIY
       if (!managerData.password1) return 'Password kiritilishi shart';
@@ -141,7 +129,6 @@ const useRegisterForm = () => {
         return 'Manager parollar mos kelmayapti';
     } else {
       // Google user — parol IXTIYORIY
-      // Lekin agar kiritilgan bo'lsa, tekshiramiz
       if (managerData.password1) {
         if (managerData.password1.length < 6)
           return "Password kamida 6 belgi bo'lishi kerak";
@@ -154,7 +141,7 @@ const useRegisterForm = () => {
   };
 
   // ═══════════════════════════════════════════════════════
-  // SUBMIT — Register + Hotel Portal'ga yo'naltirish
+  // SUBMIT
   // ═══════════════════════════════════════════════════════
   const handleSubmit = async (e: React.FormEvent, photoFiles: File[]) => {
     e.preventDefault();
@@ -211,6 +198,7 @@ const useRegisterForm = () => {
       } else if (result.hotel?.slug) {
         portalUrl = `/portal/${result.hotel.slug}`;
       } else {
+        // ✅ Markaziy slug utility'dan ishlatamiz
         const fallbackSlug = generateSlug(hotelData.name);
         portalUrl = `/portal/${fallbackSlug}`;
       }

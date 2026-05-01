@@ -1,74 +1,100 @@
 // src/components/Navbar.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import logoImg from '../assets/logo.png';
 import './Navbar.css';
 
-const Navbar = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('EN');
-  const langRef = useRef(null);
+// ═══════════════════════════════════════════════════════
+// 🌍 TypeScript types
+// ═══════════════════════════════════════════════════════
+interface Language {
+  code: string;
+  label: string;
+  flag: string;
+  name: string;
+}
 
-  // Scroll effect
+// ═══════════════════════════════════════════════════════
+// 🌍 Languages list — markaziy joy
+// ═══════════════════════════════════════════════════════
+const LANGUAGES: Language[] = [
+  { code: 'en', label: 'EN', flag: '🇺🇸', name: 'English' },
+  { code: 'ru', label: 'RU', flag: '🇷🇺', name: 'Русский' },
+  { code: 'uz', label: 'UZ', flag: '🇺🇿', name: 'Oʻzbekcha' },
+  { code: 'tr', label: 'TR', flag: '🇹🇷', name: 'Türkçe' },
+  { code: 'ar', label: 'SA', flag: '🇸🇦', name: 'العربية' },
+  { code: 'zh', label: 'CN', flag: '🇨🇳', name: '中文' },
+  { code: 'es', label: 'ES', flag: '🇪🇸', name: 'Español' },
+  { code: 'fr', label: 'FR', flag: '🇫🇷', name: 'Français' },
+  { code: 'de', label: 'DE', flag: '🇩🇪', name: 'Deutsch' },
+  { code: 'ja', label: 'JA', flag: '🇯🇵', name: '日本語' },
+];
+
+// ═══════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════
+const Navbar: React.FC = () => {
+  const [scrolled, setScrolled] = useState<boolean>(false);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const [langOpen, setLangOpen] = useState<boolean>(false);
+  const [currentLang, setCurrentLang] = useState<string>('EN');
+
+  // ✅ Ref type aniq belgilangan
+  const langRef = useRef<HTMLDivElement | null>(null);
+
+  // ── Scroll effect ──────────────────────────────────────
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = (): void => setScrolled(window.scrollY > 50);
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when drawer open
+  // ── Lock body scroll when drawer open ─────────────────
   useEffect(() => {
     if (drawerOpen) {
       document.body.classList.add('drawer-open');
     } else {
       document.body.classList.remove('drawer-open');
     }
+
     return () => document.body.classList.remove('drawer-open');
   }, [drawerOpen]);
 
-  // Close lang menu on outside click
+  // ── Close lang menu on outside click ──────────────────
   useEffect(() => {
-    const handleClick = (e) => {
-      if (langRef.current && !langRef.current.contains(e.target)) {
+    const handleClick = (e: MouseEvent): void => {
+      if (
+        langRef.current &&
+        !langRef.current.contains(e.target as Node)
+      ) {
         setLangOpen(false);
       }
     };
+
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
   }, []);
 
-  // ESC closes drawer + lang
+  // ── ESC closes drawer + lang ──────────────────────────
   useEffect(() => {
-    const onEsc = (e) => {
+    const onEsc = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         setDrawerOpen(false);
         setLangOpen(false);
       }
     };
+
     document.addEventListener('keydown', onEsc);
     return () => document.removeEventListener('keydown', onEsc);
   }, []);
 
-  const languages = [
-    { code: 'en', label: 'EN', flag: '🇺🇸', name: 'English' },
-    { code: 'ru', label: 'RU', flag: '🇷🇺', name: 'Русский' },
-    { code: 'uz', label: 'UZ', flag: '🇺🇿', name: 'Oʻzbekcha' },
-    { code: 'tr', label: 'TR', flag: '🇹🇷', name: 'Türkçe' },
-    { code: 'ar', label: 'SA', flag: '🇸🇦', name: 'العربية' },
-    { code: 'zh', label: 'CN', flag: '🇨🇳', name: '中文' },
-    { code: 'es', label: 'ES', flag: '🇪🇸', name: 'Español' },
-    { code: 'fr', label: 'FR', flag: '🇫🇷', name: 'Français' },
-    { code: 'de', label: 'DE', flag: '🇩🇪', name: 'Deutsch' },
-    { code: 'ja', label: 'JA', flag: '🇯🇵', name: '日本語' },
-  ];
-
-  const handleLangSelect = (lang) => {
+  // ── Language tanlash ──────────────────────────────────
+  const handleLangSelect = (lang: Language): void => {
     setCurrentLang(lang.label);
     setLangOpen(false);
-    // You can integrate i18n logic here
+    // TODO: i18n integration
   };
 
   return (
@@ -87,7 +113,7 @@ const Navbar = () => {
           <div className="nav-center">
             {/* Industries Mega */}
             <div className="np-dd np-dd-mega" data-mega="industries">
-              <button className="np-link" aria-haspopup="true">
+              <button className="np-link" aria-haspopup="true" type="button">
                 <span>Industries</span>
                 <i className="fa-solid fa-chevron-down np-chev"></i>
               </button>
@@ -128,7 +154,7 @@ const Navbar = () => {
 
             {/* Solutions Mega */}
             <div className="np-dd np-dd-mega" data-mega="solutions">
-              <button className="np-link" aria-haspopup="true">
+              <button className="np-link" aria-haspopup="true" type="button">
                 <span>Solutions</span>
                 <i className="fa-solid fa-chevron-down np-chev"></i>
               </button>
@@ -182,7 +208,11 @@ const Navbar = () => {
                   </div>
                   <div className="np-col np-col-ai">
                     <div className="np-col-h ai">AI &amp; AUTOMATION</div>
-                    <a href="#" onClick={(e) => e.preventDefault()} className="np-it disabled">
+                    <a
+                      href="#"
+                      onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.preventDefault()}
+                      className="np-it disabled"
+                    >
                       <i className="fa-solid fa-wand-magic-sparkles"></i>
                       <span><b>AI Concierge <span className="np-tag np-tag-soon">SOON</span></b><em>10 languages</em></span>
                     </a>
@@ -209,7 +239,7 @@ const Navbar = () => {
 
             {/* AI Hotels */}
             <div className="np-dd np-dd-mega np-dd-ai">
-              <button className="np-link np-link-ai" aria-haspopup="true">
+              <button className="np-link np-link-ai" aria-haspopup="true" type="button">
                 <span className="np-ai-icon"><i className="fa-solid fa-rocket"></i></span>
                 AI Hotels
                 <span className="np-ai-badge">VISION 2027</span>
@@ -280,7 +310,7 @@ const Navbar = () => {
 
             {/* Services */}
             <div className="np-dd">
-              <button className="np-link" aria-haspopup="true">
+              <button className="np-link" aria-haspopup="true" type="button">
                 <span>Services</span>
                 <i className="fa-solid fa-chevron-down np-chev"></i>
               </button>
@@ -294,11 +324,19 @@ const Navbar = () => {
                   <i className="fa-solid fa-rocket"></i>
                   <span><b>AI Hotel Setup</b><em>1-month deployment</em></span>
                 </a>
-                <a href="#" onClick={(e) => e.preventDefault()} className="np-sm-item">
+                <a
+                  href="#"
+                  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.preventDefault()}
+                  className="np-sm-item"
+                >
                   <i className="fa-solid fa-graduation-cap"></i>
                   <span><b>Custom AI Training</b><em>Tailored to your brand</em></span>
                 </a>
-                <a href="#" onClick={(e) => e.preventDefault()} className="np-sm-item">
+                <a
+                  href="#"
+                  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.preventDefault()}
+                  className="np-sm-item"
+                >
                   <i className="fa-solid fa-arrow-right-arrow-left"></i>
                   <span><b>Migration from Other PMS</b><em>Free data import</em></span>
                 </a>
@@ -323,7 +361,7 @@ const Navbar = () => {
             <div className="np-lang" ref={langRef}>
               <button
                 className="np-lang-btn"
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                   e.stopPropagation();
                   setLangOpen(!langOpen);
                 }}
@@ -334,11 +372,11 @@ const Navbar = () => {
                 <span>{currentLang}</span>
               </button>
               <div className={`np-lang-menu ${langOpen ? 'open' : ''}`}>
-                {languages.map((lang) => (
+                {LANGUAGES.map((lang) => (
                   <a
                     key={lang.code}
                     href="#"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                       e.preventDefault();
                       handleLangSelect(lang);
                     }}
@@ -353,6 +391,7 @@ const Navbar = () => {
               className="np-burger"
               onClick={() => setDrawerOpen(!drawerOpen)}
               aria-label="Open menu"
+              type="button"
             >
               <span></span><span></span><span></span>
             </button>
@@ -360,11 +399,13 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer backdrop */}
       <div
         className="np-drawer-backdrop"
         onClick={() => setDrawerOpen(false)}
       ></div>
+
+      {/* Mobile drawer */}
       <aside className="np-drawer" aria-label="Mobile navigation">
         <div className="np-drawer-head">
           <Link to="/" className="np-drawer-logo" onClick={() => setDrawerOpen(false)}>
@@ -377,6 +418,7 @@ const Navbar = () => {
             className="np-drawer-close"
             onClick={() => setDrawerOpen(false)}
             aria-label="Close"
+            type="button"
           >
             <i className="fa-solid fa-xmark"></i>
           </button>
@@ -412,7 +454,12 @@ const Navbar = () => {
             <summary>Services</summary>
             <a href="#turnkey">Hotel-as-a-Service</a>
             <a href="#turnkey">AI Hotel Setup</a>
-            <a href="#" onClick={(e) => e.preventDefault()}>Custom AI Training</a>
+            <a
+              href="#"
+              onClick={(e: React.MouseEvent<HTMLAnchorElement>) => e.preventDefault()}
+            >
+              Custom AI Training
+            </a>
             <a href="mailto:silkroaddreamstour@gmail.com">Consulting</a>
           </details>
           <a
@@ -433,10 +480,11 @@ const Navbar = () => {
           <div className="np-drawer-langs">
             <div className="np-drawer-lang-h">LANGUAGE</div>
             <div className="np-drawer-lang-row">
-              {languages.slice(0, 6).map((lang) => (
+              {LANGUAGES.slice(0, 6).map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => handleLangSelect(lang)}
+                  type="button"
                 >
                   {lang.flag} {lang.label}
                 </button>

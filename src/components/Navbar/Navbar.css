@@ -1,4 +1,8 @@
-/* src/components/Navbar.css*/
+/* src/components/Navbar.css */
+
+/* ═══════════════════════════════════════════════════════
+   NAVBAR — har doim LIGHT mode (theme'ga ta'sir qilmaydi)
+═══════════════════════════════════════════════════════ */
 
 .nav-pro {
   position: sticky;

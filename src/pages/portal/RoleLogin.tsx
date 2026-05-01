@@ -1,134 +1,63 @@
-// src/pages/dashboard/RoleLogin.tsx
+// src/pages/portal/RoleLogin.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import useForceTheme from '@hooks/useForceTheme';
+import {
+  ArrowLeft,
+  Grid3x3,
+  CircleX,
+  User,
+  LogIn,
+  Loader2,
+  ShieldCheck,
+  Hotel as HotelIcon,
+} from 'lucide-react';
 import './RoleLogin.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// ✅ Path alias — toza importlar
+import useAuth from '@hooks/useAuth';
+import { fetchHotelBySlug } from '@services/auth';
+import { getRoleConfig } from '@config/roles';
+import type { RoleKey } from '@config/roles';
+import type { Hotel } from '@apptypes/hotel';
+import PasswordInput from '@components/ui/PasswordInput';
 
-// Rol konfiguratsiyasi — har bir rol uchun ma'lumot
-type RoleKey = 'management' | 'frontdesk' | 'housekeeping' | 'dept-manager';
-
-interface RoleConfig {
-  badge: string;
-  icon: string;
-  title: string;
-  desc: string;
-  features: { icon: string; text: string }[];
-  theme: 'orange' | 'red' | 'warm' | 'rose';
-}
-
-const ROLE_CONFIG: Record<RoleKey, RoleConfig> = {
-  management: {
-    badge: 'MANAGER ACCESS',
-    icon: 'fa-shield-halved',
-    title: 'Management',
-    desc: 'Full hotel management — staff, reservations, analytics & settings.',
-    features: [
-      { icon: 'fa-chart-line', text: 'Real-time analytics & reports' },
-      { icon: 'fa-users-gear', text: 'Staff & department management' },
-      { icon: 'fa-calendar-check', text: 'Reservations & bookings' },
-    ],
-    theme: 'orange',
-  },
-  frontdesk: {
-    badge: 'RECEPTIONIST ACCESS',
-    icon: 'fa-concierge-bell',
-    title: 'Front Desk',
-    desc: 'Check-ins, check-outs, walk-ins & guest billing.',
-    features: [
-      { icon: 'fa-right-to-bracket', text: 'Check-in & check-out' },
-      { icon: 'fa-bed', text: 'Room availability' },
-      { icon: 'fa-receipt', text: 'Guest billing' },
-    ],
-    theme: 'red',
-  },
-  housekeeping: {
-    badge: 'HOUSEKEEPING STAFF',
-    icon: 'fa-broom',
-    title: 'Housekeeping',
-    desc: 'Room assignments, cleaning status & task management.',
-    features: [
-      { icon: 'fa-list-check', text: 'View assigned rooms' },
-      { icon: 'fa-spray-can', text: 'Update cleaning status' },
-      { icon: 'fa-bell', text: 'Maintenance alerts' },
-    ],
-    theme: 'warm',
-  },
-  'dept-manager': {
-    badge: 'QR MANAGER ACCESS',
-    icon: 'fa-qrcode',
-    title: 'QR Manager',
-    desc: 'QR codes, rooms, staff & service management.',
-    features: [
-      { icon: 'fa-list-check', text: 'View your assigned tasks' },
-      { icon: 'fa-bed', text: 'Update room cleaning status' },
-      { icon: 'fa-triangle-exclamation', text: 'Urgent task priority alerts' },
-    ],
-    theme: 'rose',
-  },
-};
-
-// ═══════════════════════════════════════════════════════
-// Hotel interfeysi
-// ═══════════════════════════════════════════════════════
-interface Hotel {
-  id: string;
-  name: string;
-  slug: string;
-  country: string;
-  service_type: 'full' | 'qr_only';
-}
-
-// ═══════════════════════════════════════════════════════
-// MAIN COMPONENT
-// ═══════════════════════════════════════════════════════
 const RoleLogin: React.FC = () => {
+  useForceTheme('light');
   const { slug, role } = useParams<{ slug: string; role: RoleKey }>();
   const navigate = useNavigate();
+  const { loginUserAuth } = useAuth();
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [hotelLoading, setHotelLoading] = useState(true);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ── Hotel ma'lumotlarini olish ──────────────────────
+  // ─── Hotel fetch ──────────────────────────────────────
   useEffect(() => {
     if (!slug) return;
 
-    const fetchHotel = async () => {
-      try {
-        const response = await fetch(`${API_URL}/portal/${slug}`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const data = await response.json();
-        if (data.success && data.hotel) {
-          setHotel(data.hotel);
-        }
-      } catch {
-        // ignore — sahifa baribir ko'rsatiladi
-      } finally {
-        setHotelLoading(false);
+    const loadHotel = async () => {
+      const result = await fetchHotelBySlug(slug);
+      if (result.success && result.hotel) {
+        setHotel(result.hotel);
       }
+      setHotelLoading(false);
     };
 
-    fetchHotel();
+    loadHotel();
   }, [slug]);
 
-  // ── Rol konfiguratsiyasi ─────────────────────────────
   const roleKey = (role || 'management') as RoleKey;
-  const config = ROLE_CONFIG[roleKey] || ROLE_CONFIG.management;
+  const config = getRoleConfig(role);
 
-  // ── Login submit ──────────────────────────────────────
+  // Role icon — Lucide komponenti
+  const RoleIcon = config.icon;
+
+  // ─── Submit handler ───────────────────────────────────
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
@@ -139,102 +68,79 @@ const RoleLogin: React.FC = () => {
     }
 
     setLoading(true);
+    const result = await loginUserAuth(username, password);
 
-    try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          username: username.trim(),
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.token) {
-        // Token saqlash
-        localStorage.setItem('safora_token', data.token);
-
-        // Dashboard'ga yo'naltirish (rolga qarab)
-        navigate(`/portal/${slug}/${roleKey}/dashboard`, { replace: true });
-      } else {
-        setError(data.error || 'Invalid username or password.');
-      }
-    } catch {
-      setError('Network error. Please try again.');
-    } finally {
+    if (result.success) {
+      navigate(`/portal/${slug}/${roleKey}/dashboard`, { replace: true });
+    } else {
+      setError(result.error || 'Invalid username or password.');
       setLoading(false);
     }
   };
 
   return (
     <div className={`rl-root rl-theme-${config.theme}`}>
-      {/* ════════ LEFT — Brand & Info ════════ */}
+      {/* ═══ LEFT: brand & info ═══ */}
       <div className="rl-left">
-        <div className="rl-bg-orb rl-bg-orb-1"></div>
-        <div className="rl-bg-orb rl-bg-orb-2"></div>
-        <div className="rl-bg-dot"></div>
+        <div className="rl-bg-orb rl-bg-orb-1" />
+        <div className="rl-bg-orb rl-bg-orb-2" />
+        <div className="rl-bg-dot" />
 
-        {/* Back button */}
         <Link to={`/portal/${slug}`} className="rl-back">
-          <i className="fa-solid fa-arrow-left"></i>{' '}
-          {hotelLoading ? 'Back' : hotel?.name || 'Back'}
+          <ArrowLeft size={13} strokeWidth={2.4} />
+          <span>{hotelLoading ? 'Back' : hotel?.name || 'Back'}</span>
         </Link>
 
         <div className="rl-left-inner">
-          {/* Big Icon */}
           <div className="rl-big-icon">
-            <i className={`fa-solid ${config.icon}`}></i>
+            <RoleIcon size={40} strokeWidth={2} />
           </div>
 
-          {/* Title */}
-          <h1 className="rl-big-title">{config.title}</h1>
-          <p className="rl-big-desc">{config.desc}</p>
+          <h1 className="rl-big-title">{config.loginTitle}</h1>
+          <p className="rl-big-desc">{config.loginDesc}</p>
 
-          {/* Features list */}
           <div className="rl-features">
-            {config.features.map((f, i) => (
-              <div key={i} className="rl-feature">
-                <i className={`fa-solid ${f.icon}`}></i>
-                <span>{f.text}</span>
-              </div>
-            ))}
+            {config.loginFeatures.map((f, i) => {
+              const FeatureIcon = f.icon;
+              return (
+                <div key={i} className="rl-feature">
+                  <span className="rl-feature-icon">
+                    <FeatureIcon size={14} strokeWidth={2.2} />
+                  </span>
+                  <span>{f.text}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Hotel name footer */}
         {hotel && (
           <div className="rl-hotel-foot">
-            <i className="fa-solid fa-hotel"></i> {hotel.name}
-            {hotel.country && ` — ${hotel.country}`}
+            <HotelIcon size={13} strokeWidth={2.2} />
+            <span>
+              {hotel.name}
+              {hotel.country && ` — ${hotel.country}`}
+            </span>
           </div>
         )}
       </div>
 
-      {/* ════════ RIGHT — Login Form ════════ */}
+      {/* ═══ RIGHT: login form ═══ */}
       <div className="rl-right">
         <div className="rl-form">
-          {/* Badge */}
           <div className="rl-badge">
-            <i className="fa-solid fa-grip"></i>
-            {config.badge}
+            <Grid3x3 size={11} strokeWidth={2.4} />
+            <span>{config.badge}</span>
           </div>
 
-          {/* Title */}
           <h2 className="rl-form-title">Sign In</h2>
           <p className="rl-form-sub">
-            Enter your credentials to access {config.title}.
+            Enter your credentials to access {config.loginTitle}.
           </p>
 
-          {/* Error */}
           {error && (
             <div className="rl-error">
-              <i className="fa-solid fa-circle-xmark"></i>
+              <CircleX size={16} strokeWidth={2.2} className="rl-error-icon" />
               <div>
                 <div className="rl-error-title">Invalid username or password.</div>
                 <div className="rl-error-desc">
@@ -245,11 +151,11 @@ const RoleLogin: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} autoComplete="off">
-            {/* Username */}
+            {/* Username field */}
             <div className="rl-field">
               <label className="rl-label">USERNAME</label>
               <div className="rl-input-wrap">
-                <i className="fa-solid fa-user fi"></i>
+                <User size={15} strokeWidth={2.2} className="fi" />
                 <input
                   className="rl-input"
                   type="text"
@@ -263,50 +169,40 @@ const RoleLogin: React.FC = () => {
               </div>
             </div>
 
-            {/* Password */}
+            {/* Password field */}
             <div className="rl-field">
               <label className="rl-label">PASSWORD</label>
-              <div className="rl-input-wrap">
-                <i className="fa-solid fa-lock fi"></i>
-                <input
-                  className="rl-input"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  className="rl-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                </button>
-              </div>
+              <PasswordInput
+                value={password}
+                onChange={setPassword}
+                placeholder="Enter your password"
+                required
+                autoComplete="current-password"
+                variant="role-login"
+              />
             </div>
 
-            {/* Submit */}
+            {/* Submit button */}
             <button type="submit" className="rl-submit" disabled={loading}>
               {loading ? (
                 <>
-                  <i className="fa-solid fa-spinner fa-spin"></i>
-                  Signing in...
+                  <Loader2 size={16} strokeWidth={2.4} className="rl-spin" />
+                  <span>Signing in...</span>
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-right-to-bracket"></i>
-                  Sign In to {config.title}
+                  <LogIn size={16} strokeWidth={2.4} />
+                  <span>Sign In to {config.loginTitle}</span>
                 </>
               )}
             </button>
           </form>
 
-          {/* Footer note */}
           <div className="rl-foot-note">
-            <i className="fa-solid fa-shield-halved"></i>
-            Access is restricted to authorised {config.title} staff only.
+            <ShieldCheck size={13} strokeWidth={2.2} className="rl-foot-icon" />
+            <span>
+              Access is restricted to authorised {config.loginTitle} staff only.
+            </span>
           </div>
         </div>
       </div>

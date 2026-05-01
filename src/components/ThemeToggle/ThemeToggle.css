@@ -1,0 +1,54 @@
+/* src/components/ThemeToggle/ThemeToggle.css */
+
+.tt-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* Variants */
+.tt-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+.tt-square {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+/* ═══ Dark mode (Sun ko'rinadi) ═══ */
+.tt-toggle.tt-dark {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+.tt-toggle.tt-dark:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fcd34d;
+  transform: scale(1.06);
+}
+
+/* ═══ Light mode (Moon ko'rinadi) ═══ */
+.tt-toggle.tt-light {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #6366f1;
+}
+.tt-toggle.tt-light:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #4f46e5;
+  transform: scale(1.06);
+}
+
+.tt-toggle:active {
+  transform: scale(0.95);
+}

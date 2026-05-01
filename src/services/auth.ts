@@ -1,8 +1,9 @@
 // src/services/auth.ts
+import { API_URL } from '../config/api';
 import type { RegisterResponse } from '../types/register';
 import type { User, LoginResponse, MeResponse } from '../types/auth';
+import type { Hotel } from '../types/hotel';
 
-const API_BASE = '';
 const TOKEN_KEY = 'safora_token';
 
 // ═══════════════════════════════════════════════════════
@@ -35,7 +36,7 @@ const authFetch = async (url: string, options: RequestInit = {}): Promise<Respon
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  return fetch(`${API_BASE}${url}`, {
+  return fetch(`${API_URL}${url}`, {
     ...options,
     headers,
     credentials: 'include',
@@ -50,7 +51,6 @@ export const registerBusiness = async (formData: FormData): Promise<RegisterResp
     const response = await authFetch('/auth/register', {
       method: 'POST',
       body: formData,
-      // FormData bilan Content-Type qo'ymaymiz — browser o'zi qo'yadi
     });
 
     const data: RegisterResponse = await response.json();
@@ -70,19 +70,13 @@ export const registerBusiness = async (formData: FormData): Promise<RegisterResp
 
 // ═══════════════════════════════════════════════════════
 // PORTAL LOGIN — Hotel Name + Portal Password
-// Backend response:
-//   {
-//     success: true,
-//     hotel: { slug: "grand-palace-hotel", ... },
-//     redirect: "/dashboard/grand-palace-hotel"
-//   }
+// (Login.tsx sahifasidan ishlatiladi)
 // ═══════════════════════════════════════════════════════
 export const loginPortal = async (
   hotelName: string,
   password: string
 ): Promise<LoginResponse> => {
   try {
-    // Backend route: POST /portal (sizning authController'da)
     const response = await authFetch('/portal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -103,6 +97,42 @@ export const loginPortal = async (
     return {
       success: false,
       error: "Tarmoq xatosi. Qaytadan urinib ko'ring.",
+    };
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// ⭐ YANGI — USER LOGIN (Username/Email + Password)
+// (RoleLogin.tsx sahifasidan ishlatiladi)
+// ═══════════════════════════════════════════════════════
+export const loginUser = async (
+  username: string,
+  password: string
+): Promise<LoginResponse> => {
+  try {
+    const response = await authFetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        username: username.trim(),
+        password,
+      }),
+    });
+
+    const data: LoginResponse = await response.json();
+
+    if (response.ok && data.success && data.token) {
+      tokenService.set(data.token);
+    }
+
+    return data;
+  } catch {
+    return {
+      success: false,
+      error: 'Network error. Please try again.',
     };
   }
 };
@@ -132,5 +162,104 @@ export const getCurrentUser = async (): Promise<User | null> => {
     return data.user || null;
   } catch {
     return null;
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// ⭐ YANGI — getMe with Hotel
+// (Dashboard.tsx sahifasidan ishlatiladi)
+// User + Hotel ma'lumotlarini birga qaytaradi
+// ═══════════════════════════════════════════════════════
+export interface MeWithHotelResponse {
+  success: boolean;
+  user: User | null;
+  hotel: Hotel | null;
+  error?: string;
+}
+
+export const getMeWithHotel = async (): Promise<MeWithHotelResponse> => {
+  try {
+    const response = await authFetch('/auth/me');
+
+    if (!response.ok) {
+      return {
+        success: false,
+        user: null,
+        hotel: null,
+        error: 'Unauthorized',
+      };
+    }
+
+    const data = await response.json();
+
+    return {
+      success: data.success || false,
+      user: data.user || null,
+      hotel: data.hotel || null,
+    };
+  } catch {
+    return {
+      success: false,
+      user: null,
+      hotel: null,
+      error: 'Network error',
+    };
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// ⭐ YANGI — FETCH HOTEL BY SLUG
+// (HotelPortal.tsx, RoleLogin.tsx, Dashboard.tsx dan ishlatiladi)
+// ═══════════════════════════════════════════════════════
+export interface HotelFetchResult {
+  success: boolean;
+  hotel: Hotel | null;
+  error?: string;
+  status?: number;
+}
+
+export const fetchHotelBySlug = async (slug: string): Promise<HotelFetchResult> => {
+  try {
+    const response = await fetch(`${API_URL}/portal/${slug}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.status === 404) {
+      return {
+        success: false,
+        hotel: null,
+        error: 'Hotel topilmadi',
+        status: 404,
+      };
+    }
+
+    const data = await response.json();
+
+    if (data.success && data.hotel) {
+      return {
+        success: true,
+        hotel: data.hotel,
+        status: response.status,
+      };
+    }
+
+    return {
+      success: false,
+      hotel: null,
+      error: data.error || "Hotel ma'lumotlarini yuklashda xato",
+      status: response.status,
+    };
+  } catch (err) {
+    console.error('fetchHotelBySlug error:', err);
+    return {
+      success: false,
+      hotel: null,
+      error: 'Tarmoq xatosi',
+    };
   }
 };

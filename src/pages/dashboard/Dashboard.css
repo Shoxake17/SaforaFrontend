@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   DashboardMenu.css — Universal Dashboard
+   Dashboard.css — Universal Dashboard (Light + Dark)
 ═══════════════════════════════════════════════════════ */
 
 * {
@@ -12,8 +12,8 @@
 .rd-root {
   display: flex;
   min-height: 100vh;
-  background: #0f0f0f;
-  color: #fff;
+  background: var(--bg);
+  color: var(--text);
   font-family: 'Inter', -apple-system, sans-serif;
 }
 
@@ -27,16 +27,24 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: #0f0f0f;
-  color: #6b7280;
+  background: var(--bg);
+  color: var(--text-muted);
+}
+
+.rd-spin {
+  animation: rd-spin-rotate 1s linear infinite;
+}
+@keyframes rd-spin-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /* ═══════════════════════════════════════════════════════
-   SIDEBAR
+   SIDEBAR (legacy — Sidebar component'ida)
 ═══════════════════════════════════════════════════════ */
 .rd-sidebar {
-  background: #0a0a0a;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,7 +67,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border);
 }
 
 .rd-logo-icon {
@@ -85,7 +93,7 @@
   font-family: 'Poppins', sans-serif;
   font-size: 22px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
   letter-spacing: -0.02em;
 }
 
@@ -93,8 +101,8 @@
 .rd-hotel-card {
   margin: 16px 14px 8px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -111,7 +119,7 @@
   color: #fff;
   font-size: 16px;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow);
 }
 
 .rd-hotel-info {
@@ -121,7 +129,7 @@
 .rd-hotel-name {
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -130,7 +138,7 @@
 .rd-hotel-role {
   font-size: 9px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-faint);
   letter-spacing: 0.08em;
   margin-top: 2px;
 }
@@ -140,7 +148,7 @@
   padding: 14px 22px 8px;
   font-size: 9.5px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-faint);
   letter-spacing: 0.14em;
 }
 
@@ -161,7 +169,7 @@
   padding: 12px 14px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--text-muted);
   font-size: 13px;
   font-weight: 600;
   border-radius: 10px;
@@ -173,8 +181,8 @@
 }
 
 .rd-nav-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: #fff;
+  background: var(--card-hover);
+  color: var(--text);
 }
 
 .rd-nav-item.active {
@@ -197,8 +205,8 @@
 .rd-user-card {
   padding: 14px;
   margin: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -227,7 +235,7 @@
 .rd-user-name {
   font-size: 12.5px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -236,7 +244,7 @@
 .rd-user-role {
   font-size: 9px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-faint);
   letter-spacing: 0.08em;
   margin-top: 2px;
   text-transform: uppercase;
@@ -269,14 +277,14 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   min-width: 0;
+  background: var(--bg);
 }
 
-/* Topbar */
+/* Topbar (legacy) */
 .rd-topbar {
-  background: #1a1a1a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
   padding: 14px 24px;
   display: flex;
   align-items: center;
@@ -288,7 +296,7 @@
   height: 38px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
@@ -299,15 +307,15 @@
 }
 
 .rd-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: var(--card-hover);
+  color: var(--text);
 }
 
 .rd-breadcrumb {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
@@ -317,15 +325,15 @@
 }
 
 .rd-breadcrumb:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: var(--card-hover);
+  color: var(--text);
 }
 
 .rd-datetime {
   flex: 1;
   text-align: center;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-dim);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -352,8 +360,8 @@
   width: 38px;
   height: 38px;
   border: none;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.7);
+  background: var(--btn-bg);
+  color: var(--text-muted);
   border-radius: 10px;
   cursor: pointer;
   display: flex;
@@ -364,8 +372,8 @@
 }
 
 .rd-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--card-hover);
+  color: var(--text);
 }
 
 .rd-user-badge {
@@ -373,11 +381,11 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px 6px 6px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
   border-radius: 50px;
   font-size: 12.5px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text);
 }
 
 .rd-user-mini-avatar {
@@ -400,7 +408,7 @@
   flex: 1;
   padding: 28px 30px;
   overflow-y: auto;
-  background: #0f0f0f;
+  background: var(--bg);
 }
 
 /* Title section */
@@ -417,7 +425,7 @@
   font-family: 'Poppins', sans-serif;
   font-size: 24px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
   margin: 0 0 4px;
   letter-spacing: -0.02em;
   display: flex;
@@ -426,7 +434,7 @@
 
 .rd-subtitle {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-dim);
   margin: 0;
 }
 
@@ -454,7 +462,9 @@
   50% { opacity: 0.4; }
 }
 
-/* Stats grid */
+/* ═══════════════════════════════════════════════════════
+   STATS GRID
+═══════════════════════════════════════════════════════ */
 .rd-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -463,8 +473,8 @@
 }
 
 .rd-stat-card {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px 20px;
   text-align: center;
@@ -472,10 +482,10 @@
 }
 
 .rd-stat-card:hover {
-  background: #1f1f1f;
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--card-hover);
+  border-color: var(--border-hover);
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .rd-stat-icon {
@@ -493,7 +503,7 @@
   font-family: 'Poppins', sans-serif;
   font-size: 32px;
   font-weight: 900;
-  color: #fff;
+  color: var(--text);
   line-height: 1;
   margin-bottom: 6px;
 }
@@ -501,15 +511,17 @@
 .rd-stat-label {
   font-size: 10.5px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-dim);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-/* Hotel info card */
+/* ═══════════════════════════════════════════════════════
+   HOTEL INFO CARD
+═══════════════════════════════════════════════════════ */
 .rd-hotel-info-card {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 20px 24px;
   display: flex;
@@ -538,7 +550,7 @@
 .rd-hotel-info-title {
   font-size: 16px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
   margin-bottom: 6px;
   font-family: 'Poppins', sans-serif;
 }
@@ -547,8 +559,14 @@
   display: flex;
   gap: 16px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-dim);
   flex-wrap: wrap;
+}
+
+.rd-hotel-info-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .rd-hotel-info-meta i {
@@ -563,9 +581,9 @@
 
 .rd-quick-btn {
   padding: 8px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--text);
   border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
@@ -578,12 +596,14 @@
 }
 
 .rd-quick-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--card-hover);
+  border-color: var(--border-hover);
   transform: translateY(-1px);
 }
 
-/* Empty section */
+/* ═══════════════════════════════════════════════════════
+   EMPTY SECTION
+═══════════════════════════════════════════════════════ */
 .rd-empty-section {
   margin-top: 8px;
 }
@@ -595,18 +615,18 @@
 }
 
 .rd-empty-card {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
 }
 
 .rd-empty-header {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border);
   font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -615,17 +635,24 @@
 .rd-empty-body {
   padding: 60px 20px;
   text-align: center;
+  color: var(--text-faint);
+}
+
+.rd-empty-body svg {
+  color: var(--text-faint);
+  margin-bottom: 12px;
+  opacity: 0.5;
 }
 
 .rd-empty-body i {
   font-size: 32px;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-faint);
   margin-bottom: 12px;
 }
 
 .rd-empty-body p {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-dim);
   margin: 0;
 }
 

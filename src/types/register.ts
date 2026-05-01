@@ -1,5 +1,16 @@
 // src/types/register.ts
+// ═══════════════════════════════════════════════════════
+// 📝 Register form uchun TypeScript types
+// ═══════════════════════════════════════════════════════
 
+// ✅ BusinessType va ServiceType endi hotel.ts dan keladi
+// Re-export — eski importlar ham ishlaydi
+import type { BusinessType, ServiceType, Hotel } from './hotel';
+export type { BusinessType, ServiceType };
+
+// ═══════════════════════════════════════════════════════
+// Google OAuth user
+// ═══════════════════════════════════════════════════════
 export interface GoogleUser {
   email: string;
   googleId: string;
@@ -8,6 +19,9 @@ export interface GoogleUser {
   photo?: string;
 }
 
+// ═══════════════════════════════════════════════════════
+// Hotel form data — register paytida ishlatiladi
+// ═══════════════════════════════════════════════════════
 export interface HotelData {
   name: string;
   country: string;
@@ -21,6 +35,9 @@ export interface HotelData {
   reception_pc_count: number;
 }
 
+// ═══════════════════════════════════════════════════════
+// Manager form data — register paytida ishlatiladi
+// ═══════════════════════════════════════════════════════
 export interface ManagerData {
   first_name: string;
   last_name: string;
@@ -29,9 +46,9 @@ export interface ManagerData {
   password2: string;
 }
 
-export type ServiceType = 'full' | 'qr_only';
-export type BusinessType = 'hotel' | 'hostel' | 'guest_house';
-
+// ═══════════════════════════════════════════════════════
+// Form state — useRegisterForm hook'da ishlatiladi
+// ═══════════════════════════════════════════════════════
 export interface RegisterFormState {
   currentStep: number;
   email: string;
@@ -46,14 +63,14 @@ export interface RegisterFormState {
 }
 
 // ═══════════════════════════════════════════════════════
-// API response — Backend qaytaradi
+// API response — Backend qaytaradi (Register endpoint'idan)
 // ═══════════════════════════════════════════════════════
 export interface RegisterResponse {
   success: boolean;
   message?: string;
   token?: string;
-  hotel_slug?: string;       // ← Backend qaytaradi: "grand-palace-hotel"
-  redirect?: string;         // ← Backend qaytaradi: "/portal/grand-palace-hotel/"
+  hotel_slug?: string;      
+  redirect?: string;        
   error?: string;
   user?: {
     id: string;
@@ -63,11 +80,5 @@ export interface RegisterResponse {
     last_name: string;
     role: string;
   };
-  hotel?: {
-    id: string;
-    name: string;
-    slug: string;
-    business_type: string;
-    service_type: string;
-  };
+  hotel?: Hotel;           
 }

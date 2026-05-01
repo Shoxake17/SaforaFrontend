@@ -1,19 +1,22 @@
 // src/pages/login/Login.tsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
-import { loginPortal } from '../../services/auth';
+
+// ✅ Path alias — toza importlar
+import useAuth from '@hooks/useAuth';
+import { generateSlug } from '@utils/slug';
+import PasswordInput from '@components/ui/PasswordInput';
 
 const Login: React.FC = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const { loginPortalAuth } = useAuth();
+
   const [hotelName, setHotelName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ═══════════════════════════════════════════════════
-  // SUBMIT — Portal login + redirect
-  // ═══════════════════════════════════════════════════
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
@@ -24,31 +27,21 @@ const Login: React.FC = () => {
     }
 
     setLoading(true);
-
-    const result = await loginPortal(hotelName.trim(), password);
+    const result = await loginPortalAuth(hotelName.trim(), password);
 
     if (result.success) {
-      // ✅ Backend response'dagi redirect URL'ga yo'naltirish
-      // Backend: redirect: "/dashboard/grand-palace-hotel"
-      // Yoki: hotel.slug bo'yicha o'zimiz yaratamiz
       let portalUrl: string;
 
       if (result.redirect) {
         portalUrl = result.redirect;
-      } else if (result.user?.hotel_id) {
-        // Hotel slug ni yaratamiz hotel name'dan
-        const slug = hotelName
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-');
+      } else if (result.slug) {
+        const slug = generateSlug(hotelName);
         portalUrl = `/portal/${slug}`;
       } else {
         portalUrl = '/dashboard';
       }
 
-      window.location.href = portalUrl;
+      navigate(portalUrl, { replace: true });
     } else {
       setError(result.error || 'Invalid credentials. Please try again.');
       setLoading(false);
@@ -57,7 +50,6 @@ const Login: React.FC = () => {
 
   return (
     <div className="portal-root">
-      {/* ════════ LEFT — Brand Panel ════════ */}
       <div className="p-left">
         <div className="p-grid"></div>
         <div className="p-orb p-orb-1"></div>
@@ -67,7 +59,6 @@ const Login: React.FC = () => {
         <div className="p-3d-3"></div>
 
         <div className="p-left-inner">
-          {/* Logo */}
           <div className="p-logo-row">
             <div className="p-logo-mark">
               <div className="nav-logo-icon">
@@ -77,13 +68,11 @@ const Login: React.FC = () => {
             <span className="p-logo-text">SAFORA</span>
           </div>
 
-          {/* Status */}
           <div className="p-status">
             <span className="p-status-dot"></span>
             System Online
           </div>
 
-          {/* Headline */}
           <h1 className="p-headline">
             Your Hotel's<br />
             <span className="p-grad">Command Center</span>
@@ -93,7 +82,6 @@ const Login: React.FC = () => {
             one elegant platform for modern hotels of any size.
           </p>
 
-          {/* Features */}
           <div className="p-feats">
             <div className="p-feat">
               <div className="p-feat-icon">
@@ -124,7 +112,6 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Social proof */}
           <div className="p-proof">
             <div className="p-av-stack">
               <div className="p-av">A</div>
@@ -139,7 +126,6 @@ const Login: React.FC = () => {
         </div>
       </div>
 
-      {/* ════════ RIGHT — Login Form ════════ */}
       <div className="p-right">
         <div className="p-form-card">
           <span className="pnc pnc-tl"></span>
@@ -184,27 +170,15 @@ const Login: React.FC = () => {
 
             <div className="pf-field">
               <label className="pf-label">Portal Password</label>
-              <div className="pf-input-wrap">
-                <i className="fa-solid fa-lock fi"></i>
-                <input
-                  className="pf-input"
-                  type={showPassword ? 'text' : 'password'}
-                  name="portal_password"
-                  placeholder="Enter portal password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  className="pf-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                </button>
-              </div>
+              <PasswordInput
+                value={password}
+                onChange={setPassword}
+                placeholder="Enter portal password"
+                name="portal_password"
+                required
+                autoComplete="current-password"
+                variant="login"
+              />
             </div>
 
             <button type="submit" className="pf-btn" disabled={loading}>

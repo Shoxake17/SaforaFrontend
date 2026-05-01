@@ -1,76 +1,56 @@
 // src/pages/portal/HotelPortal.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import useForceTheme from '@hooks/useForceTheme'
+import {
+  Loader2,
+  CircleAlert,
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Grid3x3,
+  ShieldCheck,
+  ConciergeBell,
+  Sparkles,
+  UsersRound,
+} from 'lucide-react';
 import './HotelPortal.css';
 
-// ═══════════════════════════════════════════════════════
-// API URL — Vite proxy bypass tufayli aniq backend URL ishlatamiz
-// ═══════════════════════════════════════════════════════
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-interface HotelImage {
-  url: string;
-  filename: string;
-}
-
-interface Hotel {
-  id: string;
-  name: string;
-  slug: string;
-  business_type: 'hotel' | 'hostel' | 'guest_house';
-  service_type: 'full' | 'qr_only';
-  images?: HotelImage[];
-}
+// ✅ Path alias — toza importlar
+import { API_URL } from '@config/api';
+import { fetchHotelBySlug } from '@services/auth';
+import type { Hotel } from '@apptypes/hotel';
 
 const HotelPortal: React.FC = () => {
+  useForceTheme('light');
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [carouselIdx, setCarouselIdx] = useState(0);
 
-  // ── Hotel ma'lumotlarini olish ──────────────────────
+  // ─── Hotel fetch ─────────────────────────────────────
   useEffect(() => {
     if (!slug) return;
 
-    const fetchHotel = async () => {
-      try {
-        // ✅ ACCEPT: application/json header bilan — Vite proxy backend'ga uzatadi
-        const response = await fetch(`${API_URL}/portal/${slug}`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
+    const loadHotel = async () => {
+      const result = await fetchHotelBySlug(slug);
 
-        if (response.status === 404) {
-          setError('Hotel topilmadi');
-          setLoading(false);
-          return;
-        }
-
-        const data = await response.json();
-        if (data.success && data.hotel) {
-          setHotel(data.hotel);
-        } else {
-          setError(data.error || "Hotel ma'lumotlarini yuklashda xato");
-        }
-      } catch (err) {
-        console.error('HotelPortal fetch xatosi:', err);
-        setError('Tarmoq xatosi');
-      } finally {
-        setLoading(false);
+      if (result.success && result.hotel) {
+        setHotel(result.hotel);
+      } else {
+        setError(result.error || 'Hotel topilmadi');
       }
+
+      setLoading(false);
     };
 
-    fetchHotel();
+    loadHotel();
   }, [slug]);
 
-  // ── Carousel auto-rotate ────────────────────────────
+  // ─── Carousel auto-rotate ────────────────────────────
   useEffect(() => {
     if (!hotel?.images || hotel.images.length <= 1) return;
 
@@ -81,24 +61,26 @@ const HotelPortal: React.FC = () => {
     return () => clearInterval(timer);
   }, [hotel?.images]);
 
-  // ── Loading ──────────────────────────────────────────
+  // ─── Loading state ───────────────────────────────────
   if (loading) {
     return (
       <div className="hp-loading">
-        <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 36, color: '#f97316' }} />
+        <Loader2 size={36} color="#f97316" className="hp-spin" />
         <p>Loading...</p>
       </div>
     );
   }
 
-  // ── Error / 404 ──────────────────────────────────────
+  // ─── Error state ─────────────────────────────────────
   if (error || !hotel) {
     return (
       <div className="hp-error">
-        <i className="fa-solid fa-circle-exclamation" style={{ fontSize: 48, color: '#dc2626' }} />
+        <CircleAlert size={48} color="#dc2626" />
         <h2>{error || 'Hotel topilmadi'}</h2>
         <p>URL'ni tekshirib ko'ring yoki ro'yxatdan o'ting</p>
-        <Link to="/" className="hp-btn-back">← Bosh sahifaga qaytish</Link>
+        <Link to="/" className="hp-btn-back">
+          <ArrowLeft size={14} strokeWidth={2.2} /> Bosh sahifaga qaytish
+        </Link>
       </div>
     );
   }
@@ -108,7 +90,7 @@ const HotelPortal: React.FC = () => {
 
   return (
     <div className="portal-root">
-      {/* ════════ LEFT — Carousel ════════ */}
+      {/* ═══ LEFT: carousel / brand ═══ */}
       <div className="p-left">
         {hasImages ? (
           <div className="carousel">
@@ -118,22 +100,21 @@ const HotelPortal: React.FC = () => {
             >
               {hotel.images!.map((img, i) => (
                 <div key={i} className="carousel-slide">
-                  {/* ✅ Rasm URL'iga API_URL qo'shamiz */}
                   <img src={`${API_URL}${img.url}`} alt={hotel.name} />
-                  <div className="carousel-overlay"></div>
+                  <div className="carousel-overlay" />
                 </div>
               ))}
             </div>
 
             <Link to="/" className="carousel-back">
-              <i className="fa-solid fa-arrow-left"></i> Back
+              <ArrowLeft size={14} strokeWidth={2.2} /> Back
             </Link>
 
             <div className="carousel-info">
               <div className="carousel-hotel">{hotel.name}</div>
               <div className="carousel-hotel-sub">Hotel Management Portal</div>
               <div className="carousel-badge">
-                <div className="carousel-badge-dot"></div>
+                <div className="carousel-badge-dot" />
                 System Online
               </div>
             </div>
@@ -141,54 +122,66 @@ const HotelPortal: React.FC = () => {
             {hotel.images!.length > 1 && (
               <div className="carousel-nav">
                 <button
+                  type="button"
                   className="carousel-btn"
-                  onClick={() => setCarouselIdx((p) => (p - 1 + hotel.images!.length) % hotel.images!.length)}
+                  onClick={() =>
+                    setCarouselIdx(
+                      (p) =>
+                        (p - 1 + hotel.images!.length) % hotel.images!.length
+                    )
+                  }
+                  aria-label="Previous slide"
                 >
-                  <i className="fa-solid fa-chevron-left"></i>
+                  <ChevronLeft size={18} strokeWidth={2.2} />
                 </button>
                 <div className="carousel-dots">
                   {hotel.images!.map((_, i) => (
                     <button
                       key={i}
+                      type="button"
                       className={`carousel-dot ${i === carouselIdx ? 'active' : ''}`}
                       onClick={() => setCarouselIdx(i)}
+                      aria-label={`Go to slide ${i + 1}`}
                     />
                   ))}
                 </div>
                 <button
+                  type="button"
                   className="carousel-btn"
-                  onClick={() => setCarouselIdx((p) => (p + 1) % hotel.images!.length)}
+                  onClick={() =>
+                    setCarouselIdx((p) => (p + 1) % hotel.images!.length)
+                  }
+                  aria-label="Next slide"
                 >
-                  <i className="fa-solid fa-chevron-right"></i>
+                  <ChevronRight size={18} strokeWidth={2.2} />
                 </button>
               </div>
             )}
           </div>
         ) : (
           <div className="p-left-brand">
-            <div className="brand-dot"></div>
-            <div className="fb3d fb3d-1"></div>
-            <div className="fb3d fb3d-2"></div>
-            <div className="fb3d fb3d-3"></div>
+            <div className="brand-dot" />
+            <div className="fb3d fb3d-1" />
+            <div className="fb3d fb3d-2" />
+            <div className="fb3d fb3d-3" />
             <div className="brand-inner">
               <img src="/logo.png" alt="Safora" className="brand-logo" />
               <div className="brand-name">{hotel.name}</div>
               <div className="brand-sub">Hotel Management Portal</div>
             </div>
             <Link to="/" className="carousel-back" style={{ zIndex: 10 }}>
-              <i className="fa-solid fa-arrow-left"></i> Back
+              <ArrowLeft size={14} strokeWidth={2.2} /> Back
             </Link>
           </div>
         )}
       </div>
 
-      {/* ════════ RIGHT — Cards ════════ */}
+      {/* ═══ RIGHT: section cards ═══ */}
       <div className="p-right">
-        <div className="p-right-dot"></div>
-        <div className="p-right-orb p-right-orb-1"></div>
-        <div className="p-right-orb p-right-orb-2"></div>
+        <div className="p-right-dot" />
+        <div className="p-right-orb p-right-orb-1" />
+        <div className="p-right-orb p-right-orb-2" />
 
-        {/* Header */}
         <div className="p-header">
           <div className="p-emblem">
             <img src="/logo.png" alt="Safora" />
@@ -198,52 +191,63 @@ const HotelPortal: React.FC = () => {
             <div className="p-hotel-sub">Select your section</div>
           </div>
           <div className="p-online">
-            <div className="p-online-dot"></div>
+            <div className="p-online-dot" />
             Online
           </div>
         </div>
 
         <div className="p-section-label">
-          <i className="fa-solid fa-grip" style={{ fontSize: 9, color: 'rgba(249,115,22,.3)' }}></i>
+          <Grid3x3
+            size={11}
+            strokeWidth={2.2}
+            style={{ color: 'rgba(249,115,22,.45)' }}
+          />
           Sections
         </div>
 
-        {/* Cards */}
         <div className="cards-area">
-          {/* Management — Full service uchun */}
+          {/* ─── Management ─── */}
           {!isQrOnly && (
             <button
               type="button"
               onClick={() => navigate(`/portal/${slug}/login/management`)}
               className="s-card t-orange"
             >
-              <div className="s-stripe"></div>
-              <div className="s-glow"></div>
+              <div className="s-stripe" />
+              <div className="s-glow" />
               <div className="s-top">
-                <div className="s-icon"><i className="fa-solid fa-shield-halved"></i></div>
+                <div className="s-icon">
+                  <ShieldCheck size={22} strokeWidth={2.2} />
+                </div>
                 <div className="s-info">
                   <div className="s-label">Manager Access</div>
                   <div className="s-title">Management</div>
                 </div>
               </div>
-              <div className="s-desc">Dashboard, staff, reservations, analytics &amp; settings.</div>
+              <div className="s-desc">
+                Dashboard, staff, reservations, analytics &amp; settings.
+              </div>
               <div className="s-action">
                 <div className="s-signin">Sign in</div>
-                <div className="s-arrow"><i className="fa-solid fa-arrow-right"></i></div>
+                <div className="s-arrow">
+                  <ArrowRight size={14} strokeWidth={2.4} />
+                </div>
               </div>
             </button>
           )}
 
-          {/* Front Desk / Reception */}
+          {/* ─── Front Desk ─── */}
           <button
             type="button"
             onClick={() => navigate(`/portal/${slug}/login/frontdesk`)}
             className="s-card t-red"
           >
-            <div className="s-stripe"></div>
-            <div className="s-glow"></div>
+            <div className="s-stripe" />
+            <div className="s-glow" />
             <div className="s-top">
-              <div className="s-icon"><i className="fa-solid fa-concierge-bell"></i></div>
+              <div className="s-icon">
+                <ConciergeBell size={22} strokeWidth={2.2} />
+              </div>
               <div className="s-info">
                 <div className="s-label">Receptionist Access</div>
                 <div className="s-title">{isQrOnly ? 'Reception' : 'Front Desk'}</div>
@@ -256,47 +260,61 @@ const HotelPortal: React.FC = () => {
             </div>
             <div className="s-action">
               <div className="s-signin">Sign in</div>
-              <div className="s-arrow"><i className="fa-solid fa-arrow-right"></i></div>
+              <div className="s-arrow">
+                <ArrowRight size={14} strokeWidth={2.4} />
+              </div>
             </div>
           </button>
 
-          {/* Housekeeping — Full service uchun */}
+          {/* ─── Housekeeping ─── */}
           {!isQrOnly && (
             <button
               type="button"
               onClick={() => navigate(`/portal/${slug}/login/housekeeping`)}
               className="s-card t-warm"
             >
-              <div className="s-stripe"></div>
-              <div className="s-glow"></div>
+              <div className="s-stripe" />
+              <div className="s-glow" />
               <div className="s-top">
-                <div className="s-icon"><i className="fa-solid fa-broom"></i></div>
+                <div className="s-icon">
+                  <Sparkles size={22} strokeWidth={2.2} />
+                </div>
                 <div className="s-info">
                   <div className="s-label">Housekeeping Staff</div>
                   <div className="s-title">Housekeeping</div>
                 </div>
               </div>
-              <div className="s-desc">Room assignments, cleaning status &amp; task management.</div>
+              <div className="s-desc">
+                Room assignments, cleaning status &amp; task management.
+              </div>
               <div className="s-action">
                 <div className="s-signin">Sign in</div>
-                <div className="s-arrow"><i className="fa-solid fa-arrow-right"></i></div>
+                <div className="s-arrow">
+                  <ArrowRight size={14} strokeWidth={2.4} />
+                </div>
               </div>
             </button>
           )}
 
-          {/* Department Manager / QR Manager */}
+          {/* ─── Dept Manager / QR Manager ─── */}
           <button
             type="button"
             onClick={() => navigate(`/portal/${slug}/login/dept-manager`)}
             className="s-card t-rose"
           >
-            <div className="s-stripe"></div>
-            <div className="s-glow"></div>
+            <div className="s-stripe" />
+            <div className="s-glow" />
             <div className="s-top">
-              <div className="s-icon"><i className="fa-solid fa-users-gear"></i></div>
+              <div className="s-icon">
+                <UsersRound size={22} strokeWidth={2.2} />
+              </div>
               <div className="s-info">
-                <div className="s-label">{isQrOnly ? 'QR Manager' : 'Department Manager'}</div>
-                <div className="s-title">{isQrOnly ? 'QR Manager' : 'Dept Manager'}</div>
+                <div className="s-label">
+                  {isQrOnly ? 'QR Manager' : 'Department Manager'}
+                </div>
+                <div className="s-title">
+                  {isQrOnly ? 'QR Manager' : 'Dept Manager'}
+                </div>
               </div>
             </div>
             <div className="s-desc">
@@ -306,7 +324,9 @@ const HotelPortal: React.FC = () => {
             </div>
             <div className="s-action">
               <div className="s-signin">Sign in</div>
-              <div className="s-arrow"><i className="fa-solid fa-arrow-right"></i></div>
+              <div className="s-arrow">
+                <ArrowRight size={14} strokeWidth={2.4} />
+              </div>
             </div>
           </button>
         </div>

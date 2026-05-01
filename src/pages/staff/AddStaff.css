@@ -1,0 +1,583 @@
+/* src/pages/staff/AddStaff.css */
+
+/* ═══════════════════════════════════════════════════════
+   ROOT LAYOUT
+═══════════════════════════════════════════════════════ */
+.as-root {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.as-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg);
+}
+
+.as-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOADING
+═══════════════════════════════════════════════════════ */
+.as-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg);
+  color: var(--text-muted);
+}
+.as-loading p {
+  font-size: 0.85rem;
+  margin: 0;
+}
+.as-spin {
+  animation: as-spin-rotate 1s linear infinite;
+}
+@keyframes as-spin-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════════════════ */
+.as-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.as-topbar-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.as-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: -0.01em;
+}
+
+.as-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 4px 0 0;
+}
+
+.as-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: inherit;
+  cursor: pointer;
+}
+.as-back-btn:hover {
+  background: var(--card-hover);
+  border-color: var(--border-hover);
+  transform: translateX(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════
+   FORM WRAPPER
+═══════════════════════════════════════════════════════ */
+.as-form-wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Alerts ─── */
+.as-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.as-alert-success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+}
+.as-alert-error {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #f87171;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FORM CARD
+═══════════════════════════════════════════════════════ */
+.as-form {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ─── Form header ─── */
+.as-form-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.as-form-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.as-form-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.as-form-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+/* ─── Photo actions ─── */
+.as-photo-actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.as-btn-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.as-btn-upload:hover { filter: brightness(1.15); }
+
+.as-btn-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #f87171;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.as-btn-remove:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* ─── Section label ─── */
+.as-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-top: 8px;
+  margin-bottom: -4px;
+}
+
+/* ─── Grid ─── */
+.as-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.as-field-full {
+  width: 100%;
+}
+
+/* ─── Field ─── */
+.as-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.as-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ─── Input ─── */
+.as-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.as-input-wrap.has-icon .as-input {
+  padding-left: 38px;
+}
+.as-input-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-faint);
+  pointer-events: none;
+  display: flex;
+}
+
+.as-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s;
+}
+.as-input::placeholder {
+  color: var(--text-faint);
+}
+.as-input:focus {
+  background: var(--input-focus);
+  border-color: var(--border-hover);
+}
+
+/* Date picker — auto theme */
+.as-input[type='date'] {
+  color-scheme: light dark;
+}
+
+/* ─── Role pills ─── */
+.as-role-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.as-role-pill {
+  padding: 9px 20px;
+  background: var(--btn-bg);
+  border: 1.5px solid var(--btn-border);
+  border-radius: 30px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.as-role-pill:hover {
+  background: var(--card-hover);
+  color: var(--text);
+}
+
+/* ─── Password hint ─── */
+.as-password-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  margin-top: -4px;
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ACTIONS — Add Staff (Cancel + Submit, o'ng)
+═══════════════════════════════════════════════════════ */
+.as-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.as-btn-cancel {
+  padding: 11px 22px;
+  background: transparent;
+  border: 1px solid var(--border-hover);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.as-btn-cancel:hover {
+  background: var(--card-hover);
+  color: var(--text);
+}
+.as-btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 26px;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: var(--shadow);
+  font-family: inherit;
+}
+.as-btn-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.as-btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════
+   EDIT STAFF — qo'shimcha stillar
+═══════════════════════════════════════════════════════ */
+.es-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.es-actions-right {
+  display: flex;
+  gap: 10px;
+}
+
+/* Delete tugma */
+.es-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 10px;
+  color: #f87171;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.es-btn-delete:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.18);
+  border-color: rgba(220, 38, 38, 0.5);
+  transform: translateY(-1px);
+}
+.es-btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Delete confirmation modal ─── */
+.es-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: es-fade-in 0.2s ease;
+}
+@keyframes es-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.es-modal {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  animation: es-modal-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--shadow-lg);
+}
+@keyframes es-modal-pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.es-modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.es-modal-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+.es-modal-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.es-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.es-btn-delete-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.es-btn-delete-confirm:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.es-btn-delete-confirm:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .as-content { padding: 16px 18px; }
+  .as-form { padding: 22px 20px; }
+  .as-grid { grid-template-columns: 1fr; }
+
+  .as-actions { flex-direction: column-reverse; }
+  .as-btn-cancel,
+  .as-btn-submit {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .as-topbar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .as-back-btn {
+    align-self: flex-start;
+  }
+
+  .es-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .es-actions-right {
+    flex-direction: column-reverse;
+  }
+  .es-btn-delete,
+  .es-actions-right .as-btn-cancel,
+  .es-actions-right .as-btn-submit {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .as-form { padding: 18px 16px; }
+  .as-form-avatar {
+    width: 48px;
+    height: 48px;
+  }
+  .as-form-title {
+    font-size: 1rem;
+  }
+}
