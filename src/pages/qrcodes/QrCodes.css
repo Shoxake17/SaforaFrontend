@@ -1,0 +1,325 @@
+/* src/pages/qrcodes/QrCodes.css */
+
+.qr-root {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.qr-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg);
+}
+
+.qr-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.qr-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg);
+  color: var(--text-muted);
+}
+
+.qr-spin {
+  animation: qr-spin-rotate 1s linear infinite;
+}
+@keyframes qr-spin-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════════════════ */
+.qr-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.qr-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: -0.01em;
+}
+
+.qr-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 4px 0 0;
+}
+
+.qr-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #d4a843, #b8870e);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s;
+  box-shadow: 0 4px 12px rgba(212, 168, 67, 0.3);
+}
+.qr-settings-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 6px 16px rgba(212, 168, 67, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════
+   QR GRID
+═══════════════════════════════════════════════════════ */
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.qr-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.qr-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hover);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.18);
+}
+
+.qr-img {
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 8px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qr-img img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.qr-room {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.qr-floor {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+
+/* Actions */
+.qr-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.qr-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 0;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  border: 1px solid;
+}
+
+.qr-btn-download:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.qr-btn-copy {
+  background: var(--btn-bg);
+  border-color: var(--btn-border);
+  color: var(--text-muted);
+}
+.qr-btn-copy:hover {
+  background: var(--card-hover);
+  color: var(--text);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT BUTTON
+═══════════════════════════════════════════════════════ */
+.qr-print-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.qr-print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.qr-print-btn:hover {
+  background: var(--card-hover);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════
+   EMPTY STATE — Add Room button
+═══════════════════════════════════════════════════════ */
+.qr-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s;
+  box-shadow: var(--shadow);
+  margin-top: 12px;
+}
+.qr-empty-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT STYLES
+═══════════════════════════════════════════════════════ */
+@media print {
+  /* Hide everything except QR grid */
+  .no-print,
+  .sb-root,
+  .ml-root,
+  .qr-topbar,
+  .qr-print-wrap {
+    display: none !important;
+  }
+
+  body, html, #root {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .qr-root {
+    background: #fff !important;
+    display: block !important;
+  }
+
+  .qr-main {
+    width: 100% !important;
+  }
+
+  .qr-content {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .qr-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+    page-break-inside: avoid;
+  }
+
+  .qr-card {
+    border: 1px solid #ddd !important;
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .qr-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .qr-room,
+  .qr-floor {
+    color: #000 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .qr-content {
+    padding: 16px 18px;
+  }
+  .qr-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .qr-settings-btn {
+    align-self: flex-start;
+  }
+  .qr-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+  .qr-card {
+    padding: 16px;
+  }
+  .qr-img {
+    width: 130px;
+    height: 130px;
+  }
+}

@@ -1,78 +1,35 @@
 /* src/components/QrOperations/QrOperations.css */
 
+/* ═══════════════════════════════════════════════════════
+   QR Operations — 4 ta StatCard uchun grid wrapper
+   (Kart stillari StatCard.css'da)
+═══════════════════════════════════════════════════════ */
+
 .qro-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-}
-
-.qro-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: all 0.2s;
-}
-.qro-card:hover {
-  background: var(--card-hover);
-  border-color: var(--border-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-
-.qro-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-
-.qro-value {
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--text);
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.qro-skeleton {
-  display: inline-block;
-  width: 30px;
-  height: 22px;
-  background: var(--skeleton);
-  border-radius: 6px;
-  animation: qro-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes qro-pulse {
-  0%, 100% { opacity: 0.4; }
-  50%      { opacity: 0.8; }
-}
-
-.qro-label {
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  margin-bottom: 24px;
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .qro-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+}
+
 @media (max-width: 768px) {
   .qro-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-  .qro-card {
-    padding: 16px;
-  }
-  .qro-value {
-    font-size: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .qro-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }

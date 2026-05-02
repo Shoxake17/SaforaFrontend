@@ -7,16 +7,18 @@ import {
   Users,
   CircleCheck,
   QrCode,
-  Zap,
   ShoppingCart,
   Bell,
-  Inbox,
+  ConciergeBell,
 } from 'lucide-react';
 import './Dashboard.css';
 
+import StatCard from '@components/StatCard';
+import EmptyStateCard from '@components/EmptyStateCard';
 import useAuth from '@hooks/useAuth';
 import { fetchHotelBySlug } from '@services/auth';
 import { fetchStaff } from '@services/staff';
+import { fetchRooms } from '@services/rooms';                 // ← YANGI import
 import { getRoleConfig } from '@config/roles';
 import type { RoleKey } from '@config/roles';
 import MainLayout from '@components/MainLayout';
@@ -41,7 +43,10 @@ const RoleDashboard: React.FC = () => {
 
   const [staffCount, setStaffCount] = useState<number>(0);
   const [staffLoading, setStaffLoading] = useState(true);
+
+  // ⭐ Rooms count — real ma'lumot
   const [roomsCount, setRoomsCount] = useState<number>(0);
+  const [roomsLoading, setRoomsLoading] = useState(true);
 
   const roleKey = (role || 'management') as RoleKey;
   const config = getRoleConfig(role);
@@ -85,6 +90,18 @@ const RoleDashboard: React.FC = () => {
     loadStaffCount();
   }, [isAuthenticated, slug]);
 
+  // ─── Rooms count fetch ──────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated || !slug) return;
+    const loadRoomsCount = async () => {
+      setRoomsLoading(true);
+      const result = await fetchRooms(slug);
+      if (result.success) setRoomsCount(result.rooms.length);
+      setRoomsLoading(false);
+    };
+    loadRoomsCount();
+  }, [isAuthenticated, slug]);
+
   const handleLogout = async () => {
     await logout();
     navigate(`/portal/${slug}`, { replace: true });
@@ -123,7 +140,8 @@ const RoleDashboard: React.FC = () => {
 
   if (!isAuthenticated) return null;
 
-  const formatCount = (count: number, loading: boolean) =>
+  // Helper — count yoki '—' qaytaradi
+  const formatCount = (count: number, loading: boolean): string | number =>
     loading ? '—' : count;
 
   return (
@@ -156,7 +174,6 @@ const RoleDashboard: React.FC = () => {
                 {config.dashboardDescription} for {hotel?.name || 'your hotel'}
               </p>
             </div>
-            
           </div>
 
           {/* Stats */}
@@ -172,26 +189,26 @@ const RoleDashboard: React.FC = () => {
               {config.dashboardStats.map((stat, i) => {
                 const StatIcon = stat.icon;
                 let value: string | number = 0;
+                let isLoading = false;
+
                 if (stat.label.toLowerCase().includes('staff')) {
-                  value = formatCount(staffCount, staffLoading);
+                  value = staffCount;
+                  isLoading = staffLoading;
                 } else if (stat.label.toLowerCase().includes('rooms')) {
-                  value = roomsCount;
+                  value = roomsCount;          // ← real qiymat
+                  isLoading = roomsLoading;    // ← loading state
                 }
 
                 return (
-                  <div key={i} className="rd-stat-card">
-                    <div
-                      className="rd-stat-icon"
-                      style={{
-                        color: stat.color,
-                        background: `${stat.color}15`,
-                      }}
-                    >
-                      <StatIcon size={20} strokeWidth={2.2} />
-                    </div>
-                    <div className="rd-stat-value">{value}</div>
-                    <div className="rd-stat-label">{stat.label}</div>
-                  </div>
+                  <StatCard
+                    key={i}
+                    icon={StatIcon}
+                    value={value}
+                    label={stat.label}
+                    color={stat.color}
+                    loading={isLoading}
+                    variant="compact"
+                  />
                 );
               })}
             </div>
@@ -217,7 +234,8 @@ const RoleDashboard: React.FC = () => {
                 <div className="rd-hotel-info-meta">
                   <span>
                     <Bed size={13} strokeWidth={2.2} />
-                    {roomsCount} Room{roomsCount !== 1 ? 's' : ''}
+                    {formatCount(roomsCount, roomsLoading)} Room
+                    {!roomsLoading && roomsCount !== 1 ? 's' : ''}
                   </span>
                   <span>
                     <Users size={13} strokeWidth={2.2} />
@@ -245,7 +263,7 @@ const RoleDashboard: React.FC = () => {
                   className="rd-quick-btn"
                   onClick={() => handleNavChange('qrrooms')}
                 >
-                  <Zap size={14} strokeWidth={2.2} /> Live Feed
+                  <ConciergeBell size={14} strokeWidth={2.2} /> Live Feed
                 </button>
 
                 <button
@@ -260,38 +278,20 @@ const RoleDashboard: React.FC = () => {
           )}
 
           {/* Empty cards */}
-          <div className="rd-empty-section">
-            <div className="rd-empty-row">
-              <div className="rd-empty-card">
-                <div className="rd-empty-header">
-                  <ShoppingCart
-                    size={16}
-                    strokeWidth={2.2}
-                    style={{ color: config.badgeColor }}
-                  />
-                  Recent Activity
-                </div>
-                <div className="rd-empty-body">
-                  <Inbox size={32} strokeWidth={1.6} />
-                  <p>No recent activity yet</p>
-                </div>
-              </div>
+          <div className="rd-empty-row">
+            <EmptyStateCard
+              headerIcon={ShoppingCart}
+              title="Recent Activity"
+              message="No recent activity yet"
+              accentColor={config.badgeColor}
+            />
 
-              <div className="rd-empty-card">
-                <div className="rd-empty-header">
-                  <Bell
-                    size={16}
-                    strokeWidth={2.2}
-                    style={{ color: config.badgeColor }}
-                  />
-                  Recent Requests
-                </div>
-                <div className="rd-empty-body">
-                  <Inbox size={32} strokeWidth={1.6} />
-                  <p>No recent requests yet</p>
-                </div>
-              </div>
-            </div>
+            <EmptyStateCard
+              headerIcon={Bell}
+              title="Recent Requests"
+              message="No recent requests yet"
+              accentColor={config.badgeColor}
+            />
           </div>
         </div>
       </main>
