@@ -18,7 +18,7 @@ import { API_URL } from '@config/api';
 import { getRoleConfig } from '@config/roles';
 import useAuthGuard from '@hooks/useAuthGuard';
 
-import PortalLayout from '@components/PortalLayout';
+import PortalLayout from '@components/PortalLayout/PortalLayout';
 import './Staff.css';
 
 const StaffPage: React.FC = () => {

@@ -2,17 +2,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import './index.css';
-import './components/PortalLayout.css';
 
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import useForceTheme from './hooks/useForceTheme';
 
 import Navbar from './components/Navbar/Navbar';
-import Hero from './components/home/Hero';
-import Features from './components/home/Features';
-import Stats from './components/home/Stats';
-import Footer from './components/home/Footer';
+import Hero from './components/Home/Hero';
+import Features from './components/Home/Features';
+import Stats from './components/Home/Stats';
+import Footer from './components/Home/Footer';
 
 import Login from './pages/login/Login';
 import Register from './pages/register/Register';

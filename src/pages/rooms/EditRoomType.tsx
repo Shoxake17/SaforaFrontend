@@ -13,7 +13,7 @@ import { fetchRoomTypeById, updateRoomType, deleteRoomType } from '@services/roo
 import { getRoleConfig } from '@config/roles';
 import useAuthGuard from '@hooks/useAuthGuard';
 
-import PortalLayout from '@components/PortalLayout';
+import PortalLayout from '@components/PortalLayout/PortalLayout';
 import Alert from '@components/Alert';
 import ConfirmDialog from '@components/ConfirmDialog';
 

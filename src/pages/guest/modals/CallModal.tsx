@@ -1,8 +1,10 @@
 // src/pages/guest/modals/CallModal.tsx
 import React, { useEffect, useState } from 'react';
 import { Phone, PhoneOff, AlertCircle } from 'lucide-react';
-import { useGuestCall } from '../hooks/useGuestCall';
+import { useGuestCall } from '@hooks/calls/useGuestCall';
 import { getCallStatus } from '@services/calls';
+import { formatCallDuration, elapsedSecondsFrom } from '@utils/callTimer';
+import { STORAGE_KEYS, FAILED_CLEANUP_DELAY_MS } from '@config/callConfig';
 import './CallModal.css';
 
 interface CallModalProps {
@@ -31,24 +33,28 @@ const CallModal: React.FC<CallModalProps> = ({
     onEnded: onClose,
   });
 
-  // ✅ Timer state — originalAnsweredAt'dan hisoblanadi
-  const [timerSec, setTimerSec] = useState(0);
-  const [originalAnsweredAt, setOriginalAnsweredAt] = useState<number | null>(null);
+  // Timer state — originalAnsweredAt'dan hisoblanadi
+  const [timerSec, setTimerSec] = useState<number>(0);
+  const [originalAnsweredAt, setOriginalAnsweredAt] = useState<number | null>(
+    null
+  );
 
+  // ═════ Modal mount → call boshlash ═════
   useEffect(() => {
     startCall();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ═════ ESC tugma ═════
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleEndCall();
+      if (e.key === 'Escape') hangUp();
     };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hangUp]);
 
+  // ═════ Body scroll lock ═════
   useEffect(() => {
     const original = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -57,26 +63,23 @@ const CallModal: React.FC<CallModalProps> = ({
     };
   }, []);
 
+  // ═════ Failed bo'lsa avtomatik yopish ═════
   useEffect(() => {
     if (status === 'failed') {
-      const t = setTimeout(() => onClose(), 2000);
+      const t = setTimeout(() => onClose(), FAILED_CLEANUP_DELAY_MS);
       return () => clearTimeout(t);
     }
   }, [status, onClose]);
 
-  // ═══════════════════════════════════════════════════
-  // ✅ Connected bo'lganda — backend'dan originalAnsweredAt olish
-  // (Refresh'dan keyin timer haqiqiy boshlanish vaqtidan davom etadi)
-  // ═══════════════════════════════════════════════════
+  // ═════ Connected bo'lganda — backend'dan originalAnsweredAt olish ═════
   useEffect(() => {
     if (status !== 'connected') return;
 
-    const STORAGE_KEY = 'safora_active_call';
     let cancelled = false;
 
     (async () => {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEYS.GUEST_CALL);
         if (!raw) return;
         const stored = JSON.parse(raw);
         if (!stored.callId) return;
@@ -84,10 +87,9 @@ const CallModal: React.FC<CallModalProps> = ({
         const data = await getCallStatus(stored.callId);
         if (cancelled) return;
 
-        if (data.originalAnsweredAt) {
-          setOriginalAnsweredAt(new Date(data.originalAnsweredAt).getTime());
-        } else if (data.answeredAt) {
-          setOriginalAnsweredAt(new Date(data.answeredAt).getTime());
+        const startTime = data.originalAnsweredAt || data.answeredAt;
+        if (startTime) {
+          setOriginalAnsweredAt(new Date(startTime).getTime());
         }
       } catch (err) {
         console.warn('[CallModal] Failed to fetch originalAnsweredAt:', err);
@@ -99,13 +101,12 @@ const CallModal: React.FC<CallModalProps> = ({
     };
   }, [status]);
 
-  // ✅ Timer — originalAnsweredAt'dan hisoblash
+  // ═════ Timer — originalAnsweredAt'dan hisoblash ═════
   useEffect(() => {
     if (status !== 'connected' || !originalAnsweredAt) return;
 
     const updateTimer = () => {
-      const elapsed = Math.floor((Date.now() - originalAnsweredAt) / 1000);
-      setTimerSec(Math.max(0, elapsed));
+      setTimerSec(elapsedSecondsFrom(originalAnsweredAt));
     };
 
     updateTimer(); // Darhol birinchi update
@@ -113,13 +114,10 @@ const CallModal: React.FC<CallModalProps> = ({
     return () => clearInterval(interval);
   }, [status, originalAnsweredAt]);
 
-  const handleEndCall = () => {
-    hangUp();
-  };
-
   if (!isOpen) return null;
 
-  const getStatusText = () => {
+  // ═════ UI helpers ═════
+  const getStatusText = (): string => {
     switch (status) {
       case 'requesting-mic':
         return 'Requesting microphone…';
@@ -138,12 +136,6 @@ const CallModal: React.FC<CallModalProps> = ({
       default:
         return 'Calling Reception…';
     }
-  };
-
-  const formatTimer = (sec: number) => {
-    const m = String(Math.floor(sec / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
-    return `${m}:${s}`;
   };
 
   const isConnected = status === 'connected';
@@ -196,9 +188,8 @@ const CallModal: React.FC<CallModalProps> = ({
           {guestName}
         </p>
 
-        {/* ✅ Timer faqat connected + originalAnsweredAt bor bo'lganda */}
         {isConnected && originalAnsweredAt && (
-          <p className="call-timer">{formatTimer(timerSec)}</p>
+          <p className="call-timer">{formatCallDuration(timerSec)}</p>
         )}
 
         {errorMessage && <p className="call-error">{errorMessage}</p>}
@@ -207,7 +198,7 @@ const CallModal: React.FC<CallModalProps> = ({
       <button
         type="button"
         className="call-end-btn"
-        onClick={handleEndCall}
+        onClick={hangUp}
         aria-label="End call"
       >
         <PhoneOff size={26} color="#fff" strokeWidth={2.4} />

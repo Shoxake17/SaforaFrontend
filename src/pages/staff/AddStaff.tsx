@@ -22,7 +22,7 @@ import { addStaff } from '@services/staff';
 import { getRoleConfig } from '@config/roles';
 import useAuthGuard from '@hooks/useAuthGuard';
 
-import PortalLayout from '@components/PortalLayout';
+import PortalLayout from '@components/PortalLayout/PortalLayout';
 
 const ROLE_OPTIONS = ['Receptionist', 'Housekeeping', 'Restaurant', 'Other'];
 

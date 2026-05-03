@@ -26,7 +26,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
 
-    /* ⭐ Path Alias — @types o'rniga @apptypes (TypeScript konflikt yo'q) */
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],

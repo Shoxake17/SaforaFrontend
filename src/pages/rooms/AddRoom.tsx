@@ -15,7 +15,7 @@ import { getRoleConfig } from '@config/roles';
 import type { RoomType, RoomStatus } from '@apptypes/room';
 import useAuthGuard from '@hooks/useAuthGuard';
 
-import PortalLayout from '@components/PortalLayout';
+import PortalLayout from '@components/PortalLayout/PortalLayout';
 
 import './AddRoom.css';
 

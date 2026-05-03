@@ -9,10 +9,11 @@ import {
   AlertCircle,
   RotateCw,
 } from 'lucide-react';
-import { useIncomingCalls, useRingtone } from './useIncomingCalls';
-import { useStaffCall } from './useStaffCall';
+import { useIncomingCalls, useRingtone } from "@hooks/calls/useIncomingCalls";
+import { useStaffCall } from '@hooks/calls/useStaffCall';
 import { endCall as endCallApi, getCallStatus } from '@services/calls';
 import type { IncomingCall } from '@services/calls';
+import { formatCallDuration, elapsedSecondsFrom } from '@utils/callTimer';
 import './IncomingCallOverlay.css';
 
 type CallScreen = 'ringing' | 'active' | 'failed';
@@ -20,13 +21,17 @@ type CallScreen = 'ringing' | 'active' | 'failed';
 const IncomingCallOverlay: React.FC = () => {
   const { incomingCall, dismissCall } = useIncomingCalls();
   const [screen, setScreen] = useState<CallScreen>('ringing');
-  const [timerSec, setTimerSec] = useState(0);
-  const [activeCallInfo, setActiveCallInfo] = useState<IncomingCall | null>(null);
+  const [timerSec, setTimerSec] = useState<number>(0);
+  const [activeCallInfo, setActiveCallInfo] = useState<IncomingCall | null>(
+    null
+  );
 
-  // ✅ Timer uchun original boshlanish vaqti (ms)
-  const [originalAnsweredAt, setOriginalAnsweredAt] = useState<number | null>(null);
+  // Timer uchun original boshlanish vaqti
+  const [originalAnsweredAt, setOriginalAnsweredAt] = useState<number | null>(
+    null
+  );
 
-  const acceptClickedRef = useRef(false);
+  const acceptClickedRef = useRef<boolean>(false);
   const autoAcceptedRef = useRef<string | null>(null);
 
   const {
@@ -57,6 +62,7 @@ const IncomingCallOverlay: React.FC = () => {
       !pendingReconnectCallId
   );
 
+  // ═════ Body scroll lock ═════
   useEffect(() => {
     if (incomingCall || activeCallInfo || staffStatus === 'reconnecting') {
       const original = document.body.style.overflow;
@@ -67,20 +73,20 @@ const IncomingCallOverlay: React.FC = () => {
     }
   }, [incomingCall, activeCallInfo, staffStatus]);
 
-  // ✅ Timer — originalAnsweredAt'dan hisoblash (refresh'dan keyin ham to'g'ri)
+  // ═════ Timer — originalAnsweredAt'dan ═════
   useEffect(() => {
     if (staffStatus !== 'connected' || !originalAnsweredAt) return;
 
     const updateTimer = () => {
-      const elapsed = Math.floor((Date.now() - originalAnsweredAt) / 1000);
-      setTimerSec(Math.max(0, elapsed));
+      setTimerSec(elapsedSecondsFrom(originalAnsweredAt));
     };
 
-    updateTimer(); // Darhol birinchi update
+    updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [staffStatus, originalAnsweredAt]);
 
+  // ═════ Yangi call kelganda reset ═════
   useEffect(() => {
     if (incomingCall && !activeCallInfo) {
       setScreen('ringing');
@@ -88,58 +94,53 @@ const IncomingCallOverlay: React.FC = () => {
     }
   }, [incomingCall?.id, activeCallInfo]);
 
+  // ═════ staffStatus failed ═════
   useEffect(() => {
     if (staffStatus === 'failed') {
       setScreen('failed');
     }
   }, [staffStatus]);
 
-  // ═══════════════════════════════════════════════════════
-  // ✅ AUTO-ACCEPT 1: Manager refresh'dan keyin (pendingReconnectCallId)
-  // ✅ AUTO-ACCEPT 2: Mehmon refresh qilganda (reconnectAttemptedBy='guest')
-  // ═══════════════════════════════════════════════════════
+  // ═════ AUTO-ACCEPT: Manager refresh + Mehmon refresh ═════
   useEffect(() => {
-  if (!incomingCall) return;
-  if (acceptClickedRef.current) return;
+    if (!incomingCall) return;
+    if (acceptClickedRef.current) return;
 
-  const isManagerReconnect =
-    pendingReconnectCallId && incomingCall.id === pendingReconnectCallId;
-  const isGuestReconnect = incomingCall.reconnectAttemptedBy === 'guest';
+    const isManagerReconnect =
+      pendingReconnectCallId && incomingCall.id === pendingReconnectCallId;
+    const isGuestReconnect = incomingCall.reconnectAttemptedBy === 'guest';
 
-  // ✅ Auto-accept uchun unique key — id + reconnectAttemptedBy
-  // Mehmon refresh qilganda incomingCall.id o'zgarmaydi, lekin
-  // reconnectAttemptedBy='guest' bo'ladi — shuning uchun key boshqa bo'ladi
-  const autoAcceptKey = `${incomingCall.id}:${incomingCall.reconnectAttemptedBy || 'new'}`;
+    // Unique key — id + reason (mehmon refresh paytida id o'zgarmaydi)
+    const autoAcceptKey = `${incomingCall.id}:${
+      incomingCall.reconnectAttemptedBy || 'new'
+    }`;
 
-  if (autoAcceptedRef.current === autoAcceptKey) return;
+    if (autoAcceptedRef.current === autoAcceptKey) return;
 
-  if (isManagerReconnect || isGuestReconnect) {
-    console.log(
-      '[IncomingCallOverlay] Auto-accepting reconnect call:',
-      incomingCall.id,
-      '| reason:',
-      isManagerReconnect ? 'manager-reconnect' : 'guest-reconnect'
-    );
-    autoAcceptedRef.current = autoAcceptKey;
+    if (isManagerReconnect || isGuestReconnect) {
+      console.log(
+        '[IncomingCallOverlay] Auto-accepting reconnect call:',
+        incomingCall.id,
+        '| reason:',
+        isManagerReconnect ? 'manager-reconnect' : 'guest-reconnect'
+      );
+      autoAcceptedRef.current = autoAcceptKey;
 
-    // ✅ Avvalgi accept'ni qaytarish (mehmon reconnect bo'lsa)
-    // — chunki yangi peer kerak
-    if (isGuestReconnect) {
-      acceptClickedRef.current = false; // Reset!
-      // activeCallInfo bo'lsa, yangilash
-      if (activeCallInfo && activeCallInfo.id === incomingCall.id) {
-        // Eski peer'ni yopib, yangi accept qilamiz
+      // Mehmon reconnect — accept'ni qaytarish (yangi peer kerak)
+      if (isGuestReconnect) {
+        acceptClickedRef.current = false;
       }
+
+      handleAccept();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    incomingCall?.id,
+    incomingCall?.reconnectAttemptedBy,
+    pendingReconnectCallId,
+  ]);
 
-    handleAccept();
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [incomingCall?.id, incomingCall?.reconnectAttemptedBy, pendingReconnectCallId]);
-
-  // ═══════════════════════════════════════════════════════
-  // ✅ Connected bo'lganda — backend'dan originalAnsweredAt olish
-  // ═══════════════════════════════════════════════════════
+  // ═════ Connected — backend'dan originalAnsweredAt olish ═════
   useEffect(() => {
     if (staffStatus !== 'connected' || !activeCallInfo) return;
 
@@ -149,13 +150,15 @@ const IncomingCallOverlay: React.FC = () => {
         const data = await getCallStatus(activeCallInfo.id);
         if (cancelled) return;
 
-        if (data.originalAnsweredAt) {
-          setOriginalAnsweredAt(new Date(data.originalAnsweredAt).getTime());
-        } else if (data.answeredAt) {
-          setOriginalAnsweredAt(new Date(data.answeredAt).getTime());
+        const startTime = data.originalAnsweredAt || data.answeredAt;
+        if (startTime) {
+          setOriginalAnsweredAt(new Date(startTime).getTime());
         }
       } catch (err) {
-        console.warn('[IncomingCallOverlay] Failed to fetch originalAnsweredAt:', err);
+        console.warn(
+          '[IncomingCallOverlay] Failed to fetch originalAnsweredAt:',
+          err
+        );
       }
     })();
 
@@ -164,6 +167,7 @@ const IncomingCallOverlay: React.FC = () => {
     };
   }, [staffStatus, activeCallInfo?.id]);
 
+  // ═════ Handlers ═════
   const handleAccept = async () => {
     if (acceptClickedRef.current) {
       console.warn('[IncomingCallOverlay] accept already clicked');
@@ -174,7 +178,6 @@ const IncomingCallOverlay: React.FC = () => {
     acceptClickedRef.current = true;
     setActiveCallInfo(incomingCall);
     setScreen('active');
-    // Timer hozir reset qilmaymiz — backend'dan originalAnsweredAt kelishini kutamiz
 
     await acceptCall(incomingCall.id);
   };
@@ -198,12 +201,6 @@ const IncomingCallOverlay: React.FC = () => {
     hangUp();
   };
 
-  const formatTimer = (sec: number) => {
-    const m = String(Math.floor(sec / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
-    return `${m}:${s}`;
-  };
-
   const displayCall = activeCallInfo || incomingCall;
   const showReconnectingUI =
     staffStatus === 'reconnecting' && !displayCall && pendingReconnectCallId;
@@ -212,15 +209,26 @@ const IncomingCallOverlay: React.FC = () => {
 
   return (
     <div className="ico-overlay">
-      {/* RECONNECTING (Refresh'dan keyin) */}
+      {/* RECONNECTING */}
       {showReconnectingUI && (
         <div className="ico-screen">
-          <div className="ico-top-label" style={{ background: 'rgba(251, 191, 36, 0.15)', borderColor: 'rgba(251, 191, 36, 0.3)' }}>
+          <div
+            className="ico-top-label"
+            style={{
+              background: 'rgba(251, 191, 36, 0.15)',
+              borderColor: 'rgba(251, 191, 36, 0.3)',
+            }}
+          >
             <RotateCw size={12} strokeWidth={2.5} className="ico-spin" />
             <span>RECONNECTING TO CALL</span>
           </div>
 
-          <div className="ico-active-circle" style={{ background: 'linear-gradient(145deg, #f59e0b, #d97706)' }}>
+          <div
+            className="ico-active-circle"
+            style={{
+              background: 'linear-gradient(145deg, #f59e0b, #d97706)',
+            }}
+          >
             <RotateCw size={48} strokeWidth={2.4} className="ico-spin" />
           </div>
 
@@ -325,7 +333,7 @@ const IncomingCallOverlay: React.FC = () => {
             <div className="ico-guest-name">{displayCall.guestName}</div>
             <div className="ico-timer">
               {staffStatus === 'connected' && originalAnsweredAt
-                ? formatTimer(timerSec)
+                ? formatCallDuration(timerSec)
                 : 'Connecting…'}
             </div>
           </div>

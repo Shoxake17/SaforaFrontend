@@ -20,7 +20,7 @@ import { fetchHotelBySlug } from '@services/auth';
 import { getRoleConfig } from '@config/roles';
 import type { RoleKey } from '@config/roles';
 import type { Hotel } from '@apptypes/hotel';
-import PasswordInput from '@components/ui/PasswordInput';
+import PasswordInput from '@/components/UI/PasswordInput';
 
 const RoleLogin: React.FC = () => {
   useForceTheme('light');

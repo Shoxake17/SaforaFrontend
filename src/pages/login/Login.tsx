@@ -6,7 +6,7 @@ import './Login.css';
 // ✅ Path alias — toza importlar
 import useAuth from '@hooks/useAuth';
 import { generateSlug } from '@utils/slug';
-import PasswordInput from '@components/ui/PasswordInput';
+import PasswordInput from '@/components/UI/PasswordInput';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();

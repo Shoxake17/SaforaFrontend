@@ -1,6 +1,6 @@
 // src/pages/register/StepDetailsFour.tsx
 import React from 'react';
-import PasswordInput from '../../components/ui/PasswordInput';
+import PasswordInput from '../../components/UI/PasswordInput';
 import type {
   BusinessType,
   ServiceType,

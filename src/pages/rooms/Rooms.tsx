@@ -17,7 +17,7 @@ import type { Room, RoomType } from '@apptypes/room';
 import { ROOM_STATUS_CONFIG } from '@apptypes/room';
 import useAuthGuard from '@hooks/useAuthGuard';
 
-import PortalLayout from '@components/PortalLayout';
+import PortalLayout from '@components/PortalLayout/PortalLayout';
 import EmptyStateCard from '@components/EmptyStateCard';
 
 import './Rooms.css';

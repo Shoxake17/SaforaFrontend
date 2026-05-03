@@ -1,4 +1,4 @@
-// src/components/ui/PasswordInput.tsx
+// src/components/UI/PasswordInput.tsx
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 

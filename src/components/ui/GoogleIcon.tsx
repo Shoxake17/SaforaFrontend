@@ -1,4 +1,4 @@
-// src/components/ui/GoogleIcon.tsx 
+// src/components/UI/GoogleIcon.tsx 
 
 import React from 'react';
 

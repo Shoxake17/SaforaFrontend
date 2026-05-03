@@ -10,7 +10,7 @@ import StepBusiness from './StepBusinessThree';
 import StepDetails from './StepDetailsFour';
 
 // ── Umumiy UI komponentlar ───────────────────────────────
-import StepIndicator from '../../components/ui/StepIndicator';
+import StepIndicator from '../../components/UI/StepIndicator';
 
 // ── Hooklar ──────────────────────────────────────────────
 import useRegisterForm from '../../hooks/useRegisterForm';

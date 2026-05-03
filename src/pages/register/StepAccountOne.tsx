@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { GoogleUser } from '../../types/register';
-import GoogleIcon from '../../components/ui/GoogleIcon';
+import GoogleIcon from '../../components/UI/GoogleIcon';
 
 interface StepAccountProps {
   email: string;

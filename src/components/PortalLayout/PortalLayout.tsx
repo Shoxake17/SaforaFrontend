@@ -1,40 +1,25 @@
 // src/components/PortalLayout.tsx
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
-
-import Sidebar from './Sidebar';
-import MainLayout from './MainLayout';
-import IncomingCallOverlay from './IncomingCall/IncomingCallOverlay';
+import './PortalLayout.css';
+import Sidebar from '../Sidebar';
+import MainLayout from '../MainLayout';
+import IncomingCallOverlay from '../IncomingCall/IncomingCallOverlay';
 import useAuthGuard from '@hooks/useAuthGuard';
 import useHotel from '@hooks/useHotel';
 import usePortalNavigation from '@hooks/useNavigation';
 import { getRoleConfig } from '@config/roles';
 
 interface PortalLayoutProps {
-  /** Active sidebar nav key (e.g. 'dashboard', 'staff', 'rooms') */
   activeNav: string;
-  /** Page content */
   children: React.ReactNode;
-  /** Optional loading state from page (e.g. data still loading) */
   pageLoading?: boolean;
-  /** Custom loading message */
   loadingText?: string;
-  /** CSS class for the content wrapper (e.g. 'rd-content', 'st-content') */
   contentClassName?: string;
-  /** CSS class for the root element (e.g. 'rd-root', 'st-root') */
   rootClassName?: string;
-  /** CSS class for the main element */
   mainClassName?: string;
 }
 
-/**
- * Universal portal layout wrapper.
- * Handles: auth guard, hotel loading, sidebar, navigation, logout.
- *
- * Pages just provide their content + activeNav.
- *
- * Includes global IncomingCallOverlay for manager/receptionist/dept_manager roles.
- */
 const PortalLayout: React.FC<PortalLayoutProps> = ({
   activeNav,
   children,

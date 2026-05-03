@@ -13,7 +13,8 @@ import { getRoleConfig } from '@config/roles';
 import type { QrTabKey } from '@apptypes/qrroom';
 import useAuthGuard from '@hooks/useAuthGuard';
 
-import PortalLayout from '@components/PortalLayout';
+import PortalLayout from '@components/PortalLayout/PortalLayout';
+
 
 import OrdersPanel from './panels/OrdersPanel';
 import RequestsPanel from './panels/RequestsPanel';
