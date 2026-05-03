@@ -1,0 +1,100 @@
+/* src/pages/guest/components/GuestMainScreen.css */
+
+/* ═══════════════ MAIN CONTAINER ═══════════════ */
+.gms-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 28px 18px 110px;
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ═══════════════ TAB PLACEHOLDER ═══════════════ */
+.gms-placeholder {
+  width: 100%;
+  text-align: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* ═══════════════ BOTTOM NAVIGATION ═══════════════ */
+.gms-bottom-nav {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 2px;
+  width: calc(100% - 24px);
+  max-width: 460px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 100px;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.04),
+    0 16px 48px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.gms-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 14px;
+  transition: all 0.2s;
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+}
+
+.gms-nav-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+}
+
+.gms-nav-btn:hover .gms-nav-icon-wrap {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.gms-nav-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: -0.01em;
+  transition: color 0.2s;
+}
+
+.gms-nav-active .gms-nav-label {
+  font-weight: 700;
+}
+
+/* ═══════════════ DESKTOP ═══════════════ */
+@media (min-width: 768px) {
+  .gms-screen {
+    max-width: 520px;
+    padding: 36px 20px 110px;
+  }
+}

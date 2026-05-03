@@ -1,8 +1,7 @@
-// src/pages/guest/GuestRoomPage.tsx
+// src/pages/guest/GuestLoginPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-
 import { fetchGuestSession } from '@services/guest';
 import useForceTheme from '@hooks/useForceTheme';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
@@ -12,12 +11,12 @@ import GuestIntroScreen from './components/GuestIntroScreen';
 import GuestMainScreen from './components/GuestMainScreen';
 import GuestLangSwitcher from './components/GuestLangSwitcher';
 
-import './GuestRoomPage.css';
+import './GuestLoginPage.css';
 
 const STORAGE_NAME_KEY = (slug: string, room: string) => `ghn_${slug}_${room}`;
 const STORAGE_PHONE_KEY = (slug: string, room: string) => `gph_${slug}_${room}`;
 
-const GuestRoomPage: React.FC = () => {
+const GuestLoginPage: React.FC = () => {
   const { slug, roomNumber } = useParams<{ slug: string; roomNumber: string }>();
 
   // Force light theme for guest page (always)
@@ -48,15 +47,12 @@ const GuestRoomPage: React.FC = () => {
         setRoom(result.room);
         setSettings(result.settings || {});
 
-        // Check if guest already registered (saved in localStorage)
         const savedName = localStorage.getItem(STORAGE_NAME_KEY(slug, roomNumber));
         if (savedName) {
           setGuestName(savedName);
           setShowMain(true);
-          // Apply intro-mode body class
           document.body.classList.remove('guest-intro-mode');
         } else {
-          // Show intro screen
           document.body.classList.add('guest-intro-mode');
         }
       } else {
@@ -85,6 +81,9 @@ const GuestRoomPage: React.FC = () => {
     document.body.classList.remove('guest-intro-mode');
   };
 
+  // ═══════════════════════════════════════════════════
+  // RENDER: Loading
+  // ═══════════════════════════════════════════════════
   if (loading) {
     return (
       <div className="guest-loading">
@@ -93,6 +92,9 @@ const GuestRoomPage: React.FC = () => {
     );
   }
 
+  // ═══════════════════════════════════════════════════
+  // RENDER: Error
+  // ═══════════════════════════════════════════════════
   if (error || !hotel || !room) {
     return (
       <div className="guest-error">
@@ -102,6 +104,28 @@ const GuestRoomPage: React.FC = () => {
     );
   }
 
+  // ═══════════════════════════════════════════════════
+  // ✅ RENDER: MAIN SCREEN (Login'dan keyin)
+  // Bu yerda ESKI GuestHeader YO'Q — faqat HomeTab ichidagi yangi header
+  // ═══════════════════════════════════════════════════
+  if (showMain) {
+    return (
+      <div className="guest-page guest-page-main">
+        <GuestLangSwitcher />
+        <GuestMainScreen
+          hotel={hotel}
+          room={room}
+          settings={settings}
+          guestName={guestName}
+        />
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════
+  // RENDER: LOGIN SCREEN (intro)
+  // Eski struktura — apelsin theme + GuestHeader
+  // ═══════════════════════════════════════════════════
   return (
     <div className="guest-page">
       {/* Animated background orbs */}
@@ -111,34 +135,25 @@ const GuestRoomPage: React.FC = () => {
         <div className="guest-bg-shape" />
       </div>
 
-      {/* Language switcher (top-right corner) */}
+      {/* Language switcher */}
       <GuestLangSwitcher />
 
       <div className="guest-container">
-        {/* Header (with weather, room number) */}
+        {/* Eski Header (faqat login uchun) */}
         <GuestHeader hotel={hotel} room={room} settings={settings} />
 
-        {/* Body */}
+        {/* Login form */}
         <div className="guest-body">
-          {!showMain ? (
-            <GuestIntroScreen
-              hotel={hotel}
-              room={room}
-              settings={settings}
-              onRegistered={handleRegisterSuccess}
-            />
-          ) : (
-            <GuestMainScreen
-              hotel={hotel}
-              room={room}
-              settings={settings}
-              guestName={guestName}
-            />
-          )}
+          <GuestIntroScreen
+            hotel={hotel}
+            room={room}
+            settings={settings}
+            onRegistered={handleRegisterSuccess}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default GuestRoomPage;
+export default GuestLoginPage;

@@ -1,6 +1,5 @@
-/* src/pages/guest/GuestRoomPage.css */
+/* src/pages/guest/GuestLoginPage.css */
 
-/* Force light theme for guest pages */
 .guest-page,
 .guest-page * {
   --bg: #fafbfd;

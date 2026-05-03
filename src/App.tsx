@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import './index.css';
+import './components/PortalLayout.css';
 
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -28,8 +29,7 @@ import EditRoomType from './pages/rooms/EditRoomType';
 import EditRoom from './pages/rooms/EditRoom';
 import QrCodes from './pages/qrcodes/QrCodes';
 import QrRooms from './pages/qrrooms/QrRooms';
-import GuestRoomPage from './pages/guest/GuestRoomPage';
-
+import GuestLoginPage from './pages/guest/GuestLoginPage';
 
 /* ─────────────────────────────────────────────
    Home — Landing page (har doim LIGHT)
@@ -84,8 +84,8 @@ function App() {
             <Route path="/portal/:slug/:role/rooms/:id/edit" element={<EditRoom />} />
             <Route path="/portal/:slug/:role/qr-codes" element={<QrCodes />} />
             <Route path="/portal/:slug/:role/qr-rooms" element={<QrRooms />} />
-            <Route path="/guest/:slug/:roomNumber" element={<GuestRoomPage />} />
-            
+            <Route path="/g/:slug/:roomNumber" element={<GuestLoginPage />} />
+
           </Routes>
         </Router>
       </AuthProvider>

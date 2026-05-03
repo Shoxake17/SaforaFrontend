@@ -1,0 +1,397 @@
+/* src/components/IncomingCall/IncomingCallOverlay.css */
+
+/* ═══════════════ FULL-SCREEN OVERLAY ═══════════════ */
+.ico-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: linear-gradient(
+    160deg,
+    #0a0e27 0%,
+    #131842 30%,
+    #1a1f5e 50%,
+    #0f1535 70%,
+    #080b1e 100%
+  );
+  overflow: hidden;
+  animation: ico-fade-in 0.3s ease;
+}
+
+.ico-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 600px 600px at 50% 35%,
+    rgba(34, 197, 94, 0.06) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.ico-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 400px 400px at 50% 40%,
+    rgba(99, 102, 241, 0.04) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+@keyframes ico-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ═══════════════ SCREEN LAYOUT ═══════════════ */
+.ico-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: #fff;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+/* ═══════════════ TOP LABEL ═══════════════ */
+.ico-top-label {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Poppins', 'Inter', sans-serif;
+}
+
+.ico-top-label-active {
+  color: rgba(34, 197, 94, 0.8);
+}
+
+/* ═══════════════ PULSE RINGS ═══════════════ */
+.ico-ring-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 40px;
+}
+
+.ico-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(34, 197, 94, 0.15);
+  animation: ico-ring-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.ico-ring-1 { animation-delay: 0s; }
+.ico-ring-2 { animation-delay: 0.6s; }
+.ico-ring-3 { animation-delay: 1.2s; }
+.ico-ring-4 { animation-delay: 1.8s; }
+
+@keyframes ico-ring-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* ═══════════════ AVATAR CIRCLE (RINGING) ═══════════════ */
+.ico-avatar-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #22c55e 0%, #15803d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow:
+    0 0 60px rgba(34, 197, 94, 0.35),
+    0 0 120px rgba(34, 197, 94, 0.12),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ico-phone-shake {
+  animation: ico-phone-shake 0.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes ico-phone-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(15deg); }
+  40% { transform: rotate(-15deg); }
+  60% { transform: rotate(10deg); }
+  80% { transform: rotate(-10deg); }
+}
+
+/* ═══════════════ CALLER INFO ═══════════════ */
+.ico-caller-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: auto;
+}
+
+.ico-room-label {
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.ico-guest-name {
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.01em;
+}
+
+.ico-call-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: rgba(34, 197, 94, 0.8);
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.ico-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: ico-dot-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes ico-dot-blink {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+  }
+  50% {
+    opacity: 0.3;
+    box-shadow: none;
+  }
+}
+
+/* ═══════════════ ACTION BUTTONS ═══════════════ */
+.ico-action-row {
+  display: flex;
+  gap: 80px;
+  align-items: center;
+  margin-top: auto;
+  padding-bottom: 60px;
+}
+
+.ico-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ico-action span {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.02em;
+  font-family: 'Poppins', 'Inter', sans-serif;
+}
+
+.ico-action-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ico-action-btn:hover {
+  transform: scale(1.08);
+}
+
+.ico-action-btn:active {
+  transform: scale(0.95);
+}
+
+.ico-action-decline {
+  background: linear-gradient(145deg, #ef4444, #b91c1c);
+  box-shadow:
+    0 4px 24px rgba(239, 68, 68, 0.35),
+    0 0 60px rgba(239, 68, 68, 0.1);
+}
+
+.ico-action-accept {
+  background: linear-gradient(145deg, #22c55e, #15803d);
+  box-shadow:
+    0 4px 24px rgba(34, 197, 94, 0.35),
+    0 0 60px rgba(34, 197, 94, 0.1);
+  animation: ico-accept-glow 2s ease-in-out infinite;
+}
+
+@keyframes ico-accept-glow {
+  0%, 100% {
+    box-shadow:
+      0 4px 24px rgba(34, 197, 94, 0.35),
+      0 0 60px rgba(34, 197, 94, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 4px 40px rgba(34, 197, 94, 0.5),
+      0 0 80px rgba(34, 197, 94, 0.2);
+  }
+}
+
+/* ═══════════════ ACTIVE CALL ═══════════════ */
+.ico-active-circle {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #22c55e 0%, #15803d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin-bottom: 40px;
+  box-shadow: 0 0 60px rgba(34, 197, 94, 0.25);
+}
+
+.ico-active-glow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.12) 0%,
+    transparent 70%
+  );
+  animation: ico-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ico-glow-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+.ico-waves {
+  position: absolute;
+  bottom: -12px;
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.ico-waves span {
+  width: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  animation: ico-wave-bar 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes ico-wave-bar {
+  0% { height: 4px; }
+  100% { height: 18px; }
+}
+
+.ico-timer {
+  font-size: 2.4rem;
+  font-weight: 300;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.15em;
+  margin-top: 12px;
+  font-feature-settings: 'tnum';
+}
+
+.ico-action-end {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(145deg, #ef4444, #b91c1c);
+  box-shadow:
+    0 4px 24px rgba(239, 68, 68, 0.35),
+    0 0 60px rgba(239, 68, 68, 0.1);
+}
+
+/* ═══════════════ MOBILE ═══════════════ */
+@media (max-width: 600px) {
+  .ico-ring-wrap {
+    width: 160px;
+    height: 160px;
+    margin-bottom: 30px;
+  }
+
+  .ico-avatar-circle {
+    width: 100px;
+    height: 100px;
+  }
+
+  .ico-room-label { font-size: 1.6rem; }
+  .ico-guest-name { font-size: 0.9rem; }
+
+  .ico-action-row {
+    gap: 60px;
+    padding-bottom: 40px;
+  }
+
+  .ico-action-btn {
+    width: 64px;
+    height: 64px;
+  }
+
+  .ico-active-circle {
+    width: 110px;
+    height: 110px;
+  }
+
+  .ico-timer { font-size: 2rem; }
+}
+
+/* ═══════════════ SPIN animation (Reconnecting icon) ═══════════════ */
+.ico-spin {
+  animation: ico-spin-rot 1.2s linear infinite;
+}
+
+@keyframes ico-spin-rot {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

@@ -1,0 +1,100 @@
+/* src/components/Modal/Modal.css */
+
+.md-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: md-fade-in 0.2s ease;
+}
+
+@keyframes md-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.md-content {
+  position: relative;
+  background: var(--bg3, #1a1a1a);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 18px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: md-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--shadow-lg, 0 20px 60px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes md-pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* Hajmlari */
+.md-sm { max-width: 380px; }
+.md-md { max-width: 480px; }
+.md-lg { max-width: 720px; }
+
+/* Yopish tugmasi */
+.md-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted, #a3a3a3);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 1;
+}
+.md-close:hover {
+  background: var(--card-hover, rgba(255, 255, 255, 0.05));
+  color: var(--text, #fff);
+}
+
+/* Sarlavha */
+.md-header {
+  padding: 24px 28px 0;
+}
+
+.md-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text, #fff);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Body */
+.md-body {
+  padding: 24px 28px 24px;
+}
+
+.md-header + .md-body {
+  padding-top: 16px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .md-overlay {
+    padding: 12px;
+  }
+  .md-header {
+    padding: 20px 22px 0;
+  }
+  .md-body {
+    padding: 20px 22px;
+  }
+}

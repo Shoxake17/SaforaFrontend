@@ -1,6 +1,5 @@
 // src/services/staff.ts
-import { API_URL } from '@config/api';
-import { tokenService } from './auth';
+import { api } from './api';
 
 // ═══════════════════════════════════════════════════════
 // TYPES
@@ -47,25 +46,12 @@ export interface UpdateStaffPayload {
   role_label?: string;
   address?: string;
   birth_date?: string;
-  password?: string;              // ixtiyoriy — bo'sh bo'lsa o'zgarmaydi
+  password?: string;
   profile_photo?: File | null;
 }
 
 // ═══════════════════════════════════════════════════════
-// AUTH HEADERS
-// ═══════════════════════════════════════════════════════
-
-const getAuthHeaders = (): Record<string, string> => {
-  const headers: Record<string, string> = {};
-  const token = tokenService.get();
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  return headers;
-};
-
-// ═══════════════════════════════════════════════════════
-// HELPER — Backend _id ni frontend id ga moslashish
+// HELPERS
 // ═══════════════════════════════════════════════════════
 
 const normalizeStaff = (s: any): StaffMember => ({
@@ -74,184 +60,75 @@ const normalizeStaff = (s: any): StaffMember => ({
   joined_at: s.createdAt || s.joined_at,
 });
 
+const buildStaffFormData = (
+  payload: AddStaffPayload | UpdateStaffPayload,
+): FormData => {
+  const fd = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    if (key === 'hotel_slug') return; // URL'da boradi
+    if (key === 'profile_photo' && value instanceof File) {
+      fd.append('profile_photo', value);
+    } else if (typeof value === 'string' && value !== '') {
+      fd.append(key, value);
+    }
+  });
+  return fd;
+};
+
 // ═══════════════════════════════════════════════════════
-// GET ALL STAFF — /api/:slug/staff
+// CRUD
+// NOTE: Bu endpointlar /api/api/:slug/staff bo'ladi, chunki
+// API_URL allaqachon /api bilan tugaydi. Backend tekshirib
+// to'g'ri yo'lni aniqlang.
 // ═══════════════════════════════════════════════════════
 
 export const fetchStaff = async (hotelSlug: string) => {
-  try {
-    const res = await fetch(`${API_URL}/api/${hotelSlug}/staff`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        ...getAuthHeaders(),
-      },
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: data.error || `HTTP ${res.status}`,
-        staff: [] as StaffMember[],
-      };
-    }
-
-    const staff: StaffMember[] = (data.staff || []).map(normalizeStaff);
-
-    return { success: true, staff };
-  } catch (err: any) {
-    return {
-      success: false,
-      error: err.message,
-      staff: [] as StaffMember[],
-    };
+  const res = await api.get(`/${hotelSlug}/staff`);
+  if (!res.success) {
+    return { success: false, error: res.error, staff: [] as StaffMember[] };
   }
+  const staff: StaffMember[] = (res.data?.staff || []).map(normalizeStaff);
+  return { success: true, staff };
 };
-
-// ═══════════════════════════════════════════════════════
-// GET ONE STAFF — /api/:slug/staff/:id
-// ═══════════════════════════════════════════════════════
 
 export const fetchStaffById = async (hotelSlug: string, id: string) => {
-  try {
-    const res = await fetch(`${API_URL}/api/${hotelSlug}/staff/${id}`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        ...getAuthHeaders(),
-      },
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: data.error || `HTTP ${res.status}`,
-        staff: null as StaffMember | null,
-      };
-    }
-
-    return {
-      success: true,
-      staff: normalizeStaff(data.staff),
-    };
-  } catch (err: any) {
-    return {
-      success: false,
-      error: err.message,
-      staff: null as StaffMember | null,
-    };
+  const res = await api.get(`/${hotelSlug}/staff/${id}`);
+  if (!res.success) {
+    return { success: false, error: res.error, staff: null as StaffMember | null };
   }
+  return { success: true, staff: normalizeStaff(res.data?.staff) };
 };
-
-// ═══════════════════════════════════════════════════════
-// POST STAFF (Add) — /api/:slug/staff
-// ═══════════════════════════════════════════════════════
 
 export const addStaff = async (payload: AddStaffPayload) => {
-  try {
-    const fd = new FormData();
-
-    Object.entries(payload).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
-      if (key === 'hotel_slug') return; // URL'da boradi
-      if (key === 'profile_photo' && value instanceof File) {
-        fd.append('profile_photo', value);
-      } else if (typeof value === 'string') {
-        fd.append(key, value);
-      }
-    });
-
-    const res = await fetch(`${API_URL}/api/${payload.hotel_slug}/staff`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: getAuthHeaders(), // Content-Type'ni browser o'zi qo'yadi (multipart)
-      body: fd,
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return { success: false, error: data.error || `HTTP ${res.status}` };
-    }
-
-    return {
-      success: true,
-      staff: data.staff ? normalizeStaff(data.staff) : null,
-    };
-  } catch (err: any) {
-    return { success: false, error: err.message };
+  const fd = buildStaffFormData(payload);
+  const res = await api.post(`/${payload.hotel_slug}/staff`, fd);
+  if (!res.success) {
+    return { success: false, error: res.error };
   }
+  return {
+    success: true,
+    staff: res.data?.staff ? normalizeStaff(res.data.staff) : null,
+  };
 };
-
-// ═══════════════════════════════════════════════════════
-// PATCH STAFF (Edit) — /api/:slug/staff/:id
-// ═══════════════════════════════════════════════════════
 
 export const updateStaff = async (
   hotelSlug: string,
   id: string,
-  payload: UpdateStaffPayload
+  payload: UpdateStaffPayload,
 ) => {
-  try {
-    const fd = new FormData();
-
-    Object.entries(payload).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
-      if (key === 'profile_photo' && value instanceof File) {
-        fd.append('profile_photo', value);
-      } else if (typeof value === 'string' && value !== '') {
-        fd.append(key, value);
-      }
-    });
-
-    const res = await fetch(`${API_URL}/api/${hotelSlug}/staff/${id}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: getAuthHeaders(),
-      body: fd,
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return { success: false, error: data.error || `HTTP ${res.status}` };
-    }
-
-    return {
-      success: true,
-      staff: data.staff ? normalizeStaff(data.staff) : null,
-    };
-  } catch (err: any) {
-    return { success: false, error: err.message };
+  const fd = buildStaffFormData(payload);
+  const res = await api.patch(`/${hotelSlug}/staff/${id}`, fd);
+  if (!res.success) {
+    return { success: false, error: res.error };
   }
+  return {
+    success: true,
+    staff: res.data?.staff ? normalizeStaff(res.data.staff) : null,
+  };
 };
 
-// ═══════════════════════════════════════════════════════
-// DELETE STAFF — /api/:slug/staff/:id
-// ═══════════════════════════════════════════════════════
-
 export const deleteStaff = async (hotelSlug: string, id: string) => {
-  try {
-    const res = await fetch(`${API_URL}/api/${hotelSlug}/staff/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: getAuthHeaders(),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return { success: false, error: data.error || `HTTP ${res.status}` };
-    }
-
-    return { success: true };
-  } catch (err: any) {
-    return { success: false, error: err.message };
-  }
+  const res = await api.delete(`/${hotelSlug}/staff/${id}`);
+  return { success: res.success, error: res.error };
 };

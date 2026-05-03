@@ -1,0 +1,55 @@
+/* src/components/PortalLayout.css */
+
+.pl-root {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.pl-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.pl-content {
+  flex: 1;
+  padding: 24px 32px 40px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .pl-content {
+    padding: 16px 18px 32px;
+  }
+}
+
+/* ─── Loading State ────────────────────────────────────────── */
+.pl-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.pl-loading p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.pl-spin {
+  animation: pl-spin-rotate 1s linear infinite;
+}
+
+@keyframes pl-spin-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

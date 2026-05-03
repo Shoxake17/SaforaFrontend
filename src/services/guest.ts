@@ -1,6 +1,5 @@
 // src/services/guest.ts
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { api } from './api';
 
 interface FetchSessionResponse {
   success: boolean;
@@ -23,27 +22,16 @@ export const fetchGuestSession = async (
   slug: string,
   roomNumber: string,
 ): Promise<FetchSessionResponse> => {
-  try {
-    const res = await fetch(`${API}/guest/${slug}/${roomNumber}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return { success: false, error: err.message || 'Hotel or room not found' };
-    }
-
-    const data = await res.json();
-    return {
-      success: true,
-      hotel: data.hotel,
-      room: data.room,
-      settings: data.settings || {},
-    };
-  } catch (err) {
-    return { success: false, error: (err as Error).message };
+  const res = await api.get(`/guest/${slug}/${roomNumber}`, { skipAuth: true });
+  if (!res.success) {
+    return { success: false, error: res.error };
   }
+  return {
+    success: true,
+    hotel: res.data?.hotel,
+    room: res.data?.room,
+    settings: res.data?.settings || {},
+  };
 };
 
 /**
@@ -57,21 +45,9 @@ export const registerGuest = async (payload: {
   email?: string;
   language?: string;
 }): Promise<RegisterResponse> => {
-  try {
-    const res = await fetch(`${API}/guest/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return { success: false, error: err.message || 'Registration failed' };
-    }
-
-    const data = await res.json();
-    return { success: true, guest_token: data.guest_token };
-  } catch (err) {
-    return { success: false, error: (err as Error).message };
+  const res = await api.post('/guest/register', payload, { skipAuth: true });
+  if (!res.success) {
+    return { success: false, error: res.error };
   }
+  return { success: true, guest_token: res.data?.guest_token };
 };

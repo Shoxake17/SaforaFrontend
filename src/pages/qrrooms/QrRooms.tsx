@@ -1,8 +1,6 @@
 // src/pages/qrrooms/QrRooms.tsx
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Loader2,
   ShoppingCart,
   HandHelping,
   MessageSquare,
@@ -11,13 +9,11 @@ import {
   Inbox,
 } from 'lucide-react';
 
-import useAuth from '@hooks/useAuth';
 import { getRoleConfig } from '@config/roles';
-import type { RoleKey } from '@config/roles';
 import type { QrTabKey } from '@apptypes/qrroom';
+import useAuthGuard from '@hooks/useAuthGuard';
 
-import MainLayout from '@components/MainLayout';
-import Sidebar from '@components/Sidebar';
+import PortalLayout from '@components/PortalLayout';
 
 import OrdersPanel from './panels/OrdersPanel';
 import RequestsPanel from './panels/RequestsPanel';
@@ -44,32 +40,19 @@ const TABS: TabConfig[] = [
 ];
 
 const QrRooms: React.FC = () => {
-  const { slug, role } = useParams<{ slug: string; role: RoleKey }>();
-  const navigate = useNavigate();
-  const { hotel, isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const { slug, role } = useAuthGuard();
+  const config = getRoleConfig(role);
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<QrTabKey>('orders');
 
   // Counts (kelajakda API'dan keladi)
-  const [counts, setCounts] = useState({
+  const [counts] = useState({
     orders: 0,
     requests: 9,
     messages: 0,
     calls: 0,
     reviews: 2,
   });
-
-  const roleKey = (role || 'management') as RoleKey;
-  const config = getRoleConfig(role);
-
-  // Auth check
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      navigate(`/portal/${slug}/login/${roleKey}`, { replace: true });
-    }
-  }, [isAuthenticated, authLoading, slug, roleKey, navigate]);
 
   // Hash-based tab switching (notification clicks)
   useEffect(() => {
@@ -79,135 +62,103 @@ const QrRooms: React.FC = () => {
     }
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate(`/portal/${slug}`, { replace: true });
-  };
-
-  const handleNavChange = (key: string) => {
-    const routes: Record<string, string> = {
-      dashboard: `/portal/${slug}/${roleKey}/dashboard`,
-      staff:     `/portal/${slug}/${roleKey}/staff`,
-      rooms:     `/portal/${slug}/${roleKey}/rooms`,
-      qrcodes:   `/portal/${slug}/${roleKey}/qr-codes`,
-      qrrooms:   `/portal/${slug}/${roleKey}/qr-rooms`,
-      services:  `/portal/${slug}/${roleKey}/services`,
-      settings:  `/portal/${slug}/${roleKey}/settings`,
-    };
-    const path = routes[key];
-    if (path) navigate(path);
-  };
-
-  if (authLoading) {
-    return (
-      <div className="qrr-loading">
-        <Loader2 size={36} color={config.badgeColor} className="qrr-spin" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) return null;
-
   return (
-    <div className="qrr-root">
-      <Sidebar
-        isOpen={sidebarOpen}
-        hotel={hotel}
-        activeNav="qrrooms"
-        onNavChange={handleNavChange}
-        onLogout={handleLogout}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-      />
+    <PortalLayout
+      activeNav="qrrooms"
+      contentClassName="qrr-content"
+      rootClassName="qrr-root"
+      mainClassName="qrr-main"
+    >
+      {/* Background orbs */}
+      <div className="qrr-bg-anim">
+        <div className="qrr-bg-orb"></div>
+        <div className="qrr-bg-orb"></div>
+        <div className="qrr-bg-orb"></div>
+      </div>
 
-      <main className="qrr-main">
-        <MainLayout hotel={hotel} />
-
-        <div className="qrr-content">
-          {/* Background orbs */}
-          <div className="qrr-bg-anim">
-            <div className="qrr-bg-orb"></div>
-            <div className="qrr-bg-orb"></div>
-            <div className="qrr-bg-orb"></div>
-          </div>
-
-          <div className="qrr-hub">
-            {/* Header */}
-            <div className="qrr-header">
-              <div>
-                <h1 className="qrr-title">
-                  <Inbox
-                    size={22}
-                    strokeWidth={2.2}
-                    style={{ color: config.badgeColor, marginRight: 10 }}
-                  />
-                  Communication Hub
-                </h1>
-                <p className="qrr-subtitle">
-                  Guest orders, requests, messages &amp; calls — all in one place
-                </p>
-              </div>
-            </div>
-
-            {/* Stat Tabs */}
-            <div className="qrr-stat-tabs">
-              {TABS.map((tab) => {
-                const Icon = tab.icon;
-                const count = counts[tab.key];
-                const isActive = activeTab === tab.key;
-
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    className={`qrr-stat-tab ${isActive ? 'active' : ''}`}
-                    data-tab={tab.key}
-                    onClick={() => setActiveTab(tab.key)}
-                    style={
-                      isActive
-                        ? ({
-                            ['--accent-color' as any]: tab.color,
-                            ['--accent-bg' as any]: tab.bgColor,
-                          } as React.CSSProperties)
-                        : undefined
-                    }
-                  >
-                    <div
-                      className="qrr-stat-tab-ico"
-                      style={{
-                        background: tab.bgColor,
-                        color: tab.color,
-                      }}
-                    >
-                      <Icon size={18} strokeWidth={2.2} />
-                    </div>
-                    <div className="qrr-stat-tab-text">
-                      <div className="qrr-stat-tab-val">{count}</div>
-                      <div className="qrr-stat-tab-label">{tab.label}</div>
-                    </div>
-
-                    {(tab.key === 'orders' ||
-                      tab.key === 'requests' ||
-                      tab.key === 'messages') &&
-                      count > 0 && (
-                        <span className="qrr-stat-tab-badge">{count}</span>
-                      )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Active Panel */}
-            <div className="qrr-panels">
-              {activeTab === 'orders'   && <OrdersPanel hotelSlug={slug} accentColor={config.badgeColor} />}
-              {activeTab === 'requests' && <RequestsPanel hotelSlug={slug} accentColor={config.badgeColor} />}
-              {activeTab === 'messages' && <MessagesPanel hotelSlug={slug} accentColor={config.badgeColor} />}
-              {activeTab === 'calls'    && <CallsPanel hotelSlug={slug} accentColor={config.badgeColor} />}
-              {activeTab === 'reviews'  && <ReviewsPanel hotelSlug={slug} accentColor={config.badgeColor} />}
-            </div>
+      <div className="qrr-hub">
+        {/* Header */}
+        <div className="qrr-header">
+          <div>
+            <h1 className="qrr-title">
+              <Inbox
+                size={22}
+                strokeWidth={2.2}
+                style={{ color: config.badgeColor, marginRight: 10 }}
+              />
+              Communication Hub
+            </h1>
+            <p className="qrr-subtitle">
+              Guest orders, requests, messages &amp; calls — all in one place
+            </p>
           </div>
         </div>
-      </main>
-    </div>
+
+        {/* Stat Tabs */}
+        <div className="qrr-stat-tabs">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const count = counts[tab.key];
+            const isActive = activeTab === tab.key;
+
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                className={`qrr-stat-tab ${isActive ? 'active' : ''}`}
+                data-tab={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                style={
+                  isActive
+                    ? ({
+                        ['--accent-color' as any]: tab.color,
+                        ['--accent-bg' as any]: tab.bgColor,
+                      } as React.CSSProperties)
+                    : undefined
+                }
+              >
+                <div
+                  className="qrr-stat-tab-ico"
+                  style={{ background: tab.bgColor, color: tab.color }}
+                >
+                  <Icon size={18} strokeWidth={2.2} />
+                </div>
+                <div className="qrr-stat-tab-text">
+                  <div className="qrr-stat-tab-val">{count}</div>
+                  <div className="qrr-stat-tab-label">{tab.label}</div>
+                </div>
+
+                {(tab.key === 'orders' ||
+                  tab.key === 'requests' ||
+                  tab.key === 'messages') &&
+                  count > 0 && (
+                    <span className="qrr-stat-tab-badge">{count}</span>
+                  )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active Panel */}
+        <div className="qrr-panels">
+          {activeTab === 'orders' && (
+            <OrdersPanel hotelSlug={slug} accentColor={config.badgeColor} />
+          )}
+          {activeTab === 'requests' && (
+            <RequestsPanel hotelSlug={slug} accentColor={config.badgeColor} />
+          )}
+          {activeTab === 'messages' && (
+            <MessagesPanel hotelSlug={slug} accentColor={config.badgeColor} />
+          )}
+          {activeTab === 'calls' && (
+            <CallsPanel hotelSlug={slug} accentColor={config.badgeColor} />
+          )}
+          {activeTab === 'reviews' && (
+            <ReviewsPanel hotelSlug={slug} accentColor={config.badgeColor} />
+          )}
+        </div>
+      </div>
+    </PortalLayout>
   );
 };
 

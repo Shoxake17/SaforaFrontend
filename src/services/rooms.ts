@@ -1,436 +1,135 @@
 // src/services/rooms.ts
-import { tokenService } from './auth';
+import { api } from './api';
 import type { Room, RoomType } from '@apptypes/room';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
 /* ─────────────────────────────────────────────
-   Headers — JSON va FormData uchun alohida
-───────────────────────────────────────────── */
-const jsonHeaders = (): HeadersInit => ({
-  'Content-Type': 'application/json',
-  Authorization: `Bearer ${tokenService.get()}`,
-});
-
-const formHeaders = (): HeadersInit => ({
-  // Content-Type qo'ymaymiz — browser FormData uchun avtomatik (boundary bilan) qo'yadi
-  Authorization: `Bearer ${tokenService.get()}`,
-});
-
-/* ─────────────────────────────────────────────
-   Normalizers — backend ma'lumotini frontend type'ga o'tkazish
+   Normalizers — backend → frontend type
 ───────────────────────────────────────────── */
 const normalizeRoom = (r: any): Room => ({
-  id:           r.id || r._id,
-  hotel_id:     r.hotel_id,
-  number:       r.number || r.room_number || '',
-  floor:        r.floor,
-  status:       r.status || 'available',
-  room_type:    r.room_type || null,
+  id: r.id || r._id,
+  hotel_id: r.hotel_id,
+  number: r.number || r.room_number || '',
+  floor: r.floor,
+  status: r.status || 'available',
+  room_type: r.room_type || null,
   room_type_id: r.room_type_id || r.room_type?.id || r.room_type?._id,
-  notes:        r.notes,
-  created_at:   r.created_at || r.createdAt,
+  notes: r.notes,
+  created_at: r.created_at || r.createdAt,
 });
 
 const normalizeRoomType = (rt: any): RoomType => ({
-  id:              rt.id || rt._id,
-  hotel_id:        rt.hotel_id,
-  name:            rt.name || '',
+  id: rt.id || rt._id,
+  hotel_id: rt.hotel_id,
+  name: rt.name || '',
   price_per_night: Number(rt.price_per_night) || 0,
-  description:     rt.description || '',
-  capacity:        rt.capacity,
-  amenities:       rt.amenities || [],
-  created_at:      rt.created_at || rt.createdAt,
+  description: rt.description || '',
+  capacity: rt.capacity,
+  amenities: rt.amenities || [],
+  created_at: rt.created_at || rt.createdAt,
 });
-
-/* ─────────────────────────────────────────────
-   Response types
-───────────────────────────────────────────── */
-interface RoomsListResponse {
-  success: boolean;
-  rooms: Room[];
-  error?: string;
-}
-
-interface RoomResponse {
-  success: boolean;
-  room?: Room;
-  error?: string;
-}
-
-interface RoomTypesListResponse {
-  success: boolean;
-  roomTypes: RoomType[];
-  error?: string;
-}
-
-interface RoomTypeResponse {
-  success: boolean;
-  roomType?: RoomType;
-  error?: string;
-}
-
-interface DeleteResponse {
-  success: boolean;
-  error?: string;
-}
 
 /* ═══════════════════════════════════════════════════════
    ROOMS — CRUD
 ═══════════════════════════════════════════════════════ */
 
-/**
- * Hotel ichidagi barcha xonalarni olish
- */
-export const fetchRooms = async (
-  hotelSlug: string,
-): Promise<RoomsListResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/rooms`, {
-      method: 'GET',
-      headers: jsonHeaders(),
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        rooms: [],
-        error: err.message || 'Failed to fetch rooms',
-      };
-    }
-
-    const data = await res.json();
-    const rooms = Array.isArray(data) ? data : data.rooms || [];
-    return { success: true, rooms: rooms.map(normalizeRoom) };
-  } catch (err) {
-    return {
-      success: false,
-      rooms: [],
-      error: (err as Error).message,
-    };
+export const fetchRooms = async (hotelSlug: string) => {
+  const res = await api.get(`/hotels/${hotelSlug}/rooms`);
+  if (!res.success) {
+    return { success: false, rooms: [] as Room[], error: res.error };
   }
+  const rooms = Array.isArray(res.data) ? res.data : res.data?.rooms || [];
+  return { success: true, rooms: rooms.map(normalizeRoom) };
 };
 
-/**
- * Bitta xonani olish
- */
-export const fetchRoomById = async (
-  hotelSlug: string,
-  roomId: string,
-): Promise<RoomResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/rooms/${roomId}`, {
-      method: 'GET',
-      headers: jsonHeaders(),
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to fetch room',
-      };
-    }
-
-    const data = await res.json();
-    return {
-      success: true,
-      room: normalizeRoom(data.room || data),
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
+export const fetchRoomById = async (hotelSlug: string, roomId: string) => {
+  const res = await api.get(`/hotels/${hotelSlug}/rooms/${roomId}`);
+  if (!res.success) {
+    return { success: false, error: res.error, room: undefined };
   }
+  return { success: true, room: normalizeRoom(res.data?.room || res.data) };
 };
 
-/**
- * Yangi xona yaratish (FormData bilan — fayl yuklash uchun)
- */
-export const addRoom = async (
-  hotelSlug: string,
-  formData: FormData,
-): Promise<RoomResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/rooms`, {
-      method: 'POST',
-      headers: formHeaders(),
-      credentials: 'include',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to create room',
-      };
-    }
-
-    const data = await res.json();
-    return {
-      success: true,
-      room: normalizeRoom(data.room || data),
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
+export const addRoom = async (hotelSlug: string, formData: FormData) => {
+  const res = await api.post(`/hotels/${hotelSlug}/rooms`, formData);
+  if (!res.success) {
+    return { success: false, error: res.error, room: undefined };
   }
+  return { success: true, room: normalizeRoom(res.data?.room || res.data) };
 };
 
-/**
- * Xonani yangilash (FormData bilan — fayl yuklash uchun)
- */
 export const updateRoom = async (
   hotelSlug: string,
   roomId: string,
   formData: FormData,
-): Promise<RoomResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/rooms/${roomId}`, {
-      method: 'PUT',
-      headers: formHeaders(),
-      credentials: 'include',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to update room',
-      };
-    }
-
-    const data = await res.json();
-    return {
-      success: true,
-      room: normalizeRoom(data.room || data),
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
+) => {
+  const res = await api.put(`/hotels/${hotelSlug}/rooms/${roomId}`, formData);
+  if (!res.success) {
+    return { success: false, error: res.error, room: undefined };
   }
+  return { success: true, room: normalizeRoom(res.data?.room || res.data) };
 };
 
-/**
- * Xonani o'chirish
- */
-export const deleteRoom = async (
-  hotelSlug: string,
-  roomId: string,
-): Promise<DeleteResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/rooms/${roomId}`, {
-      method: 'DELETE',
-      headers: jsonHeaders(),
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to delete room',
-      };
-    }
-
-    return { success: true };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
-  }
+export const deleteRoom = async (hotelSlug: string, roomId: string) => {
+  const res = await api.delete(`/hotels/${hotelSlug}/rooms/${roomId}`);
+  return { success: res.success, error: res.error };
 };
 
 /* ═══════════════════════════════════════════════════════
    ROOM TYPES — CRUD
 ═══════════════════════════════════════════════════════ */
 
-/**
- * Hotel ichidagi barcha room type'larni olish
- */
-export const fetchRoomTypes = async (
-  hotelSlug: string,
-): Promise<RoomTypesListResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/room-types`, {
-      method: 'GET',
-      headers: jsonHeaders(),
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        roomTypes: [],
-        error: err.message || 'Failed to fetch room types',
-      };
-    }
-
-    const data = await res.json();
-    const types = Array.isArray(data)
-      ? data
-      : data.roomTypes || data.room_types || [];
-
-    return {
-      success: true,
-      roomTypes: types.map(normalizeRoomType),
-    };
-  } catch (err) {
-    return {
-      success: false,
-      roomTypes: [],
-      error: (err as Error).message,
-    };
+export const fetchRoomTypes = async (hotelSlug: string) => {
+  const res = await api.get(`/hotels/${hotelSlug}/room-types`);
+  if (!res.success) {
+    return { success: false, roomTypes: [] as RoomType[], error: res.error };
   }
+  const types = Array.isArray(res.data)
+    ? res.data
+    : res.data?.roomTypes || res.data?.room_types || [];
+  return { success: true, roomTypes: types.map(normalizeRoomType) };
 };
 
-/**
- * Bitta room type olish
- */
-export const fetchRoomTypeById = async (
-  hotelSlug: string,
-  typeId: string,
-): Promise<RoomTypeResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/room-types/${typeId}`, {
-      method: 'GET',
-      headers: jsonHeaders(),
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to fetch room type',
-      };
-    }
-
-    const data = await res.json();
-    return {
-      success: true,
-      roomType: normalizeRoomType(data.roomType || data.room_type || data),
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
+export const fetchRoomTypeById = async (hotelSlug: string, typeId: string) => {
+  const res = await api.get(`/hotels/${hotelSlug}/room-types/${typeId}`);
+  if (!res.success) {
+    return { success: false, error: res.error, roomType: undefined };
   }
+  return {
+    success: true,
+    roomType: normalizeRoomType(res.data?.roomType || res.data?.room_type || res.data),
+  };
 };
 
-/**
- * Yangi room type yaratish
- */
 export const addRoomType = async (
   hotelSlug: string,
   payload: Partial<RoomType>,
-): Promise<RoomTypeResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/room-types`, {
-      method: 'POST',
-      headers: jsonHeaders(),
-      credentials: 'include',
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to create room type',
-      };
-    }
-
-    const data = await res.json();
-    return {
-      success: true,
-      roomType: normalizeRoomType(data.roomType || data.room_type || data),
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
+) => {
+  const res = await api.post(`/hotels/${hotelSlug}/room-types`, payload);
+  if (!res.success) {
+    return { success: false, error: res.error, roomType: undefined };
   }
+  return {
+    success: true,
+    roomType: normalizeRoomType(res.data?.roomType || res.data?.room_type || res.data),
+  };
 };
 
-/**
- * Room type yangilash
- */
 export const updateRoomType = async (
   hotelSlug: string,
   typeId: string,
   payload: Partial<RoomType>,
-): Promise<RoomTypeResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/room-types/${typeId}`, {
-      method: 'PUT',
-      headers: jsonHeaders(),
-      credentials: 'include',
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to update room type',
-      };
-    }
-
-    const data = await res.json();
-    return {
-      success: true,
-      roomType: normalizeRoomType(data.roomType || data.room_type || data),
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
+) => {
+  const res = await api.put(`/hotels/${hotelSlug}/room-types/${typeId}`, payload);
+  if (!res.success) {
+    return { success: false, error: res.error, roomType: undefined };
   }
+  return {
+    success: true,
+    roomType: normalizeRoomType(res.data?.roomType || res.data?.room_type || res.data),
+  };
 };
 
-/**
- * Room type o'chirish
- */
-export const deleteRoomType = async (
-  hotelSlug: string,
-  typeId: string,
-): Promise<DeleteResponse> => {
-  try {
-    const res = await fetch(`${API}/hotels/${hotelSlug}/room-types/${typeId}`, {
-      method: 'DELETE',
-      headers: jsonHeaders(),
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return {
-        success: false,
-        error: err.message || 'Failed to delete room type',
-      };
-    }
-
-    return { success: true };
-  } catch (err) {
-    return {
-      success: false,
-      error: (err as Error).message,
-    };
-  }
+export const deleteRoomType = async (hotelSlug: string, typeId: string) => {
+  const res = await api.delete(`/hotels/${hotelSlug}/room-types/${typeId}`);
+  return { success: res.success, error: res.error };
 };

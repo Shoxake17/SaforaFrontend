@@ -1,29 +1,125 @@
 // src/pages/guest/components/GuestMainScreen.tsx
-import React from 'react';
+import React, { useState } from 'react';
+import {
+  Home as HomeIcon,
+  Store,
+  Star,
+  Compass,
+  ConciergeBell,
+} from 'lucide-react';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
 
-interface Props {
+import HomeTab from '../tabs/HomeTab/HomeTab';
+
+import './GuestMainScreen.css';
+
+// ═══════════════════════════════════════════════════════
+// Types
+// ═══════════════════════════════════════════════════════
+type TabKey = 'home' | 'services' | 'market' | 'reviews' | 'explore';
+
+interface GuestMainScreenProps {
   hotel: GuestHotel;
   room: GuestRoom;
   settings: GuestSettings;
   guestName: string;
 }
 
-const GuestMainScreen: React.FC<Props> = ({ hotel, guestName }) => {
-  return (
-    <div className="guest-main">
-      <div className="guest-welcome">
-        <h2 className="guest-welcome-name">Welcome, {guestName}</h2>
-        <p className="guest-welcome-sub">Main screen coming soon...</p>
-      </div>
+// ═══════════════════════════════════════════════════════
+// Bottom Navigation Configuration
+// ═══════════════════════════════════════════════════════
+const BOTTOM_NAV: { key: TabKey; icon: React.ElementType; label: string }[] = [
+  { key: 'home',     icon: HomeIcon,      label: 'Home' },
+  { key: 'services', icon: ConciergeBell, label: 'Services' },
+  { key: 'market',   icon: Store,         label: 'Market' },
+  { key: 'reviews',  icon: Star,          label: 'Reviews' },
+  { key: 'explore',  icon: Compass,       label: 'Explore' },
+];
 
-      <div style={{ marginTop: 30, textAlign: 'center', padding: 20, background: '#fff', borderRadius: 16 }}>
-        <p>Hotel: {hotel.name}</p>
-        <p>This is where the tabs (Home, Services, Market, Reviews, etc.) will go.</p>
-        <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>
-          Bosqich 2 — keyingi javobda qilamiz
-        </p>
-      </div>
+// ═══════════════════════════════════════════════════════
+// Component — TAB MANAGER
+// ═══════════════════════════════════════════════════════
+const GuestMainScreen: React.FC<GuestMainScreenProps> = ({
+  hotel,
+  room,
+  settings,
+  guestName,
+}) => {
+  const [activeTab, setActiveTab] = useState<TabKey>('home');
+
+  // Hotel accent color
+  const accentColor = settings.primary_color || '#16a34a';
+
+  return (
+    <div className="gms-screen">
+      {/* ═══════════════ TAB CONTENT ═══════════════ */}
+      {activeTab === 'home' && (
+        <HomeTab
+          hotel={hotel}
+          room={room}
+          settings={settings}
+          guestName={guestName}
+          accentColor={accentColor}
+          onTabChange={(tab) => setActiveTab(tab)}
+        />
+      )}
+
+      {activeTab === 'services' && (
+        <div className="gms-placeholder">
+          <p>Services Tab — Bosqich 3</p>
+        </div>
+      )}
+
+      {activeTab === 'market' && (
+        <div className="gms-placeholder">
+          <p>Market Tab — Bosqich 3</p>
+        </div>
+      )}
+
+      {activeTab === 'reviews' && (
+        <div className="gms-placeholder">
+          <p>Reviews Tab — Bosqich 3</p>
+        </div>
+      )}
+
+      {activeTab === 'explore' && (
+        <div className="gms-placeholder">
+          <p>Explore Tab — Bosqich 3</p>
+        </div>
+      )}
+
+      {/* ═══════════════ BOTTOM NAVIGATION ═══════════════ */}
+      <nav className="gms-bottom-nav">
+        {BOTTOM_NAV.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              className={`gms-nav-btn ${isActive ? 'gms-nav-active' : ''}`}
+              onClick={() => setActiveTab(item.key)}
+            >
+              <div
+                className="gms-nav-icon-wrap"
+                style={isActive ? { background: `${accentColor}15` } : undefined}
+              >
+                <Icon
+                  size={20}
+                  strokeWidth={2.2}
+                  color={isActive ? accentColor : '#94a3b8'}
+                />
+              </div>
+              <span
+                className="gms-nav-label"
+                style={isActive ? { color: accentColor } : undefined}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 };

@@ -1,0 +1,71 @@
+/* src/components/PageHeader/PageHeader.css */
+
+.ph-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.ph-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.ph-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text, #fff);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.ph-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-dim, #888);
+  margin: 4px 0 0;
+}
+
+.ph-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ph-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: var(--btn-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--btn-border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  color: var(--text, #fff);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.ph-back-btn:hover {
+  background: var(--card-hover, rgba(255, 255, 255, 0.08));
+  transform: translateX(-2px);
+}
+
+@media (max-width: 768px) {
+  .ph-header {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .ph-right {
+    justify-content: flex-start;
+  }
+}
