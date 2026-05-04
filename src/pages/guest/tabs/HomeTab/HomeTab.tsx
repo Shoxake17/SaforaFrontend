@@ -84,7 +84,8 @@ const ACTION_CARDS: {
   color: string;
   bgColor: string;
 }[] = [
-  { key: 'call',     icon: PhoneOutgoing,     label: 'Call',         color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.1)' },
+  // { key: 'call',     icon: PhoneOutgoing,     label: 'Call',         color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.1)' },
+  { key: 'callssss',    icon: PhoneOutgoing,     label: 'Calls',         color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.1)' },
   { key: 'message',  icon: MessageCircleMore, label: 'Message',      color: '#16a34a', bgColor: 'rgba(22, 163, 74, 0.1)' },
   { key: 'ai',       icon: BotMessageSquare,  label: 'AI Concierge', color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.1)' },
   { key: 'services', icon: ConciergeBell,     label: 'Services',     color: '#16a34a', bgColor: 'rgba(22, 163, 74, 0.1)' },

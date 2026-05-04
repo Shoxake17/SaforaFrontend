@@ -155,7 +155,7 @@ const RoomsPage: React.FC = () => {
                   <div className="rm-type-info">
                     <div className="rm-type-name">{type.name}</div>
                     <div className="rm-type-price">
-                      {type.price_per_night.toLocaleString()} UZS / night
+                      {type.price_per_night.toLocaleString()} UZS
                     </div>
                   </div>
                   <Link

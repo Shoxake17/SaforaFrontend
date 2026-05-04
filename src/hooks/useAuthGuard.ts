@@ -5,11 +5,6 @@ import useAuth from './useAuth';
 import usePortalNavigation from './useNavigation';
 import type { RoleKey } from '@config/roles';
 
-/**
- * Auth guard for portal pages.
- * Redirects to login if not authenticated.
- * Returns auth state for the page.
- */
 export const useAuthGuard = () => {
   const { slug, role } = useParams<{ slug: string; role: RoleKey }>();
   const auth = useAuth();

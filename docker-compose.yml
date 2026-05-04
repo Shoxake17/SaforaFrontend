@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  safora_frontend:
+    build: .
+    container_name: safora_frontend_app
+    ports:
+      - "5173:80"
+    restart: always
+    networks:
+      - safora_network
+
+networks:
+  safora_network:
+    external: true

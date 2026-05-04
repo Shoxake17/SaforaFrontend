@@ -1,4 +1,4 @@
-// src/pages/portal/Dashboard.tsx
+// src/pages/dashboard/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
 import {
   Bed,
@@ -93,13 +93,11 @@ const RoleDashboard: React.FC = () => {
 
       {/* Stats */}
       {isDeptManager ? (
-        <QrOperations
-          hotelSlug={slug}
-          badgeColor={config.badgeColor}
-          staffCount={staffCount}
-          staffLoading={staffLoading}
-        />
-      ) : (
+  <QrOperations
+    hotelSlug={slug}
+    badgeColor={config.badgeColor}
+  />
+) : (
         <div className="rd-stats-grid">
           {config.dashboardStats.map((stat, i) => {
             const StatIcon = stat.icon;

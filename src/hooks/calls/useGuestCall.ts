@@ -1,4 +1,4 @@
-// src/pages/guest/hooks/useGuestCall.ts
+// src/hooks/calls/useGuestCall.ts
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   initiateCall,
@@ -73,6 +73,11 @@ export function useGuestCall({
   const previousStatusRef = useRef<string | null>(null);
   const handlingManagerReconnectRef = useRef<boolean>(false);
 
+  // ✅ YANGI: React StrictMode double-render himoyasi
+  // (development mode'da useEffect 2 marta ishga tushadi va
+  //  /initiate API ham 2 marta chaqiriladi → duplicate Call documents)
+  const startingRef = useRef<boolean>(false);
+
   // onEnded callback ref (to avoid re-creating callbacks)
   const onEndedRef = useRef(onEnded);
   useEffect(() => {
@@ -109,6 +114,7 @@ export function useGuestCall({
     addedStaffIceCountRef.current = 0;
     previousStatusRef.current = null;
     handlingManagerReconnectRef.current = false;
+    startingRef.current = false; // ✅ YANGI: cleanup paytida ham reset
   }, [silentlyClosePeer, resetIceQueue]);
 
   // ═══════════════════════════════════════════════════
@@ -329,30 +335,38 @@ export function useGuestCall({
   );
 
   // ═══════════════════════════════════════════════════
-  // START CALL
+  // START CALL — ✅ startingRef guard bilan o'ralgan
   // ═══════════════════════════════════════════════════
   const startCall = useCallback(async () => {
-    // Avval localStorage'da active call bormi tekshirish
-    const storedCall = storage.get();
-    if (
-      storedCall &&
-      storedCall.hotelSlug === hotelSlug &&
-      storedCall.roomNumber === roomNumber &&
-      storedCall.guestName === guestName
-    ) {
-      console.log('[useGuestCall] Found stored call, attempting reconnect');
-      const reconnected = await tryReconnect(storedCall.callId);
-      if (reconnected) return;
+    // ✅ GUARD: React StrictMode double-render himoyasi
+    // Agar startCall allaqachon ishlamoqda bo'lsa, ikkinchi chaqiriqni bekor qilish
+    if (startingRef.current) {
+      console.warn('[useGuestCall] startCall already in progress, ignoring duplicate');
+      return;
     }
-
-    // Yangi call boshlash
-    cleanup();
-    callIdRef.current = null;
-
-    setErrorMessage('');
-    setStatus('requesting-mic');
+    startingRef.current = true;
 
     try {
+      // ═════ Avval localStorage'da active call bormi tekshirish ═════
+      const storedCall = storage.get();
+      if (
+        storedCall &&
+        storedCall.hotelSlug === hotelSlug &&
+        storedCall.roomNumber === roomNumber &&
+        storedCall.guestName === guestName
+      ) {
+        console.log('[useGuestCall] Found stored call, attempting reconnect');
+        const reconnected = await tryReconnect(storedCall.callId);
+        if (reconnected) return;
+      }
+
+      // ═════ Yangi call boshlash ═════
+      cleanup();
+      callIdRef.current = null;
+
+      setErrorMessage('');
+      setStatus('requesting-mic');
+
       setStatus('connecting');
       const offer = await createPeerAndOffer();
 
@@ -396,6 +410,9 @@ export function useGuestCall({
       setErrorMessage(msg);
       setStatus('failed');
       cleanup();
+    } finally {
+      // ✅ Guard'ni ozod qilish (success yoki error bo'lishidan qat'iy nazar)
+      startingRef.current = false;
     }
   }, [
     hotelSlug,
@@ -434,8 +451,6 @@ export function useGuestCall({
       const callId = callIdRef.current;
       if (!callId) return;
 
-      // Connected paytida — storage'da qoldiramiz (reconnect uchun)
-      // Faqat ringing/connecting paytida end yuboramiz
       if (
         status === 'ringing' ||
         status === 'connecting' ||

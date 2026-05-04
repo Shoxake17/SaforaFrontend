@@ -15,14 +15,19 @@ import useAuthGuard from '@hooks/useAuthGuard';
 
 import PortalLayout from '@components/PortalLayout/PortalLayout';
 
-
 import OrdersPanel from './panels/OrdersPanel';
 import RequestsPanel from './panels/RequestsPanel';
 import MessagesPanel from './panels/MessagesPanel';
 import CallsPanel from './panels/CallsPanel';
 import ReviewsPanel from './panels/ReviewsPanel';
 
+import { getCallHistory } from '@services/calls';
+
 import './QrRooms.css';
+
+// ═══════════════════════════════════════════════════════
+// TYPES & CONFIG
+// ═══════════════════════════════════════════════════════
 
 interface TabConfig {
   key: QrTabKey;
@@ -40,22 +45,56 @@ const TABS: TabConfig[] = [
   { key: 'reviews',  icon: Star,          label: 'Reviews',  color: '#f59e0b', bgColor: 'rgba(245,158,11,0.12)' },
 ];
 
+const STATS_REFRESH_INTERVAL_MS = 30_000;
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════
+
 const QrRooms: React.FC = () => {
   const { slug, role } = useAuthGuard();
   const config = getRoleConfig(role);
 
   const [activeTab, setActiveTab] = useState<QrTabKey>('orders');
 
-  // Counts (kelajakda API'dan keladi)
-  const [counts] = useState({
+  // ═════ Counts (real va hardcoded) ═════
+  const [counts, setCounts] = useState({
     orders: 0,
-    requests: 9,
-    messages: 0,
-    calls: 0,
-    reviews: 2,
+    requests: 9,    // TODO: API
+    messages: 0,    // TODO: API
+    calls: 0,       // ✅ getCallHistory'dan keladi
+    reviews: 2,     // TODO: API
   });
 
-  // Hash-based tab switching (notification clicks)
+  // ═════ Calls count — backend'dan ═════
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCallsCount = async () => {
+      try {
+        const result = await getCallHistory('all', 200);
+        if (cancelled) return;
+
+        if (result.success) {
+          setCounts(prev => ({ ...prev, calls: result.total }));
+        }
+      } catch (err) {
+        console.warn('[QrRooms] Failed to load calls count:', err);
+      }
+    };
+
+    loadCallsCount();
+
+    // Avtomatik yangilash (30 sek)
+    const interval = setInterval(loadCallsCount, STATS_REFRESH_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // ═════ Hash-based tab switching (notification clicks) ═════
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as QrTabKey;
     if (hash && TABS.some((t) => t.key === hash)) {

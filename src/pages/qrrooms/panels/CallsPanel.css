@@ -1,0 +1,288 @@
+/* src/pages/qrrooms/panels/CallsPanel.css */
+
+/* ═══════════════════════════════════════════════════
+   CONTAINER
+═══════════════════════════════════════════════════ */
+
+.cph-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px;
+}
+
+/* ═══════════════════════════════════════════════════
+   LOADING
+═══════════════════════════════════════════════════ */
+
+.cph-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.cph-loading p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.cph-spin {
+  animation: cph-spin 1s linear infinite;
+}
+
+@keyframes cph-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════
+   STATS BAR
+═══════════════════════════════════════════════════ */
+
+.cph-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 18px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.06));
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.cph-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 70px;
+}
+
+.cph-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  line-height: 1.2;
+}
+
+.cph-stat-label {
+  font-size: 11px;
+  color: var(--text-secondary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.cph-stat-success .cph-stat-value {
+  color: #10b981;
+}
+
+.cph-stat-danger .cph-stat-value {
+  color: #ef4444;
+}
+
+.cph-refresh-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.cph-refresh-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cph-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════
+   FILTER TABS
+═══════════════════════════════════════════════════ */
+
+.cph-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+}
+
+.cph-tab {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cph-tab:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary, #fff);
+}
+
+.cph-tab-active {
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════
+   ERROR BANNER
+═══════════════════════════════════════════════════ */
+
+.cph-error-banner {
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════
+   CALLS LIST
+═══════════════════════════════════════════════════ */
+
+.cph-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100vh - 360px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.cph-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cph-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cph-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.cph-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════
+   CALL ROW
+═══════════════════════════════════════════════════ */
+
+.cph-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+  border-radius: 10px;
+  transition: all 0.15s ease;
+}
+
+.cph-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.cph-row-icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.cph-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.cph-row-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cph-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary, #94a3b8);
+  flex-wrap: wrap;
+}
+
+.cph-row-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cph-row-sep {
+  opacity: 0.5;
+}
+
+.cph-row-time {
+  cursor: help;
+}
+
+.cph-row-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .cph-stats-bar {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .cph-stat {
+    min-width: 60px;
+  }
+
+  .cph-stat-value {
+    font-size: 16px;
+  }
+
+  .cph-row-badge {
+    display: none;
+  }
+
+  .cph-row-meta {
+    font-size: 11px;
+  }
+}

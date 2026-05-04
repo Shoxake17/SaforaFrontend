@@ -1,5 +1,5 @@
 // src/pages/guest/modals/CallModal.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Phone, PhoneOff, AlertCircle } from 'lucide-react';
 import { useGuestCall } from '@hooks/calls/useGuestCall';
 import { getCallStatus } from '@services/calls';
@@ -39,8 +39,18 @@ const CallModal: React.FC<CallModalProps> = ({
     null
   );
 
-  // ═════ Modal mount → call boshlash ═════
+  // ✅ React StrictMode double-mount himoyasi
+  // useEffect StrictMode'da 2 marta ishlaydi, lekin hasStartedRef ikkala instance'da ham
+  // birinchi mount'dan keyin true bo'ladi (chunki React useRef ni saqlaydi remount paytida)
+  const hasStartedRef = useRef<boolean>(false);
+
+  // ═════ Modal mount → call boshlash (FAQAT 1 MARTA!) ═════
   useEffect(() => {
+    if (hasStartedRef.current) {
+      console.log('[CallModal] startCall already called, skipping (StrictMode protection)');
+      return;
+    }
+    hasStartedRef.current = true;
     startCall();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -109,7 +119,7 @@ const CallModal: React.FC<CallModalProps> = ({
       setTimerSec(elapsedSecondsFrom(originalAnsweredAt));
     };
 
-    updateTimer(); // Darhol birinchi update
+    updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [status, originalAnsweredAt]);

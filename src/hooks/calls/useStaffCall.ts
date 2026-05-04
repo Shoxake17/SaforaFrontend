@@ -151,7 +151,6 @@ export function useStaffCall(
         addedGuestIceCountRef.current = data.iceGuest.length;
       }
     } catch {
-      // Silent fail — keyingi poll'da qayta urinadi
     }
   }, [handleCallEnded]);
 
@@ -318,15 +317,6 @@ export function useStaffCall(
 
   // ═══════════════════════════════════════════════════
   // MOUNT — Refresh'dan keyin reconnect
-  //
-  // Workflow:
-  // 1. localStorage'da call bormi tekshirish
-  // 2. Backend'da call hali tirikmi (status !== 'ended')
-  // 3. /staff-reconnect yuborish (offerSdp=''; status='ringing')
-  // 4. pendingReconnectCallId set qilinadi
-  // 5. Mehmon polling status='answered' → 'ringing' detect qiladi
-  // 6. Mehmon yangi offer yuboradi
-  // 7. Manager polling call'ni ko'radi → AUTO-ACCEPT
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     const stored = storage.get();
@@ -369,7 +359,6 @@ export function useStaffCall(
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ═══════════════════════════════════════════════════

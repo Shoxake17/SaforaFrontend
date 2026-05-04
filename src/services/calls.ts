@@ -158,3 +158,72 @@ export async function staffReconnectCall(
   }
   return res.data;
 }
+
+// ═══════════════════════════════════════════════════════
+// Bugungi qo'ng'iroqlar statistikasi (PROTECTED)
+// ═══════════════════════════════════════════════════════
+
+export interface CallStatsToday {
+  success: boolean;
+  total: number;
+  answered: number;
+  missed: number;
+}
+
+export async function getTodayCallStats(): Promise<CallStatsToday> {
+  const res = await api.get<CallStatsToday>('/calls/stats/today');
+
+  if (!res.success || !res.data) {
+    return {
+      success: false,
+      total: 0,
+      answered: 0,
+      missed: 0,
+    };
+  }
+
+  return res.data;
+}
+
+// ═══════════════════════════════════════════════════════
+// CALL HISTORY (PROTECTED)
+// ═══════════════════════════════════════════════════════
+
+export interface CallHistoryItem {
+  id: string;
+  roomNumber: string;
+  guestName: string;
+  guestPhone: string;
+  status: CallStatus;
+  duration: number; 
+  answeredByName: string;
+  answeredAt: string | null;
+  endedAt: string | null;
+  createdAt: string;
+}
+
+export interface CallHistoryResult {
+  success: boolean;
+  total: number;
+  calls: CallHistoryItem[];
+}
+
+export type CallHistoryFilter = 'all' | 'ended' | 'missed';
+
+export async function getCallHistory(
+  filter: CallHistoryFilter = 'all',
+  limit: number = 50
+): Promise<CallHistoryResult> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    status: filter,
+  });
+
+  const res = await api.get<CallHistoryResult>(`/calls/history?${params}`);
+
+  if (!res.success || !res.data) {
+    return { success: false, total: 0, calls: [] };
+  }
+
+  return res.data;
+}

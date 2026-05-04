@@ -212,14 +212,14 @@ const AddStaff: React.FC = () => {
               label="First Name *"
               value={firstName}
               onChange={setFirstName}
-              placeholder="Fotima"
+              placeholder="Shoxrux"
               required
             />
             <Field
               label="Last Name *"
               value={lastName}
               onChange={setLastName}
-              placeholder="Bek"
+              placeholder="Turaxonov"
               required
             />
           </div>
@@ -229,7 +229,7 @@ const AddStaff: React.FC = () => {
               label="Username *"
               value={username}
               onChange={setUsername}
-              placeholder="fotima_bek"
+              placeholder="shoxrux_developer"
               required
             />
           </div>
@@ -240,14 +240,14 @@ const AddStaff: React.FC = () => {
               type="email"
               value={email}
               onChange={setEmail}
-              placeholder="example@email.com"
+              placeholder="example@gmail.com"
               iconLeft={<Mail size={14} strokeWidth={2.2} />}
             />
             <Field
               label="Phone"
               value={phone}
               onChange={setPhone}
-              placeholder="901234567"
+              placeholder="+998901234567"
               iconLeft={<Phone size={14} strokeWidth={2.2} />}
             />
           </div>
@@ -257,7 +257,7 @@ const AddStaff: React.FC = () => {
               label="Address"
               value={address}
               onChange={setAddress}
-              placeholder="Tashkent, Uzbekistan"
+              placeholder="Tashkent"
               iconLeft={<MapPin size={14} strokeWidth={2.2} />}
             />
           </div>
