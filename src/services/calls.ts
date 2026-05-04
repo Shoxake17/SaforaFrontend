@@ -227,3 +227,63 @@ export async function getCallHistory(
 
   return res.data;
 }
+
+
+// ═══════════════════════════════════════════════════════
+// ⭐ YANGI — Manager → Mehmon initiate
+// ═══════════════════════════════════════════════════════
+export interface InitiateFromStaffParams {
+  roomNumber: string;
+  offerSdp: string;
+}
+
+export interface InitiateFromStaffResult {
+  success: boolean;
+  callId?: string;
+  status?: string;
+  guest?: { name: string; phone: string };
+  error?: string;
+  code?: string;
+}
+
+export async function initiateCallFromStaff(
+  params: InitiateFromStaffParams
+): Promise<InitiateFromStaffResult> {
+  const res = await api.post<InitiateFromStaffResult>(
+    '/calls/initiate-from-staff',
+    params
+  );
+  if (!res.success || !res.data) {
+    return {
+      success: false,
+      error: res.error || 'Failed to initiate call',
+    };
+  }
+  return res.data;
+}
+
+// ═══════════════════════════════════════════════════════
+// ⭐ YANGI — Mehmon javob beradi (Manager qo'ng'irog'iga)
+// ═══════════════════════════════════════════════════════
+export interface AnswerByGuestResult {
+  success: boolean;
+  callId?: string;
+  iceStaff?: ICECandidate[];
+  alreadyAnswered?: boolean;
+  originalAnsweredAt?: string | null;
+}
+
+export async function answerCallByGuest(
+  callId: string,
+  answerSdp: string
+): Promise<AnswerByGuestResult> {
+  const res = await api.post<AnswerByGuestResult>(
+    `/calls/${callId}/answer-by-guest`,
+    { answerSdp },
+    { skipAuth: true }
+  );
+  if (!res.success || !res.data) {
+    throw new Error(res.error || 'Failed to answer call');
+  }
+  return res.data;
+}

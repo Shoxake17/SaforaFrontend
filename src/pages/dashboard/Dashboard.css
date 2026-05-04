@@ -1,14 +1,6 @@
 /* ═══════════════════════════════════════════════════════
-   Dashboard.css — Universal Dashboard (Light + Dark)
-   
-   Tozalangan versiya:
-   - Sidebar stillari → Sidebar.css'da
-   - Topbar stillari → MainLayout.css'da
-   - Stat card stillari → StatCard.css'da
-   - Empty card stillari → EmptyStateCard.css'da
-═══════════════════════════════════════════════════════ */
+   src/pages/dashboard/Dashboard.css — Universal Dashboard (Light + Dark)
 
-/* ═══════════════════════════════════════════════════════
    ROOT LAYOUT
 ═══════════════════════════════════════════════════════ */
 .rd-root {
@@ -214,7 +206,8 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   EMPTY SECTION (EmptyStateCard ishlatadi)
+   EMPTY SECTION (EmptyStateCard ishlatadi) — eski 2 ta blok
+   (Boshqa sahifalarda ishlatilishi mumkin, shuning uchun saqlandi)
 ═══════════════════════════════════════════════════════ */
 .rd-empty-row {
   display: grid;
@@ -225,6 +218,29 @@
 
 @media (max-width: 768px) {
   .rd-empty-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ⭐ THREE GRID — 3 ta blok (Recent Activity / Recent Requests / Quick Call)
+═══════════════════════════════════════════════════════ */
+.rd-three-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+@media (max-width: 1280px) {
+  .rd-three-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .rd-three-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }

@@ -15,6 +15,8 @@ import StatCard from '@components/StatCard';
 import EmptyStateCard from '@components/EmptyStateCard';
 import PortalLayout from '@components/PortalLayout';
 import QrOperations from '@components/QrOperations';
+import QuickCallPanel from '@components/QuickCallPanel';
+import OutgoingCallModal from '@components/OutgoingCallModal';
 
 import { fetchStaff } from '@services/staff';
 import { fetchRooms } from '@services/rooms';
@@ -38,7 +40,7 @@ const RoleDashboard: React.FC = () => {
 
   const [roomsCount, setRoomsCount] = useState<number>(0);
   const [roomsLoading, setRoomsLoading] = useState(true);
-
+  const [callingRoom, setCallingRoom] = useState<string | null>(null);
   // Staff count
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
@@ -65,6 +67,12 @@ const RoleDashboard: React.FC = () => {
 
   const formatCount = (count: number, loading: boolean): string | number =>
     loading ? '—' : count;
+
+  // ═════ Call tugmasi handler — backend hali tayyor emas ═════
+  const handleCallRoom = (roomNumber: string) => {
+  console.log('[Dashboard] Call room', roomNumber);
+  setCallingRoom(roomNumber); // ⭐ Modal ochish
+};
 
   return (
     <PortalLayout
@@ -93,11 +101,8 @@ const RoleDashboard: React.FC = () => {
 
       {/* Stats */}
       {isDeptManager ? (
-  <QrOperations
-    hotelSlug={slug}
-    badgeColor={config.badgeColor}
-  />
-) : (
+        <QrOperations hotelSlug={slug} badgeColor={config.badgeColor} />
+      ) : (
         <div className="rd-stats-grid">
           {config.dashboardStats.map((stat, i) => {
             const StatIcon = stat.icon;
@@ -190,8 +195,8 @@ const RoleDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Empty cards */}
-      <div className="rd-empty-row">
+      {/* ⭐ 3 ta blok: Recent Activity / Recent Requests / Quick Call */}
+      <div className="rd-three-grid">
         <EmptyStateCard
           headerIcon={ShoppingCart}
           title="Recent Activity"
@@ -205,7 +210,21 @@ const RoleDashboard: React.FC = () => {
           message="No recent requests yet"
           accentColor={config.badgeColor}
         />
+
+        <QuickCallPanel
+          hotelSlug={slug || ''}
+          accentColor={config.badgeColor}
+          onCallRoom={handleCallRoom}
+        />
       </div>
+      {/* ⭐ Outgoing Call Modal */}
+      {callingRoom && (
+        <OutgoingCallModal
+          isOpen={true}
+          roomNumber={callingRoom}
+          onClose={() => setCallingRoom(null)}
+        />
+      )}
     </PortalLayout>
   );
 };

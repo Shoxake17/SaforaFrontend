@@ -10,7 +10,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
-import { registerGuest } from '@services/guest';
+import { registerOrLoginGuest } from '@services/guestAuth';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
 
 interface Props {
@@ -33,7 +33,6 @@ const GuestIntroScreen: React.FC<Props> = ({ hotel, room, settings, onRegistered
     nameRef.current?.focus();
   }, []);
 
-  // Hotel rules from settings
   const hasRules = !!settings.hotel_rules;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,29 +56,34 @@ const GuestIntroScreen: React.FC<Props> = ({ hotel, room, settings, onRegistered
     setSubmitting(true);
     setError(null);
 
-    const result = await registerGuest({
-      hotel_slug: hotel.slug,
-      room_number: room.number,
-      name: trimmedName,
+    // ✅ YANGI API — MongoDB'ga saqlaydi va JWT token qaytaradi
+    const result = await registerOrLoginGuest({
+      fullName: trimmedName,
       phone: trimmedPhone,
       email: trimmedEmail,
       language: localStorage.getItem('guest_lang') || 'en',
+      hotelSlug: hotel.slug,
+      roomNumber: room.number,
     });
 
     setSubmitting(false);
 
-    if (result.success) {
-      onRegistered(trimmedName, trimmedPhone, trimmedEmail);
+    if (result.success && result.guest) {
+      // Token avtomatik saqlangan (registerOrLoginGuest ichida)
+      // MongoDB'dagi guest ma'lumotlarini parent'ga uzatamiz
+      onRegistered(
+        result.guest.fullName,
+        result.guest.phone,
+        result.guest.email
+      );
     } else {
-      // Even if backend register fails, allow user to continue
-      // (matches Django's silent fail pattern)
-      onRegistered(trimmedName, trimmedPhone, trimmedEmail);
+      // Endi xatoni ko'rsatamiz (silent fail YO'Q)
+      setError(result.error || 'Registration failed. Please try again.');
     }
   };
 
   return (
     <>
-      {/* Hotel Rules (if present) */}
       {hasRules && (
         <div className="guest-rules-banner">
           <div className="guest-rules-header">
@@ -97,7 +101,6 @@ const GuestIntroScreen: React.FC<Props> = ({ hotel, room, settings, onRegistered
         </div>
       )}
 
-      {/* Intro card */}
       <div className="guest-intro-screen">
         <form className="guest-intro-card" onSubmit={handleSubmit}>
           <div className="guest-intro-icon">
@@ -111,7 +114,6 @@ const GuestIntroScreen: React.FC<Props> = ({ hotel, room, settings, onRegistered
             {settings.welcome_subtitle || 'We are here to make your stay exceptional.'}
           </p>
 
-          {/* Feature pills */}
           <div className="guest-intro-features">
             <div className="guest-intro-feat">
               <ConciergeBell size={18} color="#16a34a" />
@@ -131,7 +133,6 @@ const GuestIntroScreen: React.FC<Props> = ({ hotel, room, settings, onRegistered
             </div>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="guest-intro-error">
               <AlertCircle size={14} />
@@ -139,7 +140,6 @@ const GuestIntroScreen: React.FC<Props> = ({ hotel, room, settings, onRegistered
             </div>
           )}
 
-          {/* Inputs */}
           <input
             ref={nameRef}
             type="text"

@@ -31,9 +31,10 @@ interface GuestMainScreenProps {
 const BOTTOM_NAV: { key: TabKey; icon: React.ElementType; label: string }[] = [
   { key: 'home',     icon: HomeIcon,      label: 'Home' },
   { key: 'services', icon: ConciergeBell, label: 'Services' },
-  { key: 'market',   icon: Store,         label: 'Market' },
-  { key: 'reviews',  icon: Star,          label: 'Reviews' },
   { key: 'explore',  icon: Compass,       label: 'Explore' },
+  { key: 'reviews',  icon: Star,          label: 'Reviews' },
+  { key: 'market',   icon: Store,         label: 'Market' },
+
 ];
 
 // ═══════════════════════════════════════════════════════
