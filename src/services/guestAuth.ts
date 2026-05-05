@@ -22,9 +22,7 @@ export interface GuestAuthResult {
   error?: string;
 }
 
-// ═══════════════════════════════════════════════════════
-// Helper — token bilan fetch
-// ═══════════════════════════════════════════════════════
+// Helper token bilan fetch
 const guestAuthFetch = async (
   url: string,
   options: RequestInit = {}
@@ -46,9 +44,7 @@ const guestAuthFetch = async (
   });
 };
 
-// ═══════════════════════════════════════════════════════
-// REGISTER yoki LOGIN — telefon mavjud bo'lsa avtomatik login qiladi
-// ═══════════════════════════════════════════════════════
+// REGISTER yoki LOGIN telefon mavjud bo'lsa avtomatik login qiladi
 export async function registerOrLoginGuest(params: {
   fullName: string;
   phone: string;
@@ -58,7 +54,7 @@ export async function registerOrLoginGuest(params: {
   roomNumber?: string;
 }): Promise<GuestAuthResult> {
   try {
-    const response = await guestAuthFetch('/api/guest/auth/register', {
+    const response = await guestAuthFetch('/guest/auth/register', {
       method: 'POST',
       body: JSON.stringify(params),
     });
@@ -79,16 +75,14 @@ export async function registerOrLoginGuest(params: {
   }
 }
 
-// ═══════════════════════════════════════════════════════
-// LOGIN — faqat telefon orqali (account mavjud bo'lishi kerak)
-// ═══════════════════════════════════════════════════════
+// LOGIN Ã¢â‚¬â€ faqat telefon orqali (account mavjud bo'lishi kerak)
 export async function loginGuestByPhone(params: {
   phone: string;
   hotelSlug?: string;
   roomNumber?: string;
 }): Promise<GuestAuthResult> {
   try {
-    const response = await guestAuthFetch('/api/guest/auth/login', {
+    const response = await guestAuthFetch('/guest/auth/login', {
       method: 'POST',
       body: JSON.stringify(params),
     });
@@ -109,18 +103,16 @@ export async function loginGuestByPhone(params: {
   }
 }
 
-// ═══════════════════════════════════════════════════════
-// GET ME — joriy foydalanuvchi (token kerak)
-// ═══════════════════════════════════════════════════════
+// GET ME Ã¢â‚¬â€ joriy foydalanuvchi (token kerak)
 export async function getCurrentGuest(): Promise<GuestAccount | null> {
   try {
     const token = guestTokenService.get();
     if (!token) return null;
 
-    const response = await guestAuthFetch('/api/guest/auth/me');
+    const response = await guestAuthFetch('/guest/auth/me');
 
     if (!response.ok) {
-      // Token yaroqsiz — tozalash
+      // Token yaroqsiz Ã¢â‚¬â€ tozalash
       if (response.status === 401) {
         guestTokenService.remove();
       }
@@ -135,16 +127,14 @@ export async function getCurrentGuest(): Promise<GuestAccount | null> {
   }
 }
 
-// ═══════════════════════════════════════════════════════
-// UPDATE ME — profilni yangilash
-// ═══════════════════════════════════════════════════════
+// UPDATE ME Ã¢â‚¬â€ profilni yangilash
 export async function updateMyProfile(params: {
   fullName?: string;
   email?: string;
   language?: string;
 }): Promise<GuestAuthResult> {
   try {
-    const response = await guestAuthFetch('/api/guest/auth/me', {
+    const response = await guestAuthFetch('/guest/auth/me', {
       method: 'PATCH',
       body: JSON.stringify(params),
     });
@@ -160,16 +150,12 @@ export async function updateMyProfile(params: {
   }
 }
 
-// ═══════════════════════════════════════════════════════
-// LOGOUT — token tozalash (server'da hech narsa qilmaydi)
-// ═══════════════════════════════════════════════════════
+// LOGOUT Ã¢â‚¬â€ token tozalash (server'da hech narsa qilmaydi)
 export function logoutGuest(): void {
   guestTokenService.remove();
 }
 
-// ═══════════════════════════════════════════════════════
-// MY CALLS — calls tarixi
-// ═══════════════════════════════════════════════════════
+// MY CALLS Ã¢â‚¬â€ calls tarixi
 export interface GuestCallHistory {
   id: string;
   roomNumber: string;
@@ -183,7 +169,7 @@ export interface GuestCallHistory {
 
 export async function getMyCalls(): Promise<GuestCallHistory[]> {
   try {
-    const response = await guestAuthFetch('/api/guest/auth/me/calls');
+    const response = await guestAuthFetch('/guest/auth/me/calls');
     if (!response.ok) return [];
 
     const data = await response.json();
@@ -194,16 +180,15 @@ export async function getMyCalls(): Promise<GuestCallHistory[]> {
 }
 
 
-// ═══════════════════════════════════════════════════════
-// HEARTBEAT — har 10 sekundda backend'ga ping
+// HEARTBEAT Ã¢â‚¬â€ har 10 sekundda backend'ga ping
 // "Men hali bu yerdaman" signal
-// ═══════════════════════════════════════════════════════
+// 
 export async function sendHeartbeat(params: {
   hotelSlug?: string;
   roomNumber?: string;
 }): Promise<boolean> {
   try {
-    const response = await guestAuthFetch('/api/guest/auth/me/heartbeat', {
+    const response = await guestAuthFetch('/guest/auth/me/heartbeat', {
       method: 'POST',
       body: JSON.stringify(params),
     });
@@ -214,10 +199,8 @@ export async function sendHeartbeat(params: {
 }
 
 
-// ═══════════════════════════════════════════════════════
-// ⭐ YANGI — Manager dan kelayotgan call bormi tekshirish
+// Ã¢Â­Â YANGI Ã¢â‚¬â€ Manager dan kelayotgan call bormi tekshirish
 // (har 3 sek polling)
-// ═══════════════════════════════════════════════════════
 export interface IncomingCallForGuest {
   hasCall: boolean;
   callId?: string;
@@ -227,17 +210,15 @@ export interface IncomingCallForGuest {
   createdAt?: string;
 }
 
-// ═══════════════════════════════════════════════════════
 // Manager dan kelayotgan call bormi tekshirish (har 3 sek polling)
-// ⭐ roomNumber yuborish — bir xil mehmon turli xonalarda login qilsa filter uchun
-// ═══════════════════════════════════════════════════════
+// Ã¢Â­Â roomNumber yuborish Ã¢â‚¬â€ bir xil mehmon turli xonalarda login qilsa filter uchun
 export async function checkIncomingCall(
   roomNumber?: string
 ): Promise<IncomingCallForGuest> {
   try {
     const url = roomNumber
-      ? `/api/guest/auth/me/incoming-call?roomNumber=${encodeURIComponent(roomNumber)}`
-      : '/api/guest/auth/me/incoming-call';
+      ? `/guest/auth/me/incoming-call?roomNumber=${encodeURIComponent(roomNumber)}`
+      : '/guest/auth/me/incoming-call';
 
     const response = await guestAuthFetch(url);
     if (!response.ok) return { hasCall: false };

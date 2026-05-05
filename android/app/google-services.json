@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "463047916213",
+    "project_id": "safora-pms",
+    "storage_bucket": "safora-pms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463047916213:android:9d6224ab84dd39ad025cfc",
+        "android_client_info": {
+          "package_name": "com.shox.pms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkxmjPcqyB910hWElp5iEV_iwsPOqtQfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

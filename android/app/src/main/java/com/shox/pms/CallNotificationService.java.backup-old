@@ -1,0 +1,94 @@
+// CallNotificationService.java
+package com.shox.pms;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+import android.util.Log;
+
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
+
+import java.util.Map;
+
+public class CallNotificationService extends FirebaseMessagingService {
+    private static final String TAG = "CallService";
+    public static final String CHANNEL_ID = "safora_calls";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        createNotificationChannel();
+    }
+
+    @Override
+    public void onNewToken(String token) {
+        Log.d(TAG, "Yangi FCM token: " + token);
+    }
+
+    @Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+        Log.d(TAG, "FCM xabar keldi");
+
+        Map<String, String> data = remoteMessage.getData();
+        if (data.isEmpty()) {
+            Log.w(TAG, "Bosh data");
+            return;
+        }
+
+        String type = data.get("type");
+        Log.d(TAG, "Type: " + type);
+
+        if ("incoming_call".equals(type)) {
+            String callId = data.get("callId");
+            String callerName = data.get("callerName");
+            String hotelSlug = data.get("hotelSlug");
+            String roomNumber = data.get("roomNumber");
+            String offerSdp = data.get("offerSdp");
+
+            Log.d(TAG, "Incoming call: " + callerName);
+
+            Intent intent = new Intent(this, IncomingCallActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra("callId", callId);
+            intent.putExtra("callerName", callerName != null ? callerName : "Hotel");
+            intent.putExtra("hotelSlug", hotelSlug);
+            intent.putExtra("roomNumber", roomNumber);
+            intent.putExtra("offerSdp", offerSdp);
+
+            startActivity(intent);
+        }
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .build();
+
+            NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "Incoming Calls",
+                NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Kelayotgan qongiroqlar");
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            channel.setSound(ringtoneUri, audioAttributes);
+            channel.setLockscreenVisibility(NotificationManager.IMPORTANCE_HIGH);
+
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
+    }
+}

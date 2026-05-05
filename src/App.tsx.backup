@@ -1,6 +1,5 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Capacitor } from '@capacitor/core';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import './index.css';
 
@@ -31,12 +30,9 @@ import QrCodes from './pages/qrcodes/QrCodes';
 import QrRooms from './pages/qrrooms/QrRooms';
 import GuestLoginPage from './pages/guest/GuestLoginPage';
 
-// ⭐ Firebase Init (FCM uchun)
-import FirebaseInit from './components/FirebaseInit/FirebaseInit';
-
-// ⭐ Mobile (Capacitor) tekshiruv
-const isMobileApp = Capacitor.isNativePlatform();
-
+/* ─────────────────────────────────────────────
+   Home — Landing page (har doim LIGHT)
+───────────────────────────────────────────── */
 const Home = () => {
   useForceTheme('light');
   return (
@@ -50,37 +46,33 @@ const Home = () => {
   );
 };
 
-// ⭐ APK ochilganda - mehmon sahifaga to'g'ridan-to'g'ri o'tish (TEST MODE)
-const MobileEntry = () => {
-  // localStorage'da hotelSlug va roomNumber saqlangan bo'lsa - shu yerga qaytamiz
-  const savedSlug = localStorage.getItem('safora_last_hotel_slug') || 'shoxhotel';
-  const savedRoom = localStorage.getItem('safora_last_room_number') || '34';
-  
-  return <Navigate to={`/g/${savedSlug}/${savedRoom}`} replace />;
-};
-
+/* ─────────────────────────────────────────────
+   App — Router
+───────────────────────────────────────────── */
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <FirebaseInit />
         <Router>
           <Routes>
-            {/* ⭐ Mobile - darhol mehmon sahifaga */}
-            {isMobileApp ? (
-              <Route path="/" element={<MobileEntry />} />
-            ) : (
-              <Route path="/" element={<Home />} />
-            )}
-            
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
+            {/* Dashboard (umumiy) */}
             <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Hotel Portal — kartalar tanlash */}
             <Route path="/portal/:slug" element={<HotelPortal />} />
+
+            {/* Role Login */}
             <Route path="/portal/:slug/login/:role" element={<RoleLogin />} />
+
+            {/* Role Dashboard */}
             <Route path="/portal/:slug/:role/dashboard" element={<Dashboard />} />
 
+            {/* Staff Routes */}
             <Route path="/portal/:slug/:role/staff" element={<StaffPage />} />
             <Route path="/portal/:slug/:role/staff/add" element={<AddStaff />} />
             <Route path="/portal/:slug/:role/staff/:id/edit" element={<EditStaff />} />
@@ -92,6 +84,7 @@ function App() {
             <Route path="/portal/:slug/:role/qr-codes" element={<QrCodes />} />
             <Route path="/portal/:slug/:role/qr-rooms" element={<QrRooms />} />
             <Route path="/g/:slug/:roomNumber" element={<GuestLoginPage />} />
+
           </Routes>
         </Router>
       </AuthProvider>

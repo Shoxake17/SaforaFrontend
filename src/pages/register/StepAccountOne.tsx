@@ -34,7 +34,7 @@ const StepAccount: React.FC<StepAccountProps> = ({
     </p>
 
     {googleUser ? (
-      /* ── Google verified ── */
+      /* â”€â”€ Google verified â”€â”€ */
       <>
         <div className="reg-google-verified">
           <GoogleIcon />
@@ -55,10 +55,9 @@ const StepAccount: React.FC<StepAccountProps> = ({
         </button>
       </>
     ) : (
-      /* ── Email form ── */
       <>
         <a
-          href="http://localhost:5000/auth/google/login?flow=register"
+          href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/auth/google/login?flow=register`}
           className="google-signup-btn"
         >
           <GoogleIcon />

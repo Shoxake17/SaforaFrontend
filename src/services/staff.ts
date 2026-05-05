@@ -77,10 +77,7 @@ const buildStaffFormData = (
 };
 
 // ═══════════════════════════════════════════════════════
-// CRUD
-// NOTE: Bu endpointlar /api/api/:slug/staff bo'ladi, chunki
 // API_URL allaqachon /api bilan tugaydi. Backend tekshirib
-// to'g'ri yo'lni aniqlang.
 // ═══════════════════════════════════════════════════════
 
 export const fetchStaff = async (hotelSlug: string) => {
