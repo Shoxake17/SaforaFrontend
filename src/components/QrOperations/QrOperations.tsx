@@ -1,4 +1,5 @@
 // src/components/QrOperations/QrOperations.tsx
+// ⭐ SOCKET-ONLY VERSION — No polling, real-time updates
 import React, { useEffect, useState } from 'react';
 import {
   ShoppingCart,
@@ -8,6 +9,8 @@ import {
 } from 'lucide-react';
 import StatCard from '@components/StatCard';
 import { getCallHistory } from '@services/calls';
+import { getSocket } from '@services/socket';
+import { tokenService } from '@services/auth';
 import './QrOperations.css';
 
 // ═══════════════════════════════════════════════════════
@@ -20,13 +23,6 @@ interface QrOperationsProps {
 }
 
 // ═══════════════════════════════════════════════════════
-// CONSTANTS
-// ═══════════════════════════════════════════════════════
-
-/** Stats avtomatik yangilanadigan interval (ms) */
-const STATS_REFRESH_INTERVAL_MS = 30_000;
-
-// ═══════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════
 
@@ -36,16 +32,18 @@ const QrOperations: React.FC<QrOperationsProps> = () => {
   const requestsCount = 0;
   const messagesCount = 0;
 
-  // ═════ Calls — BARCHA kun (history bilan bir xil) ═════
+  // ═════ Calls — BARCHA kun ═════
   const [callsCount, setCallsCount] = useState<number>(0);
   const [callsLoading, setCallsLoading] = useState<boolean>(true);
 
+  // ═══════════════════════════════════════════════════════
+  // Initial load + Socket-based real-time updates
+  // ═══════════════════════════════════════════════════════
   useEffect(() => {
     let cancelled = false;
 
     const loadCallStats = async () => {
       try {
-        // ✅ getCallHistory ishlatamiz (Call History TOTAL bilan bir xil)
         const result = await getCallHistory('all', 200);
         if (cancelled) return;
 
@@ -59,13 +57,32 @@ const QrOperations: React.FC<QrOperationsProps> = () => {
       }
     };
 
+    // 1) Birinchi yuklash
     loadCallStats();
 
-    const interval = setInterval(loadCallStats, STATS_REFRESH_INTERVAL_MS);
+    // 2) Socket event listener (real-time yangilanish)
+    const token = tokenService.get();
+    if (!token) return;
+
+    const socket = getSocket(token);
+
+    const handleCallEnded = () => {
+      console.log('[QrOperations] 📡 call:ended — refreshing stats');
+      loadCallStats();
+    };
+
+    const handleNewCall = () => {
+      console.log('[QrOperations] 📡 new-call — refreshing stats');
+      loadCallStats();
+    };
+
+    socket.on('call:ended', handleCallEnded);
+    socket.on('new-call', handleNewCall);
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      socket.off('call:ended', handleCallEnded);
+      socket.off('new-call', handleNewCall);
     };
   }, []);
 

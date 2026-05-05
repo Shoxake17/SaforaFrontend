@@ -1,9 +1,14 @@
-// src/components/IncomingCall/useIncomingCalls.ts
+// src/hooks/calls/useIncomingCalls.ts
+// ⭐ PRO VERSION — Manager Smart Hybrid (Socket + intelligent polling)
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { pollCalls } from '@services/calls';
+import { getSocket } from '@services/socket';
+import { tokenService } from '@services/auth';
 import type { IncomingCall } from '@services/calls';
 
-const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_DISCONNECTED_MS = 3_000;
+const POLL_INTERVAL_CONNECTED_MS = 120_000;
+const STATE_CHECK_INTERVAL_MS = 1_000;
 
 interface UseIncomingCallsResult {
   incomingCall: IncomingCall | null;
@@ -11,17 +16,28 @@ interface UseIncomingCallsResult {
   dismissCall: (callId: string) => void;
 }
 
-/**
- * Manager dashboard'da ishlaydi.
- * Har 3 sekundda backend'dan yangi calls'ni so'raydi.
- * Birinchi ringing call'ni qaytaradi.
- */
-export function useIncomingCalls(): UseIncomingCallsResult {
-  const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
-  const currentCallIdRef = useRef<string | null>(null);
+function detectHotelSlugFromUrl(): string | null {
+  try {
+    const path = window.location.pathname;
+    const match = path.match(/\/portal\/([^/]+)/);
+    if (match && match[1]) return match[1];
+    return null;
+  } catch {
+    return null;
+  }
+}
 
-  // End/Decline qilingan call'lar — qayta ochilmasligi uchun
+export function useIncomingCalls(
+  hotelSlugProp?: string
+): UseIncomingCallsResult {
+  const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  const currentCallIdRef = useRef<string | null>(null);
   const dismissedCallIdsRef = useRef<Set<string>>(new Set());
+  const hasJoinedRoomRef = useRef<boolean>(false);
+
+  const hotelSlug = hotelSlugProp || detectHotelSlugFromUrl();
 
   const poll = useCallback(async () => {
     try {
@@ -35,12 +51,10 @@ export function useIncomingCalls(): UseIncomingCallsResult {
         return;
       }
 
-      // ✅ MUHIM: reconnectAttemptedBy bo'lsa, dismissed Set'dan chiqarish
-      // (Mehmon refresh qilgan bo'lsa, qayta ko'rinishi kerak — AUTO-ACCEPT uchun)
       for (const c of data.calls) {
         if (c.reconnectAttemptedBy && dismissedCallIdsRef.current.has(c.id)) {
           console.log(
-            '[useIncomingCalls] Removing call from dismissed (reconnect detected):',
+            '[useIncomingCalls] Removing from dismissed (reconnect):',
             c.id,
             '| by:',
             c.reconnectAttemptedBy
@@ -49,7 +63,6 @@ export function useIncomingCalls(): UseIncomingCallsResult {
         }
       }
 
-      // Dismissed bo'lmagan birinchi call'ni topish
       const latest = data.calls.find(
         c => !dismissedCallIdsRef.current.has(c.id)
       );
@@ -62,8 +75,6 @@ export function useIncomingCalls(): UseIncomingCallsResult {
         return;
       }
 
-      // ✅ MUHIM: Yangi call yoki RECONNECT bo'lsa state'ni yangilash
-      // (reconnectAttemptedBy bo'lsa, parent komponent yangi data olishi uchun)
       const isReconnect = !!latest.reconnectAttemptedBy;
       const isNewCall = currentCallIdRef.current !== latest.id;
 
@@ -77,17 +88,139 @@ export function useIncomingCalls(): UseIncomingCallsResult {
   }, []);
 
   useEffect(() => {
-    poll();
-    const interval = setInterval(poll, POLL_INTERVAL_MS);
+    const token = tokenService.get();
+    if (!token) {
+      console.warn('[useIncomingCalls] No staff token, Socket disabled');
+      return;
+    }
+
+    if (!hotelSlug) {
+      console.warn('[useIncomingCalls] No hotelSlug detected — Socket disabled');
+      return;
+    }
+
+    console.log('[useIncomingCalls] 🚀 Initializing Socket for:', hotelSlug);
+    const socket = getSocket(token);
+    hasJoinedRoomRef.current = false;
+
+    const joinRoom = () => {
+      if (!socket.connected) return;
+      if (hasJoinedRoomRef.current) return;
+
+      socket.emit('staff:join', { hotelSlug });
+      hasJoinedRoomRef.current = true;
+      console.log(
+        `[useIncomingCalls] ✅ Joined staff room: staff:${hotelSlug}`
+      );
+      setSocketConnected(true);
+    };
+
+    const handleConnect = () => {
+      console.log('[useIncomingCalls] 🔌 Socket connected!');
+      hasJoinedRoomRef.current = false;
+      joinRoom();
+    };
+
+    const handleDisconnect = (reason: string) => {
+      console.log('[useIncomingCalls] 🔌 Disconnected:', reason);
+      hasJoinedRoomRef.current = false;
+      setSocketConnected(false);
+    };
+
+    const handleNewCall = (data: any) => {
+      console.log('[useIncomingCalls] 📞 New call from guest (Socket):', data);
+
+      if (!data?.id) return;
+      if (dismissedCallIdsRef.current.has(data.id)) return;
+
+      const callData: IncomingCall = {
+        id: data.id,
+        roomNumber: data.roomNumber,
+        guestName: data.guestName,
+        guestPhone: data.guestPhone || '',
+        createdAt: data.createdAt,
+        reconnectAttemptedBy: data.reconnectAttemptedBy || null,
+      };
+
+      currentCallIdRef.current = data.id;
+      setIncomingCall(callData);
+    };
+
+    const handleConnectError = (err: Error) => {
+      console.warn('[useIncomingCalls] ⚠️ Connection error:', err.message);
+      setSocketConnected(false);
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('connect_error', handleConnectError);
+    socket.on('new-call', handleNewCall);
+
+    if (socket.connected) {
+      console.log(
+        '[useIncomingCalls] ⚡ Socket already connected — joining immediately'
+      );
+      joinRoom();
+    } else {
+      console.log('[useIncomingCalls] ⏳ Waiting for connect event...');
+    }
+
+    const stateCheckInterval = setInterval(() => {
+      const isConnected = socket.connected;
+
+      setSocketConnected(prev => {
+        if (prev !== isConnected) {
+          console.log(
+            `[useIncomingCalls] 🔄 State sync: ${prev} → ${isConnected}`
+          );
+        }
+        return isConnected;
+      });
+
+      if (isConnected && !hasJoinedRoomRef.current) {
+        console.log('[useIncomingCalls] 🔁 Re-joining staff room');
+        joinRoom();
+      }
+    }, STATE_CHECK_INTERVAL_MS);
+
+    return () => {
+      console.log('[useIncomingCalls] 🧹 Cleanup');
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('connect_error', handleConnectError);
+      socket.off('new-call', handleNewCall);
+      clearInterval(stateCheckInterval);
+    };
+  }, [hotelSlug]);
+
+  useEffect(() => {
+    const intervalMs = socketConnected
+      ? POLL_INTERVAL_CONNECTED_MS
+      : POLL_INTERVAL_DISCONNECTED_MS;
+
+    const intervalLabel = socketConnected
+      ? '2 daqiqa (safety check)'
+      : '3 sek (active fallback)';
+
+    console.log(
+      `[useIncomingCalls] ${
+        socketConnected ? '🟢' : '🟡'
+      } Polling interval: ${intervalLabel}`
+    );
+
+    if (!socketConnected) {
+      poll();
+    }
+
+    const interval = setInterval(poll, intervalMs);
     return () => clearInterval(interval);
-  }, [poll]);
+  }, [poll, socketConnected]);
 
   const clearCall = useCallback(() => {
     currentCallIdRef.current = null;
     setIncomingCall(null);
   }, []);
 
-  // Call'ni dismissed setiga qo'shish
   const dismissCall = useCallback((callId: string) => {
     dismissedCallIdsRef.current.add(callId);
     currentCallIdRef.current = null;
@@ -97,9 +230,6 @@ export function useIncomingCalls(): UseIncomingCallsResult {
   return { incomingCall, clearCall, dismissCall };
 }
 
-// ═══════════════════════════════════════════════════════
-// RINGTONE HOOK (telefon ovozi)
-// ═══════════════════════════════════════════════════════
 export function useRingtone(active: boolean) {
   const ctxRef = useRef<AudioContext | null>(null);
   const intervalRef = useRef<number | null>(null);

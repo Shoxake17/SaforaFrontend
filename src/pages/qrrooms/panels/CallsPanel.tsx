@@ -1,4 +1,5 @@
 // src/pages/qrrooms/panels/CallsPanel.tsx
+// ⭐ SOCKET-ONLY VERSION — No polling, real-time updates
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   Phone,
@@ -16,6 +17,8 @@ import {
   type CallHistoryItem,
   type CallHistoryFilter,
 } from '@services/calls';
+import { getSocket } from '@services/socket';
+import { tokenService } from '@services/auth';
 import { formatCallDuration } from '@utils/callTimer';
 import './CallsPanel.css';
 
@@ -27,12 +30,6 @@ interface Props {
   hotelSlug?: string;
   accentColor: string;
 }
-
-// ═══════════════════════════════════════════════════════
-// CONSTANTS
-// ═══════════════════════════════════════════════════════
-
-const REFRESH_INTERVAL_MS = 30_000; 
 
 // ═══════════════════════════════════════════════════════
 // HELPERS
@@ -76,7 +73,7 @@ const CallsPanel: React.FC<Props> = ({ accentColor }) => {
   const [filter, setFilter] = useState<CallHistoryFilter>('all');
   const [error, setError] = useState<string>('');
 
-  // ═════ Statistika (jadval ustida) ═════
+  // ═════ Statistika ═════
   const stats = useMemo(() => {
     const total = calls.length;
     const ended = calls.filter(c => c.status === 'ended').length;
@@ -108,17 +105,48 @@ const CallsPanel: React.FC<Props> = ({ accentColor }) => {
     }
   };
 
+  // ═══════════════════════════════════════════════════════
   // Filter o'zgarganda qayta yuklash
+  // ═══════════════════════════════════════════════════════
   useEffect(() => {
     setLoading(true);
     loadCalls();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  // Avtomatik refresh (30 sek)
+  // ═══════════════════════════════════════════════════════
+  // ⭐ SOCKET-BASED real-time updates (polling YO'Q)
+  // ═══════════════════════════════════════════════════════
   useEffect(() => {
-    const interval = setInterval(() => loadCalls(false), REFRESH_INTERVAL_MS);
-    return () => clearInterval(interval);
+    const token = tokenService.get();
+    if (!token) return;
+
+    const socket = getSocket(token);
+
+    const handleCallEnded = () => {
+      console.log('[CallsPanel] 📡 call:ended — refreshing list');
+      loadCalls(false);
+    };
+
+    const handleNewCall = () => {
+      console.log('[CallsPanel] 📡 new-call — refreshing list');
+      loadCalls(false);
+    };
+
+    const handleCallAnswered = () => {
+      console.log('[CallsPanel] 📡 call:answered — refreshing list');
+      loadCalls(false);
+    };
+
+    socket.on('call:ended', handleCallEnded);
+    socket.on('new-call', handleNewCall);
+    socket.on('call:answered', handleCallAnswered);
+
+    return () => {
+      socket.off('call:ended', handleCallEnded);
+      socket.off('new-call', handleNewCall);
+      socket.off('call:answered', handleCallAnswered);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
@@ -163,7 +191,6 @@ const CallsPanel: React.FC<Props> = ({ accentColor }) => {
           <span className="cph-stat-value">{stats.missed}</span>
           <span className="cph-stat-label">Missed</span>
         </div>
-        
 
         <button
           type="button"
@@ -255,14 +282,12 @@ const CallRow: React.FC<CallRowProps> = ({ call, accentColor }) => {
   const isMissed = call.status === 'missed';
   const isEnded = call.status === 'ended';
 
-  // Status icon va rang
   const StatusIcon = isMissed ? PhoneMissed : isEnded ? PhoneIncoming : PhoneOff;
   const statusColor = isMissed ? '#ef4444' : isEnded ? '#10b981' : '#94a3b8';
   const statusLabel = isMissed ? 'Missed' : isEnded ? 'Answered' : call.status;
 
   return (
     <div className="cph-row">
-      {/* Status icon */}
       <div
         className="cph-row-icon"
         style={{ background: `${statusColor}15`, color: statusColor }}
@@ -270,19 +295,16 @@ const CallRow: React.FC<CallRowProps> = ({ call, accentColor }) => {
         <StatusIcon size={20} strokeWidth={2.2} />
       </div>
 
-      {/* Main content */}
       <div className="cph-row-main">
         <div className="cph-row-title">
           Room {call.roomNumber} — {call.guestName || 'Guest'}
         </div>
 
         <div className="cph-row-meta">
-          {/* Status */}
           <span style={{ color: statusColor, fontWeight: 600 }}>
             {statusLabel}
           </span>
 
-          {/* Answered by */}
           {call.answeredByName && (
             <>
               <span className="cph-row-sep">•</span>
@@ -293,7 +315,6 @@ const CallRow: React.FC<CallRowProps> = ({ call, accentColor }) => {
             </>
           )}
 
-          {/* Duration */}
           {call.duration > 0 && (
             <>
               <span className="cph-row-sep">•</span>
@@ -304,7 +325,6 @@ const CallRow: React.FC<CallRowProps> = ({ call, accentColor }) => {
             </>
           )}
 
-          {/* Time */}
           <span className="cph-row-sep">•</span>
           <span
             className="cph-row-time"
@@ -315,7 +335,6 @@ const CallRow: React.FC<CallRowProps> = ({ call, accentColor }) => {
         </div>
       </div>
 
-      {/* Right badge */}
       <div
         className="cph-row-badge"
         style={{

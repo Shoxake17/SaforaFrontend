@@ -1,4 +1,5 @@
 // src/pages/qrrooms/QrRooms.tsx
+// ⭐ SOCKET-ONLY VERSION — No polling, real-time updates
 import React, { useEffect, useState } from 'react';
 import {
   ShoppingCart,
@@ -22,6 +23,8 @@ import CallsPanel from './panels/CallsPanel';
 import ReviewsPanel from './panels/ReviewsPanel';
 
 import { getCallHistory } from '@services/calls';
+import { getSocket } from '@services/socket';
+import { tokenService } from '@services/auth';
 
 import './QrRooms.css';
 
@@ -45,8 +48,6 @@ const TABS: TabConfig[] = [
   { key: 'reviews',  icon: Star,          label: 'Reviews',  color: '#f59e0b', bgColor: 'rgba(245,158,11,0.12)' },
 ];
 
-const STATS_REFRESH_INTERVAL_MS = 30_000;
-
 // ═══════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════
@@ -62,11 +63,13 @@ const QrRooms: React.FC = () => {
     orders: 0,
     requests: 9,    // TODO: API
     messages: 0,    // TODO: API
-    calls: 0,       // ✅ getCallHistory'dan keladi
+    calls: 0,       // ✅ Socket orqali real-time
     reviews: 2,     // TODO: API
   });
 
-  // ═════ Calls count — backend'dan ═════
+  // ═══════════════════════════════════════════════════════
+  // ⭐ Calls count — Socket-based real-time updates
+  // ═══════════════════════════════════════════════════════
   useEffect(() => {
     let cancelled = false;
 
@@ -83,14 +86,32 @@ const QrRooms: React.FC = () => {
       }
     };
 
+    // 1) Birinchi yuklash
     loadCallsCount();
 
-    // Avtomatik yangilash (30 sek)
-    const interval = setInterval(loadCallsCount, STATS_REFRESH_INTERVAL_MS);
+    // 2) Socket event listener (real-time)
+    const token = tokenService.get();
+    if (!token) return;
+
+    const socket = getSocket(token);
+
+    const handleCallEnded = () => {
+      console.log('[QrRooms] 📡 call:ended — refreshing calls count');
+      loadCallsCount();
+    };
+
+    const handleNewCall = () => {
+      console.log('[QrRooms] 📡 new-call — refreshing calls count');
+      loadCallsCount();
+    };
+
+    socket.on('call:ended', handleCallEnded);
+    socket.on('new-call', handleNewCall);
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      socket.off('call:ended', handleCallEnded);
+      socket.off('new-call', handleNewCall);
     };
   }, []);
 

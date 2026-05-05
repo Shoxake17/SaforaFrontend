@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { fetchGuestSession } from '@services/guest';
 import { getCurrentGuest, sendHeartbeat } from '@services/guestAuth';
+import { getSocket } from '@services/socket';
+import { guestTokenService } from '@services/guestToken';
 import { useGuestIncomingPolling } from '@hooks/calls/useGuestIncomingPolling';
 import GuestIncomingCallModal from '@components/GuestIncomingCallModal/GuestIncomingCallModal';
 import useForceTheme from '@hooks/useForceTheme';
@@ -16,11 +18,13 @@ import GuestLangSwitcher from './components/GuestLangSwitcher';
 
 import './GuestLoginPage.css';
 
-// Heartbeat interval — har 10 sekundda backend'ga "men online" signal
-const HEARTBEAT_INTERVAL_MS = 10_000;
+const HEARTBEAT_INTERVAL_MS = 15_000;
 
 const GuestLoginPage: React.FC = () => {
-  const { slug, roomNumber } = useParams<{ slug: string; roomNumber: string }>();
+  const { slug, roomNumber } = useParams<{
+    slug: string;
+    roomNumber: string;
+  }>();
 
   useForceTheme('light');
 
@@ -31,22 +35,31 @@ const GuestLoginPage: React.FC = () => {
   const [room, setRoom] = useState<GuestRoom | null>(null);
   const [settings, setSettings] = useState<GuestSettings>({});
 
-  // Guest session — MongoDB'dan keladi
   const [guestName, setGuestName] = useState('');
   const [showMain, setShowMain] = useState(false);
 
   // ═══════════════════════════════════════════════════
-  // Manager dan kelayotgan call'larni polling qilish
-  // (faqat showMain=true bo'lganda yoqiladi)
+  // ⭐ Socket.IO + Polling fallback
   // ═══════════════════════════════════════════════════
-  const { incomingCall, dismissCall } = useGuestIncomingPolling(showMain, roomNumber);
+  const { incomingCall, dismissCall, socketConnected } =
+    useGuestIncomingPolling(showMain, slug, roomNumber);
 
-  // Heartbeat kuzatuvchi — qayta yuklash uchun
   const heartbeatErrorCountRef = useRef<number>(0);
 
   // ═══════════════════════════════════════════════════
-  // 1) Hotel + Room ma'lumotlarini yuklash
-  // 2) Token bo'lsa — guest ma'lumotlarini /me dan olish
+  // Socket holati log
+  // ═══════════════════════════════════════════════════
+  useEffect(() => {
+    if (showMain) {
+      console.log(
+        `[GuestLoginPage] Socket: ${socketConnected ? '🟢 CONNECTED' : '🟡 DISCONNECTED (polling)'}`
+      );
+    }
+  }, [socketConnected, showMain]);
+
+  // ═══════════════════════════════════════════════════
+  // 1) Hotel + Room ma'lumotlari
+  // 2) Token bo'lsa — auto-login
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     if (!slug || !roomNumber) return;
@@ -58,7 +71,6 @@ const GuestLoginPage: React.FC = () => {
       setError(null);
 
       try {
-        // 1) Hotel + Room
         const sessionResult = await fetchGuestSession(slug, roomNumber);
 
         if (cancelled) return;
@@ -73,19 +85,16 @@ const GuestLoginPage: React.FC = () => {
         setRoom(sessionResult.room);
         setSettings(sessionResult.settings || {});
 
-        // 2) Token bormi tekshirish va guest ma'lumotlarini olish
         const guest = await getCurrentGuest();
 
         if (cancelled) return;
 
         if (guest) {
-          // Token bor va yaroqli — avtomatik kirish
-          console.log('[GuestLoginPage] Auto-login from token:', guest.fullName);
+          console.log('[GuestLoginPage] Auto-login:', guest.fullName);
           setGuestName(guest.fullName);
           setShowMain(true);
           document.body.classList.remove('guest-intro-mode');
         } else {
-          // Token yo'q yoki yaroqsiz — Intro screen
           document.body.classList.add('guest-intro-mode');
         }
       } catch (err) {
@@ -108,8 +117,7 @@ const GuestLoginPage: React.FC = () => {
   }, [slug, roomNumber]);
 
   // ═══════════════════════════════════════════════════
-  // ⭐ HEARTBEAT — Manager → Guest call uchun online tracking
-  // Har 10 sekundda backend'ga "men hali shu xonadaman" signal yuborish
+  // ⭐ HEARTBEAT — Socket asosiy, REST fallback
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     if (!showMain) return;
@@ -121,6 +129,25 @@ const GuestLoginPage: React.FC = () => {
     const sendHb = async () => {
       if (cancelled) return;
 
+      // 1) Socket orqali (eng tezkor)
+      const token = guestTokenService.get();
+      if (token) {
+        try {
+          const socket = getSocket(token);
+          if (socket.connected) {
+            socket.emit('guest:heartbeat', {
+              hotelSlug: slug,
+              roomNumber: String(roomNumber),
+            });
+            heartbeatErrorCountRef.current = 0;
+            return;
+          }
+        } catch {
+          // Socket xato — REST fallback
+        }
+      }
+
+      // 2) REST fallback
       try {
         const ok = await sendHeartbeat({
           hotelSlug: slug,
@@ -141,10 +168,7 @@ const GuestLoginPage: React.FC = () => {
       }
     };
 
-    // Darhol bir marta yuborish (kutmasdan)
     sendHb();
-
-    // Keyin har 10 sek
     const interval = setInterval(sendHb, HEARTBEAT_INTERVAL_MS);
 
     return () => {
@@ -154,7 +178,9 @@ const GuestLoginPage: React.FC = () => {
   }, [showMain, slug, roomNumber]);
 
   // ═══════════════════════════════════════════════════
-  // Cleanup body class on unmount
+  // Cleanup — FAQAT body class
+  // ⚠️ disconnectSocket() OLIB TASHLANDI — StrictMode bilan muammo yaratardi
+  // Socket o'zining lifecycle'ini boshqaradi
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     return () => {
@@ -163,7 +189,7 @@ const GuestLoginPage: React.FC = () => {
   }, []);
 
   // ═══════════════════════════════════════════════════
-  // Register dan keyin (token allaqachon saqlangan)
+  // Register dan keyin
   // ═══════════════════════════════════════════════════
   const handleRegisterSuccess = (
     name: string,
@@ -176,7 +202,7 @@ const GuestLoginPage: React.FC = () => {
   };
 
   // ═══════════════════════════════════════════════════
-  // RENDER: Loading
+  // RENDER
   // ═══════════════════════════════════════════════════
   if (loading) {
     return (
@@ -186,9 +212,6 @@ const GuestLoginPage: React.FC = () => {
     );
   }
 
-  // ═══════════════════════════════════════════════════
-  // RENDER: Error
-  // ═══════════════════════════════════════════════════
   if (error || !hotel || !room) {
     return (
       <div className="guest-error">
@@ -198,13 +221,13 @@ const GuestLoginPage: React.FC = () => {
     );
   }
 
-  // ═══════════════════════════════════════════════════
-  // RENDER: MAIN SCREEN (login dan keyin)
-  // ═══════════════════════════════════════════════════
   if (showMain) {
     return (
       <div className="guest-page guest-page-main">
         <GuestLangSwitcher />
+
+       
+
         <GuestMainScreen
           hotel={hotel}
           room={room}
@@ -212,7 +235,6 @@ const GuestLoginPage: React.FC = () => {
           guestName={guestName}
         />
 
-        {/* Manager dan kelayotgan incoming call modali */}
         {incomingCall && (
           <GuestIncomingCallModal
             callId={incomingCall.callId}
@@ -227,9 +249,6 @@ const GuestLoginPage: React.FC = () => {
     );
   }
 
-  // ═══════════════════════════════════════════════════
-  // RENDER: LOGIN SCREEN (intro)
-  // ═══════════════════════════════════════════════════
   return (
     <div className="guest-page">
       <div className="guest-bg-decor">

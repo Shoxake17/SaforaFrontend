@@ -1,5 +1,5 @@
 // src/pages/dashboard/Dashboard.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Bed,
   Users,
@@ -20,11 +20,15 @@ import OutgoingCallModal from '@components/OutgoingCallModal';
 
 import { fetchStaff } from '@services/staff';
 import { fetchRooms } from '@services/rooms';
+import { getSocket } from '@services/socket';
+import { tokenService } from '@services/auth';  // ⭐ Manager token uchun
 import { getRoleConfig } from '@config/roles';
 
 import useAuthGuard from '@hooks/useAuthGuard';
 import useHotel from '@hooks/useHotel';
 import usePortalNavigation from '@hooks/useNavigation';
+
+const STATE_CHECK_INTERVAL_MS = 1_000;
 
 const RoleDashboard: React.FC = () => {
   const { slug, roleKey, role, isAuthenticated } = useAuthGuard();
@@ -41,7 +45,107 @@ const RoleDashboard: React.FC = () => {
   const [roomsCount, setRoomsCount] = useState<number>(0);
   const [roomsLoading, setRoomsLoading] = useState(true);
   const [callingRoom, setCallingRoom] = useState<string | null>(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  const hasJoinedRoomRef = useRef<boolean>(false);
+
+  // ═══════════════════════════════════════════════════
+  // ⭐ SOCKET.IO — Manager o'z otelining "lobby"siga ulanadi
+  // ═══════════════════════════════════════════════════
+  useEffect(() => {
+    if (!isAuthenticated || !slug) return;
+
+    // ⭐ Manager token (auth.ts'dan)
+    const token = tokenService.get();
+    if (!token) {
+      console.warn('[Dashboard] No staff token, Socket disabled');
+      return;
+    }
+
+    console.log('[Dashboard] 🚀 Initializing Socket...');
+    const socket = getSocket(token);
+    hasJoinedRoomRef.current = false;
+
+    // ─── Join staff room ─────────────────────────────
+    const joinRoom = () => {
+      if (!socket.connected) return;
+      if (hasJoinedRoomRef.current) return;
+
+      socket.emit('staff:join', { hotelSlug: slug });
+      hasJoinedRoomRef.current = true;
+      console.log(`[Dashboard] ✅ Joined staff room: staff:${slug}`);
+      setSocketConnected(true);
+    };
+
+    // ─── Connect handler ─────────────────────────────
+    const handleConnect = () => {
+      console.log('[Dashboard] 🔌 Socket connected!');
+      hasJoinedRoomRef.current = false;
+      joinRoom();
+    };
+
+    // ─── Disconnect handler ──────────────────────────
+    const handleDisconnect = (reason: string) => {
+      console.log('[Dashboard] 🔌 Disconnected:', reason);
+      hasJoinedRoomRef.current = false;
+      setSocketConnected(false);
+    };
+
+    // ─── New call from guest ─────────────────────────
+    const handleNewCall = (data: any) => {
+      console.log('[Dashboard] 📞 New call from guest:', data);
+    };
+
+    // ─── Connect error ───────────────────────────────
+    const handleConnectError = (err: Error) => {
+      console.warn('[Dashboard] ⚠️ Connection error:', err.message);
+      setSocketConnected(false);
+    };
+
+    // ⭐ Listener'larni avval qo'shish, keyin connected'ni tekshirish
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('connect_error', handleConnectError);
+    socket.on('new-call', handleNewCall);
+
+    // ⭐ Agar allaqachon ulangan bo'lsa darhol join
+    if (socket.connected) {
+      console.log('[Dashboard] ⚡ Socket already connected — joining immediately');
+      joinRoom();
+    } else {
+      console.log('[Dashboard] ⏳ Socket not yet connected, waiting...');
+    }
+
+    // ⭐ State sync — har 1 sek tekshiruv
+    const stateCheckInterval = setInterval(() => {
+      const isConnected = socket.connected;
+
+      setSocketConnected(prev => {
+        if (prev !== isConnected) {
+          console.log(`[Dashboard] 🔄 State sync: ${prev} → ${isConnected}`);
+        }
+        return isConnected;
+      });
+
+      if (isConnected && !hasJoinedRoomRef.current) {
+        console.log('[Dashboard] 🔁 Re-joining room (state was out of sync)');
+        joinRoom();
+      }
+    }, STATE_CHECK_INTERVAL_MS);
+
+    return () => {
+      console.log('[Dashboard] 🧹 Cleanup');
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('connect_error', handleConnectError);
+      socket.off('new-call', handleNewCall);
+      clearInterval(stateCheckInterval);
+    };
+  }, [isAuthenticated, slug]);
+
+  // ═══════════════════════════════════════════════════
   // Staff count
+  // ═══════════════════════════════════════════════════
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
     const load = async () => {
@@ -53,7 +157,9 @@ const RoleDashboard: React.FC = () => {
     load();
   }, [isAuthenticated, slug]);
 
+  // ═══════════════════════════════════════════════════
   // Rooms count
+  // ═══════════════════════════════════════════════════
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
     const load = async () => {
@@ -68,11 +174,11 @@ const RoleDashboard: React.FC = () => {
   const formatCount = (count: number, loading: boolean): string | number =>
     loading ? '—' : count;
 
-  // ═════ Call tugmasi handler — backend hali tayyor emas ═════
+  // ═════ Call tugmasi handler ═════
   const handleCallRoom = (roomNumber: string) => {
-  console.log('[Dashboard] Call room', roomNumber);
-  setCallingRoom(roomNumber); // ⭐ Modal ochish
-};
+    console.log('[Dashboard] Call room', roomNumber);
+    setCallingRoom(roomNumber);
+  };
 
   return (
     <PortalLayout
@@ -82,6 +188,8 @@ const RoleDashboard: React.FC = () => {
       rootClassName="rd-root"
       mainClassName="rd-main"
     >
+      
+
       {/* Title section */}
       <div className="rd-title-section">
         <div>
@@ -195,7 +303,7 @@ const RoleDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ⭐ 3 ta blok: Recent Activity / Recent Requests / Quick Call */}
+      {/* 3 ta blok */}
       <div className="rd-three-grid">
         <EmptyStateCard
           headerIcon={ShoppingCart}
@@ -217,7 +325,8 @@ const RoleDashboard: React.FC = () => {
           onCallRoom={handleCallRoom}
         />
       </div>
-      {/* ⭐ Outgoing Call Modal */}
+
+      {/* Outgoing Call Modal */}
       {callingRoom && (
         <OutgoingCallModal
           isOpen={true}
