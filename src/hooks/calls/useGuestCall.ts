@@ -10,6 +10,8 @@ import { useWebRTCPeer } from '@hooks/calls/useWebRTCPeer';
 import { useIceCandidateBatch } from '@hooks/calls/useIceCandidateBatch';
 import { useCallStorage } from '@hooks/calls/useCallStorage';
 import type { StoredGuestCall } from '@hooks/calls/useCallStorage';
+import { API_URL } from '@config/api';
+
 import {
   GUEST_POLL_INTERVAL_MS,
   STORAGE_KEYS,
@@ -456,8 +458,7 @@ export function useGuestCall({
         status === 'connecting' ||
         status === 'requesting-mic'
       ) {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const apiUrl = API_URL;
         navigator.sendBeacon?.(
           `${apiUrl}/calls/${callId}/end`,
           new Blob([JSON.stringify({})], { type: 'application/json' })

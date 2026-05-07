@@ -38,6 +38,7 @@
       "@apptypes/*": ["./src/types/*"],
       "@config/*": ["./src/config/*"],
       "@contexts/*": ["./src/contexts/*"],
+      "@constants/*": ["src/constants/*"],
       "@assets/*": ["./src/assets/*"]
     }
   },

@@ -5,10 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:guest": "vite --mode guest",
     "build": "vite build",
+    "build:guest": "vite build --mode guest",
     "lint": "eslint .",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "preview:guest": "vite preview --outDir dist-guest --port 4174",
+    "type-check": "tsc --noEmit",
+    "cap:sync": "npm run build:guest && npx cap sync",
+    "cap:android": "npm run cap:sync && npx cap open android",
+    "cap:ios": "npm run cap:sync && npx cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.1",
@@ -25,6 +31,7 @@
     "qrcode": "^1.5.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-icons": "^5.6.0",
     "react-router-dom": "^7.14.2",
     "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.2.4"

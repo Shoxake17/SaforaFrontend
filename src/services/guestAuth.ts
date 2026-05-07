@@ -1,13 +1,33 @@
 // src/services/guestAuth.ts
 import { API_URL } from '../config/api';
 import { guestTokenService } from './guestToken';
+import type {
+  GuestRegisterPayload,
+  LocalGuestSession,
+} from '@apptypes/guest';
 
+// ═══════════════════════════════════════════════════════
+// LOCAL STORAGE KEYS
+// ═══════════════════════════════════════════════════════
+const LS_KEYS = {
+  HOTEL_SLUG: 'safora_last_hotel_slug',
+  ROOM_NUMBER: 'safora_last_room_number',
+  CHECK_OUT_DATE: 'safora_check_out_date',
+  CHECK_IN_DATE: 'safora_check_in_date',
+  GUEST_NAME: 'safora_guest_name',
+} as const;
+
+// ═══════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════
 export interface GuestAccount {
   id: string;
   fullName: string;
   phone: string;
   email: string;
   language: string;
+  checkInDate?: string;   // ⭐ YANGI
+  checkOutDate?: string;  // ⭐ YANGI
   totalCalls?: number;
   totalOrders?: number;
   totalRequests?: number;
@@ -22,7 +42,9 @@ export interface GuestAuthResult {
   error?: string;
 }
 
-// Helper token bilan fetch
+// ═══════════════════════════════════════════════════════
+// HELPER — token bilan fetch
+// ═══════════════════════════════════════════════════════
 const guestAuthFetch = async (
   url: string,
   options: RequestInit = {}
@@ -44,25 +66,40 @@ const guestAuthFetch = async (
   });
 };
 
-// REGISTER yoki LOGIN telefon mavjud bo'lsa avtomatik login qiladi
-export async function registerOrLoginGuest(params: {
-  fullName: string;
-  phone: string;
-  email?: string;
-  language?: string;
-  hotelSlug?: string;
-  roomNumber?: string;
-}): Promise<GuestAuthResult> {
+// ═══════════════════════════════════════════════════════
+// ⭐ REGISTER — yangi check-in/out flow bilan
+// ═══════════════════════════════════════════════════════
+export async function registerOrLoginGuest(
+  params: GuestRegisterPayload
+): Promise<GuestAuthResult> {
   try {
     const response = await guestAuthFetch('/guest/auth/register', {
       method: 'POST',
-      body: JSON.stringify(params),
+      body: JSON.stringify({
+        fullName: params.fullName,
+        phone: params.phone || '',
+        email: params.email || '',
+        language: params.language || 'en',
+        hotelSlug: params.hotelSlug,
+        roomNumber: params.roomNumber,
+        checkInDate: params.checkInDate,
+        checkOutDate: params.checkOutDate,
+      }),
     });
 
-    const data = await response.json();
+    const data: GuestAuthResult = await response.json();
 
     if (data.success && data.token) {
       guestTokenService.set(data.token);
+
+      // ⭐ Local session saqlash
+      saveLocalSession({
+        hotelSlug: params.hotelSlug,
+        roomNumber: params.roomNumber,
+        checkInDate: params.checkInDate,
+        checkOutDate: params.checkOutDate,
+        guestName: params.fullName,
+      });
     }
 
     return data;
@@ -75,7 +112,9 @@ export async function registerOrLoginGuest(params: {
   }
 }
 
-// LOGIN Ã¢â‚¬â€ faqat telefon orqali (account mavjud bo'lishi kerak)
+// ═══════════════════════════════════════════════════════
+// LOGIN — faqat telefon orqali
+// ═══════════════════════════════════════════════════════
 export async function loginGuestByPhone(params: {
   phone: string;
   hotelSlug?: string;
@@ -103,7 +142,9 @@ export async function loginGuestByPhone(params: {
   }
 }
 
-// GET ME Ã¢â‚¬â€ joriy foydalanuvchi (token kerak)
+// ═══════════════════════════════════════════════════════
+// GET ME — joriy foydalanuvchi (token kerak)
+// ═══════════════════════════════════════════════════════
 export async function getCurrentGuest(): Promise<GuestAccount | null> {
   try {
     const token = guestTokenService.get();
@@ -112,9 +153,9 @@ export async function getCurrentGuest(): Promise<GuestAccount | null> {
     const response = await guestAuthFetch('/guest/auth/me');
 
     if (!response.ok) {
-      // Token yaroqsiz Ã¢â‚¬â€ tozalash
+      // Token yaroqsiz / muddati o'tgan — to'liq tozalash
       if (response.status === 401) {
-        guestTokenService.remove();
+        clearLocalSession();
       }
       return null;
     }
@@ -127,7 +168,9 @@ export async function getCurrentGuest(): Promise<GuestAccount | null> {
   }
 }
 
-// UPDATE ME Ã¢â‚¬â€ profilni yangilash
+// ═══════════════════════════════════════════════════════
+// UPDATE ME — profilni yangilash
+// ═══════════════════════════════════════════════════════
 export async function updateMyProfile(params: {
   fullName?: string;
   email?: string;
@@ -150,12 +193,79 @@ export async function updateMyProfile(params: {
   }
 }
 
-// LOGOUT Ã¢â‚¬â€ token tozalash (server'da hech narsa qilmaydi)
+// ═══════════════════════════════════════════════════════
+// ⭐ LOGOUT — to'liq tozalash
+// ═══════════════════════════════════════════════════════
 export function logoutGuest(): void {
-  guestTokenService.remove();
+  clearLocalSession();
 }
 
-// MY CALLS Ã¢â‚¬â€ calls tarixi
+// ═══════════════════════════════════════════════════════
+// ⭐ LOCAL SESSION — localStorage helpers
+// ═══════════════════════════════════════════════════════
+export function saveLocalSession(session: LocalGuestSession): void {
+  localStorage.setItem(LS_KEYS.HOTEL_SLUG, session.hotelSlug);
+  localStorage.setItem(LS_KEYS.ROOM_NUMBER, session.roomNumber);
+  localStorage.setItem(LS_KEYS.CHECK_IN_DATE, session.checkInDate);
+  localStorage.setItem(LS_KEYS.CHECK_OUT_DATE, session.checkOutDate);
+  if (session.guestName) {
+    localStorage.setItem(LS_KEYS.GUEST_NAME, session.guestName);
+  }
+}
+
+export function getLocalSession(): LocalGuestSession | null {
+  const hotelSlug = localStorage.getItem(LS_KEYS.HOTEL_SLUG);
+  const roomNumber = localStorage.getItem(LS_KEYS.ROOM_NUMBER);
+  const checkInDate = localStorage.getItem(LS_KEYS.CHECK_IN_DATE);
+  const checkOutDate = localStorage.getItem(LS_KEYS.CHECK_OUT_DATE);
+
+  if (!hotelSlug || !roomNumber || !checkOutDate) {
+    return null;
+  }
+
+  return {
+    hotelSlug,
+    roomNumber,
+    checkInDate: checkInDate || '',
+    checkOutDate,
+    guestName: localStorage.getItem(LS_KEYS.GUEST_NAME) || undefined,
+  };
+}
+
+export function clearLocalSession(): void {
+  guestTokenService.remove();
+  localStorage.removeItem(LS_KEYS.HOTEL_SLUG);
+  localStorage.removeItem(LS_KEYS.ROOM_NUMBER);
+  localStorage.removeItem(LS_KEYS.CHECK_IN_DATE);
+  localStorage.removeItem(LS_KEYS.CHECK_OUT_DATE);
+  localStorage.removeItem(LS_KEYS.GUEST_NAME);
+}
+
+// ═══════════════════════════════════════════════════════
+// ⭐ SESSION EXPIRY CHECK — checkOutDate o'tganmi
+// ═══════════════════════════════════════════════════════
+export function isSessionExpired(): boolean {
+  const session = getLocalSession();
+  if (!session) return true;
+
+  const now = new Date();
+  const checkOut = new Date(session.checkOutDate);
+  // checkOut kunining oxirigacha (23:59:59)
+  checkOut.setHours(23, 59, 59, 999);
+
+  return now > checkOut;
+}
+
+export function isSessionValid(): boolean {
+  const token = guestTokenService.get();
+  if (!token) return false;
+  if (isSessionExpired()) return false;
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════
+// MY CALLS — calls tarixi
+// ═══════════════════════════════════════════════════════
 export interface GuestCallHistory {
   id: string;
   roomNumber: string;
@@ -179,10 +289,9 @@ export async function getMyCalls(): Promise<GuestCallHistory[]> {
   }
 }
 
-
-// HEARTBEAT Ã¢â‚¬â€ har 10 sekundda backend'ga ping
-// "Men hali bu yerdaman" signal
-// 
+// ═══════════════════════════════════════════════════════
+// HEARTBEAT — har 10 sekundda backend'ga ping
+// ═══════════════════════════════════════════════════════
 export async function sendHeartbeat(params: {
   hotelSlug?: string;
   roomNumber?: string;
@@ -192,15 +301,28 @@ export async function sendHeartbeat(params: {
       method: 'POST',
       body: JSON.stringify(params),
     });
+
+    if (response.status === 401) {
+      try {
+        const data = await response.clone().json();
+        if (data.code === 'STAY_ENDED') {
+          console.log('[Heartbeat] Stay ended on backend, logging out');
+          clearLocalSession();
+          window.location.href = '/g/register';
+          return false;
+        }
+      } catch {
+      }
+    }
     return response.ok;
   } catch {
     return false;
   }
 }
 
-
-// Ã¢Â­Â YANGI Ã¢â‚¬â€ Manager dan kelayotgan call bormi tekshirish
-// (har 3 sek polling)
+// ═══════════════════════════════════════════════════════
+// INCOMING CALL POLLING
+// ═══════════════════════════════════════════════════════
 export interface IncomingCallForGuest {
   hasCall: boolean;
   callId?: string;
@@ -210,8 +332,6 @@ export interface IncomingCallForGuest {
   createdAt?: string;
 }
 
-// Manager dan kelayotgan call bormi tekshirish (har 3 sek polling)
-// Ã¢Â­Â roomNumber yuborish Ã¢â‚¬â€ bir xil mehmon turli xonalarda login qilsa filter uchun
 export async function checkIncomingCall(
   roomNumber?: string
 ): Promise<IncomingCallForGuest> {

@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════
+   GuestNavbar — Universal navbar component
+═══════════════════════════════════════════════════════ */
+
+.gn-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ═══════════════ LOGO ═══════════════ */
+.gn-logo {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gn-logo img {
+  width: 1%;
+  height: 1%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Fallback — birinchi harf bilan kvadrat */
+.gn-logo-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Inter', -apple-system, sans-serif;
+  border-radius: 10px;
+}
+
+.gn-logo-fallback-show {
+  display: flex;
+}
+
+/* ═══════════════ HOTEL NAME (center) ═══════════════ */
+.gn-hotel-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ═══════════════ ACTIONS (right) ═══════════════ */
+.gn-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.gn-lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease;
+}
+
+.gn-lang-btn:active {
+  transform: scale(0.96);
+}
+
+.gn-notif-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease;
+}
+
+.gn-notif-btn:active {
+  transform: scale(0.94);
+}
+
+.gn-notif-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* ═══════════════════════════════════════════════════════
+   VARIANTS
+═══════════════════════════════════════════════════════ */
+
+/* ─── TRANSPARENT (hero ustida) ─── */
+.gn-transparent .gn-logo {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.gn-transparent .gn-hotel-name {
+  color: white;
+}
+
+.gn-transparent .gn-lang-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+}
+
+.gn-transparent .gn-notif-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+}
+
+/* ─── SOLID (oq fon) ─── */
+.gn-solid .gn-logo {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.gn-solid .gn-hotel-name {
+  color: #0f172a;
+}
+
+.gn-solid .gn-lang-btn {
+  background: white;
+  color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.gn-solid .gn-notif-btn {
+  background: white;
+  color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}

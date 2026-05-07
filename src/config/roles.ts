@@ -194,7 +194,6 @@ export const ROLE_CONFIG: Record<RoleKey, RoleConfig> = {
       { icon: LayoutDashboard, label: 'Dashboard', key: 'dashboard' },
       { icon: Users, label: 'Staff', key: 'staff' },
       { icon: Bed, label: 'Rooms', key: 'rooms' },
-      { icon: QrCode, label: 'QR Codes', key: 'qrcodes' },
       { icon: Grid3x3, label: 'QR Rooms', key: 'qrrooms' },
       { icon: ConciergeBell, label: 'Services', key: 'services' },
       { icon: Settings, label: 'Settings', key: 'settings' },

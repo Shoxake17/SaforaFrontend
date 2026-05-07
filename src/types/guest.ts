@@ -28,53 +28,111 @@ export interface GuestRoom {
 }
 
 // ═══════════════════════════════════════════════════════
+// ⭐ COVER PHOTO — Hero carousel (Settings'dan)
+// ═══════════════════════════════════════════════════════
+export interface CoverPhoto {
+  url: string;
+  filename?: string;
+  uploadedAt?: string;
+}
+
+// ═══════════════════════════════════════════════════════
+// HERO PHOTOS (eski format — backward compatibility)
+// ═══════════════════════════════════════════════════════
+export interface HeroPhoto {
+  id: string;
+  image: string;
+  order?: number;
+}
+
+// ═══════════════════════════════════════════════════════
+// ⭐ WIFI — Settings nested object
+// ═══════════════════════════════════════════════════════
+export interface GuestWiFi {
+  network_name?: string;
+  password?: string;
+}
+
+// ═══════════════════════════════════════════════════════
+// ⭐ SOCIAL MEDIA — Settings nested object
+// ═══════════════════════════════════════════════════════
+export interface GuestSocialMedia {
+  instagram?: string;
+  facebook?: string;
+  telegram?: string;
+  whatsapp_channel?: string;
+  tripadvisor?: string;
+}
+
+// ═══════════════════════════════════════════════════════
+// ⭐ DIRECTIONS — Settings nested object
+// ═══════════════════════════════════════════════════════
+export interface GuestDirections {
+  google_maps?: string;
+  yandex_maps?: string;
+  twogis?: string;
+}
+
+// ═══════════════════════════════════════════════════════
+// ⭐ TOURIST RECOMMENDATION
+// ═══════════════════════════════════════════════════════
+export interface GuestTouristRecommendation {
+  _id?: string;
+  name: string;
+  category: string;  // landmark | restaurant | cafe | attraction | shopping
+  address?: string;
+  google_maps_link?: string;
+  description?: string;
+  image_url?: string;
+  order?: number;
+}
+
+// ═══════════════════════════════════════════════════════
 // SETTINGS — guest page sozlashlari (manager kiritadi)
 // ═══════════════════════════════════════════════════════
 export interface GuestSettings {
-  /** Asosiy rang — Welcome title, tugmalar, accent line */
+  // ─── Theme ───
   primary_color?: string;
 
-  /** Welcome xabari */
+  // ─── Welcome ───
   welcome_title?: string;
   welcome_subtitle?: string;
-
-  /** Hotel qoidalari (Skrinshot 1'da ko'rinmaydi, kelajak uchun) */
   hotel_rules?: string;
 
-  /** WiFi ma'lumotlari */
-  wifi_name?: string;
-  wifi_password?: string;
+  // ─── ⭐ Cover Photos (Hero carousel) ───
+  cover_photos?: CoverPhoto[];
 
-  /** Aloqa */
+  // ─── Hero photo (eski format — fallback) ───
+  hero_photo?: string;
+  hero_photos?: HeroPhoto[];
+
+  // ─── ⭐ Contact ───
+  reception_phone?: string;
   phone?: string;
   whatsapp?: string;
 
-  /** Hero photo (eski - bitta rasm) */
-  hero_photo?: string;
+  // ─── ⭐ WiFi (yangi nested + eski flat) ───
+  wifi?: GuestWiFi;
+  wifi_name?: string;       // eski flat format
+  wifi_password?: string;   // eski flat format
 
-  /** Hero photos (yangi - carousel uchun, ko'p rasm) */
-  hero_photos?: HeroPhoto[];
-
-  /** Ijtimoiy tarmoqlar */
+  // ─── ⭐ Social Media (yangi nested + eski flat) ───
+  social_media?: GuestSocialMedia;
   instagram?: string;
   facebook?: string;
   telegram?: string;
   whatsapp_channel?: string;
   tripadvisor?: string;
 
-  /** Xarita havolalari */
+  // ─── ⭐ Directions (yangi nested + eski flat) ───
+  directions?: GuestDirections;
   google_maps_url?: string;
   yandex_maps_url?: string;
   twogis_url?: string;
-}
+  active_services?: string[];
 
-// ═══════════════════════════════════════════════════════
-// HERO PHOTOS (carousel)
-// ═══════════════════════════════════════════════════════
-export interface HeroPhoto {
-  id: string;
-  image: string;
-  order?: number;
+  // ─── ⭐ Tourist Recommendations ───
+  tourist_recommendations?: GuestTouristRecommendation[];
 }
 
 // ═══════════════════════════════════════════════════════
@@ -87,21 +145,35 @@ export interface GuestSession {
 }
 
 // ═══════════════════════════════════════════════════════
-// GUEST REGISTER (login form'dan yuboriladi)
+// ⭐ GUEST REGISTER PAYLOAD — yangi mobile flow uchun
 // ═══════════════════════════════════════════════════════
 export interface GuestRegisterPayload {
-  hotel_slug: string;
-  room_number: string;
-  name: string;
-  phone: string;
+  fullName: string;
+  phone?: string;
   email?: string;
   language?: string;
+  hotelSlug: string;
+  roomNumber: string;
+  checkInDate: string;   // "YYYY-MM-DD"
+  checkOutDate: string;  // "YYYY-MM-DD"
 }
 
 export interface GuestRegisterResponse {
   success: boolean;
   guest_id?: string;
+  token?: string;
   error?: string;
+}
+
+// ═══════════════════════════════════════════════════════
+// ⭐ LOCAL SESSION INFO — localStorage'da saqlanadigan
+// ═══════════════════════════════════════════════════════
+export interface LocalGuestSession {
+  hotelSlug: string;
+  roomNumber: string;
+  checkInDate: string;
+  checkOutDate: string;
+  guestName?: string;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -120,7 +192,7 @@ export interface WeatherData {
 export type GuestTabKey =
   | 'home'
   | 'services'
-  | 'market'
+  | 'user'
   | 'reviews'
   | 'explore';
 

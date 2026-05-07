@@ -274,15 +274,7 @@ const RoleDashboard: React.FC = () => {
           </div>
 
           <div className="rd-quick-actions">
-            {(isDeptManager || roleKey === 'management') && (
-              <button
-                type="button"
-                className="rd-quick-btn"
-                onClick={() => goTo('qrcodes')}
-              >
-                <QrCode size={14} strokeWidth={2.2} /> QR Codes
-              </button>
-            )}
+            
 
             <button
               type="button"

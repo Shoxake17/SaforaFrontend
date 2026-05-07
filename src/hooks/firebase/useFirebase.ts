@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
-
+import { API_URL } from '@config/api';
 interface FirebaseState {
   token: string | null;
   isReady: boolean;
@@ -75,7 +75,7 @@ const useFirebase = () => {
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = API_URL;
 
       // ⭐ Mehmon token (safora_guest_token)
       const guestToken = localStorage.getItem('safora_guest_token');

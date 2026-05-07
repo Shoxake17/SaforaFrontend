@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════
+   WifiModal — Guest mobile app
+═══════════════════════════════════════════════════════ */
+
+.wf-overlay,
+.wf-overlay * {
+  box-sizing: border-box;
+}
+
+.wf-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-family: 'Inter', -apple-system, sans-serif;
+  animation: wf-fade-in 0.2s ease;
+}
+
+@keyframes wf-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.wf-modal {
+  background: white;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 18px 24px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: wf-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes wf-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* HEADER */
+.wf-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.wf-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wf-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.wf-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 2px;
+  letter-spacing: -0.3px;
+}
+
+.wf-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.wf-close {
+  width: 32px;
+  height: 32px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wf-close:active {
+  background: #e2e8f0;
+}
+
+/* LIST */
+.wf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* CARD */
+.wf-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.wf-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.wf-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wf-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wf-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-card-desc {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ROW */
+.wf-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.wf-row + .wf-row {
+  border-top: 1px solid #e2e8f0;
+}
+
+.wf-row-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.wf-row-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-row-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+  letter-spacing: 0.3px;
+  word-break: break-all;
+}
+
+.wf-password {
+  letter-spacing: 2px;
+}
+
+.wf-row-action {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.wf-row-action:active {
+  transform: scale(0.92);
+}
+
+/* EMPTY */
+.wf-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.wf-empty p {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 4px;
+  color: #64748b;
+}
+
+.wf-empty small {
+  font-size: 12px;
+}
+
+/* FOOTER */
+.wf-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* RESPONSIVE */
+@media (max-width: 380px) {
+  .wf-modal {
+    padding: 18px 14px 20px;
+  }
+
+  .wf-title {
+    font-size: 18px;
+  }
+
+  .wf-card {
+    padding: 12px;
+  }
+
+  .wf-row-text {
+    font-size: 13px;
+  }
+}

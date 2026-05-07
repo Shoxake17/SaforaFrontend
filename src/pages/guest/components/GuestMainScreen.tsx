@@ -2,21 +2,25 @@
 import React, { useState } from 'react';
 import {
   Home as HomeIcon,
-  Store,
+  User,
   Star,
   Compass,
   ConciergeBell,
+  Store,
 } from 'lucide-react';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
-
 import HomeTab from '../tabs/HomeTab/HomeTab';
+import ExploreTab from '../tabs/ExploreTab/ExploreTab';
+import MarketTab from '../tabs/MarketTab/MarketTab';
+import ServicesTab from '../tabs/ServicesTab/ServicesTab';
+import ProfileTab from '../tabs/ProfileTab/ProfileTab';
 
 import './GuestMainScreen.css';
 
 // ═══════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════
-type TabKey = 'home' | 'services' | 'market' | 'reviews' | 'explore';
+type TabKey = 'home' | 'services' | 'profile' | 'market' | 'explore';
 
 interface GuestMainScreenProps {
   hotel: GuestHotel;
@@ -31,9 +35,9 @@ interface GuestMainScreenProps {
 const BOTTOM_NAV: { key: TabKey; icon: React.ElementType; label: string }[] = [
   { key: 'home',     icon: HomeIcon,      label: 'Home' },
   { key: 'services', icon: ConciergeBell, label: 'Services' },
-  { key: 'explore',  icon: Compass,       label: 'Explore' },
-  { key: 'reviews',  icon: Star,          label: 'Reviews' },
   { key: 'market',   icon: Store,         label: 'Market' },
+  { key: 'explore',  icon: Compass,       label: 'Explore' },
+  { key: 'profile',     icon: User,          label: 'Profile' },
 
 ];
 
@@ -66,28 +70,42 @@ const GuestMainScreen: React.FC<GuestMainScreenProps> = ({
       )}
 
       {activeTab === 'services' && (
-        <div className="gms-placeholder">
-          <p>Services Tab — Bosqich 3</p>
-        </div>
-      )}
+  <ServicesTab
+    hotel={hotel}
+    room={room}
+    settings={settings}
+    guestName={guestName}
+    accentColor={accentColor}
+    onTabChange={(tab) => setActiveTab(tab)}
+    onCallClick={() => setShowCallModal(true)}
+  />
+)}
+      {activeTab === 'profile' && (
+  <ProfileTab
+    hotel={hotel}
+    room={room}
+    settings={settings}
+    guestName={guestName}
+    accentColor={accentColor}
+    onLogout={() => {
+      // Logout logic — masalan:
+      localStorage.removeItem('safora_guest_session');
+      navigate('/login');
+    }}
+  />
+)}
 
       {activeTab === 'market' && (
-        <div className="gms-placeholder">
-          <p>Market Tab — Bosqich 3</p>
-        </div>
-      )}
-
-      {activeTab === 'reviews' && (
-        <div className="gms-placeholder">
-          <p>Reviews Tab — Bosqich 3</p>
-        </div>
+        <MarketTab hotel={hotel} accentColor={accentColor} />
       )}
 
       {activeTab === 'explore' && (
-        <div className="gms-placeholder">
-          <p>Explore Tab — Bosqich 3</p>
-        </div>
-      )}
+  <ExploreTab
+    hotel={hotel}
+    settings={settings}
+    accentColor={accentColor}
+  />
+)}
 
       {/* ═══════════════ BOTTOM NAVIGATION ═══════════════ */}
       <nav className="gms-bottom-nav">

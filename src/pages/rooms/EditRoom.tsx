@@ -11,7 +11,7 @@ import {
   Film,
   CheckCircle,
 } from 'lucide-react';
-
+import { API_URL } from '@config/api';
 import {
   fetchRoomById,
   fetchRoomTypes,
@@ -28,9 +28,7 @@ import ConfirmDialog from '@components/ConfirmDialog';
 
 import './AddRoom.css';
 
-const API_BASE = (
-  import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-).replace('/api', '');
+const API_BASE = API_URL.replace('/api', '');
 
 const EditRoom: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -149,8 +147,12 @@ const EditRoom: React.FC = () => {
     }
   };
 
-  const fileUrl = (filename: string) =>
-    filename ? `${API_BASE}/uploads/rooms/${filename}` : '';
+  const fileUrl = (value: string) => {
+  if (!value) return '';
+  // R2 yoki tashqi URL — to'g'ridan-to'g'ri qaytaradi
+  if (/^https?:\/\//i.test(value)) return value;
+  return `${API_BASE}/uploads/rooms/${value}`;
+};
 
   // Existing file link helper
   const ExistingFileLink: React.FC<{

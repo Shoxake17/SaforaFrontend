@@ -1,7 +1,8 @@
 // src/services/api.ts
 import { tokenService } from './auth';
+import { API_URL } from '@config/api';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API = API_URL;
 
 /* ─────────────────────────────────────────────
    Types

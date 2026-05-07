@@ -4,7 +4,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { GoogleUser } from '../../types/register';
 import GoogleIcon from '../../components/UI/GoogleIcon';
-
+import { API_URL } from '@config/api';
 interface StepAccountProps {
   email: string;
   setEmail: (v: string) => void;
@@ -57,7 +57,7 @@ const StepAccount: React.FC<StepAccountProps> = ({
     ) : (
       <>
         <a
-          href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/auth/google/login?flow=register`}
+          href={`${API_URL}/auth/google/login?flow=register`}
           className="google-signup-btn"
         >
           <GoogleIcon />

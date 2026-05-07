@@ -1,26 +1,31 @@
 // src/pages/guest/tabs/HomeTab/HomeTab.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   PhoneOutgoing,
   MessageCircleMore,
-  BotMessageSquare,
+  Bot,
   ConciergeBell,
-  Hand,
-  MapPinned,
-  Hotel as HotelIcon,
+  BrushCleaning,
+  Bell,
+  MapPin,
+  ChevronDown,
+  ChevronRight,
+  ArrowRight,
+  ShieldAlert,
   BedDouble,
+  Ban,
+  MapPinned,
 } from 'lucide-react';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
-
+import GuestNavbar from '../../components/GuestNavbar/GuestNavbar';
 import CallModal from '../../modals/CallModal';
 import { useWeather } from '../../hooks/useWeather';
+import { imageUrl } from '@utils/imageUrl';
 
 import './HomeTab.css';
 
-// ═══════════════════════════════════════════════════════
-// Types
-// ═══════════════════════════════════════════════════════
-type ActionKey = 'call' | 'message' | 'ai' | 'services' | 'request' | 'explore';
+type ActionKey = 'call' | 'message' | 'ai';
+type ServiceKey = 'roomService' | 'request' | 'explore';
 
 interface HomeTabProps {
   hotel: GuestHotel;
@@ -31,16 +36,10 @@ interface HomeTabProps {
   onTabChange?: (tab: 'services' | 'explore') => void;
 }
 
-// ═══════════════════════════════════════════════════════
-// Storage Constants — useGuestCall.ts bilan bir xil bo'lishi kerak
-// ═══════════════════════════════════════════════════════
 const STORAGE_KEY = 'safora_active_call';
-const RECONNECT_TIMEOUT_MS = 60000; // 60 sek
+const RECONNECT_TIMEOUT_MS = 60000;
+const CAROUSEL_INTERVAL_MS = 4500;  // ⭐ Carousel almashinuv vaqti
 
-// ═══════════════════════════════════════════════════════
-// Helper — localStorage'da active call bormi tekshirish
-// (Refresh'dan keyin CallModal'ni avtomatik ochish uchun)
-// ═══════════════════════════════════════════════════════
 const checkActiveCallInStorage = (
   hotelSlug: string,
   roomNumber: string,
@@ -49,16 +48,11 @@ const checkActiveCallInStorage = (
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
-
     const data = JSON.parse(raw);
-
-    // Eski (60 sek dan eski) bo'lsa, tozalash
     if (Date.now() - data.startedAt > RECONNECT_TIMEOUT_MS) {
       localStorage.removeItem(STORAGE_KEY);
       return false;
     }
-
-    // Bir xil hotel/room/guest bo'lishi kerak
     if (
       data.hotelSlug !== hotelSlug ||
       data.roomNumber !== roomNumber ||
@@ -66,36 +60,24 @@ const checkActiveCallInStorage = (
     ) {
       return false;
     }
-
-    console.log('[HomeTab] Active call found in storage, auto-opening CallModal');
     return true;
   } catch {
     return false;
   }
 };
 
-// ═══════════════════════════════════════════════════════
-// Action Cards
-// ═══════════════════════════════════════════════════════
-const ACTION_CARDS: {
-  key: ActionKey;
-  icon: React.ElementType;
-  label: string;
-  color: string;
-  bgColor: string;
-}[] = [
-  // { key: 'call',     icon: PhoneOutgoing,     label: 'Call',         color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.1)' },
-  { key: 'call',    icon: PhoneOutgoing,     label: 'Calls',         color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.1)' },
-  { key: 'message',  icon: MessageCircleMore, label: 'Message',      color: '#16a34a', bgColor: 'rgba(22, 163, 74, 0.1)' },
-  { key: 'ai',       icon: BotMessageSquare,  label: 'AI Concierge', color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.1)' },
-  { key: 'services', icon: ConciergeBell,     label: 'Services',     color: '#16a34a', bgColor: 'rgba(22, 163, 74, 0.1)' },
-  { key: 'request',  icon: Hand,              label: 'Request',      color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.1)' },
-  { key: 'explore',  icon: MapPinned,         label: 'Explore',      color: '#16a34a', bgColor: 'rgba(22, 163, 74, 0.1)' },
+const COMM_CARDS = [
+  { key: 'call' as ActionKey,    icon: PhoneOutgoing,     title: 'Call',         sub: 'Quick connect' },
+  { key: 'message' as ActionKey, icon: MessageCircleMore, title: 'Message',      sub: 'Chat with us' },
+  { key: 'ai' as ActionKey,      icon: Bot,               title: 'AI Concierge', sub: 'Smart assistant' },
 ];
 
-// ═══════════════════════════════════════════════════════
-// Component
-// ═══════════════════════════════════════════════════════
+const SERVICE_CARDS = [
+  { key: 'roomService' as ServiceKey, icon: ConciergeBell, title: 'Room Service', sub: '24/7' },
+  { key: 'request' as ServiceKey,     icon: BrushCleaning, title: 'Request',      sub: 'Daily' },
+  { key: 'explore' as ServiceKey,     icon: MapPinned,     title: 'Explore',      sub: 'Relax time' },
+];
+
 const HomeTab: React.FC<HomeTabProps> = ({
   hotel,
   room,
@@ -104,22 +86,30 @@ const HomeTab: React.FC<HomeTabProps> = ({
   accentColor,
   onTabChange,
 }) => {
-  // ✅ REAL Weather (Open-Meteo API'dan)
   const weather = useWeather(hotel.city || 'Tashkent');
 
-  // ═══════════════════════════════════════════════════
-  // ✅ Modal states — Refresh'dan keyin avtomatik ochish
-  // localStorage'da active call bo'lsa, CallModal o'z-o'zidan ochiladi
-  // ═══════════════════════════════════════════════════
   const [showCallModal, setShowCallModal] = useState<boolean>(() =>
     checkActiveCallInStorage(hotel.slug, room.number, guestName)
   );
 
-  const welcomeSubtitle =
-    settings.welcome_subtitle || 'We are here to make your stay exceptional.';
+  // ⭐ YANGI — Carousel state
+  const [currentPhoto, setCurrentPhoto] = useState(0);
 
-  // Action click handler
-  const handleActionClick = (key: ActionKey) => {
+  // ⭐ Cover photos array (fallback'lar bilan)
+  const coverPhotos = (settings.cover_photos && settings.cover_photos.length > 0)
+    ? settings.cover_photos
+    : null;
+
+  // ⭐ Auto-cycle carousel
+  useEffect(() => {
+    if (!coverPhotos || coverPhotos.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentPhoto((prev) => (prev + 1) % coverPhotos.length);
+    }, CAROUSEL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [coverPhotos]);
+
+  const handleCommClick = (key: ActionKey) => {
     switch (key) {
       case 'call':
         setShowCallModal(true);
@@ -130,98 +120,238 @@ const HomeTab: React.FC<HomeTabProps> = ({
         }
         break;
       case 'ai':
-        console.log('AI Concierge — Bosqich 2');
-        break;
-      case 'services':
-        onTabChange?.('services');
-        break;
-      case 'request':
-        console.log('Request — Bosqich 2');
-        break;
-      case 'explore':
-        onTabChange?.('explore');
+        console.log('AI Concierge — coming soon');
         break;
     }
   };
 
+  const handleServiceClick = (key: ServiceKey) => {
+    if (key === 'explore') {
+      onTabChange?.('explore');
+    } else {
+      onTabChange?.('services');
+    }
+  };
+
+  const firstName = guestName.split(' ')[0] || guestName;
+
   return (
-    <>
-      {/* HEADER */}
-      <div className="ht-header">
-        <div
-          className="ht-logo-wrap"
-          style={{
-            borderColor: `${accentColor}20`,
-            boxShadow: `0 4px 12px rgba(0,0,0,0.04), 0 12px 40px ${accentColor}15`,
-          }}
-        >
-          {hotel.logo ? (
-            <img src={hotel.logo} alt={hotel.name} className="ht-logo-img" />
-          ) : (
-            <div
-              className="ht-logo-fallback"
-              style={{ background: `${accentColor}12` }}
-            >
-              <HotelIcon size={18} color={accentColor} strokeWidth={2.2} />
+    <div className="ht-screen">
+      {/* ═══════════════ HERO — CAROUSEL ═══════════════ */}
+      <div className="ht-hero">
+        {/* ⭐ YANGI — Carousel rasmlari */}
+        {coverPhotos ? (
+          <div className="ht-hero-carousel">
+            {coverPhotos.map((photo, idx) => (
+              <img
+                key={idx}
+                className={`ht-hero-bg ${idx === currentPhoto ? 'active' : ''}`}
+                src={imageUrl(photo.url)}
+                alt={`${hotel.name} ${idx + 1}`}
+              />
+            ))}
+          </div>
+        ) : (
+          // Fallback — eski hero_photo yoki default
+          <img
+            className="ht-hero-bg active"
+            src={settings.hero_photo || '/avant.png'}
+            alt={hotel.name}
+          />
+        )}
+
+        <div className="ht-hero-overlay" />
+
+        <div className="ht-hero-content">
+<GuestNavbar
+  hotel={hotel}
+  accentColor={accentColor}
+  variant="transparent"
+  showHotelName={false}
+  hasNotification={false}
+/>
+
+          {/* Greeting */}
+          <div className="ht-greeting">
+            <div className="ht-greet-small">Welcome back,</div>
+            <h1 className="ht-greet-name">{firstName}</h1>
+          </div>
+
+          {/* Location */}
+          {(hotel.city || hotel.country) && (
+            <div className="ht-location">
+              <MapPin size={14} strokeWidth={2.2} />
+              <span>
+                {hotel.city}
+                {hotel.country ? `, ${hotel.country}` : ''}
+              </span>
             </div>
           )}
-        </div>
 
-        <h1 className="ht-hotel-name">{hotel.name}</h1>
-
-        <div className="ht-meta">
-          <div className="ht-weather">
-            <span className="ht-weather-emoji">{weather.emoji}</span>
-            <span className="ht-weather-temp">{weather.temp}°C</span>
-            <span className="ht-weather-dot">·</span>
-            <span className="ht-weather-desc">{weather.description}</span>
-          </div>
-
-          <div className="ht-room-chip">
-            <BedDouble size={13} strokeWidth={2.2} />
-            <span>Room {room.number}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* WELCOME */}
-      <div className="ht-welcome">
-        <h2 className="ht-welcome-title" style={{ color: accentColor }}>
-          Welcome, {guestName}
-        </h2>
-        <p className="ht-welcome-subtitle">{welcomeSubtitle}</p>
-      </div>
-
-      {/* ACTION CARDS */}
-      <div className="ht-actions-grid">
-        {ACTION_CARDS.map((card) => {
-          const Icon = card.icon;
-          return (
-            <button
-              key={card.key}
-              type="button"
-              className="ht-action-card"
-              onClick={() => handleActionClick(card.key)}
-            >
+          {/* Info chips */}
+          <div className="ht-chips">
+            <div className="ht-chip">
               <div
-                className="ht-action-icon"
-                style={{ background: card.bgColor }}
+                className="ht-chip-icon"
+                style={{ background: `${accentColor}1a`, color: accentColor }}
               >
-                <Icon size={18} color={card.color} strokeWidth={2.2} />
+                <span className="ht-chip-emoji">{weather.emoji}</span>
               </div>
-              <span className="ht-action-label">{card.label}</span>
-            </button>
-          );
-        })}
+              <div className="ht-chip-text">
+                <div className="ht-chip-title">{weather.temp}°C</div>
+                <div className="ht-chip-sub">{weather.description}</div>
+              </div>
+            </div>
+
+            <div className="ht-chip">
+              <div
+                className="ht-chip-icon"
+                style={{ background: `${accentColor}1a`, color: accentColor }}
+              >
+                <BedDouble size={16} strokeWidth={2.2} />
+              </div>
+              <div className="ht-chip-text">
+                <div className="ht-chip-title">Room {room.number}</div>
+                <div className="ht-chip-sub">{room.room_type_name || 'Standard'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ⭐ YANGI — Carousel pagination dots */}
+        {coverPhotos && coverPhotos.length > 1 && (
+          <div className="ht-hero-dots">
+            {coverPhotos.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`ht-hero-dot ${idx === currentPhoto ? 'active' : ''}`}
+                onClick={() => setCurrentPhoto(idx)}
+                aria-label={`Photo ${idx + 1}`}
+                style={
+                  idx === currentPhoto
+                    ? { background: '#fff' }
+                    : { background: 'rgba(255,255,255,0.4)' }
+                }
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* CONTACT DIVIDER */}
-      <div className="ht-contact-divider">
-        <span className="ht-divider-line" style={{ background: accentColor }} />
-        <span className="ht-divider-text">CONTACT</span>
+      {/* ═══════════════ HOTEL RULES ═══════════════ */}
+      {settings.hotel_rules && (
+        <div className="ht-rules">
+          <div
+            className="ht-rules-icon"
+            style={{ background: `${accentColor}15`, color: accentColor }}
+          >
+            <ShieldAlert size={20} strokeWidth={2.2} />
+          </div>
+          <div className="ht-rules-content">
+            <div className="ht-rules-title" style={{ color: accentColor }}>
+              HOTEL RULES
+            </div>
+            <div
+              className="ht-rules-text"
+              dangerouslySetInnerHTML={{
+                __html: (settings.hotel_rules || '').replace(/\n/g, '<br/>'),
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════ COMMUNICATION ═══════════════ */}
+      <div className="ht-section">
+        <div className="ht-section-head">
+          <h2 className="ht-section-title">Our Services</h2>
+          <button
+            type="button"
+            className="ht-view-all"
+            style={{ color: accentColor }}
+            onClick={() => onTabChange?.('services')}
+          >
+            View all <ArrowRight size={14} strokeWidth={2.4} />
+          </button>
+        </div>
+        <div className="ht-grid-3">
+          {COMM_CARDS.map((card) => {
+            const Icon = card.icon;
+            return (
+              <button
+                key={card.key}
+                type="button"
+                className="ht-comm-card"
+                onClick={() => handleCommClick(card.key)}
+              >
+                <div className="ht-comm-icon" style={{ color: accentColor }}>
+                  <Icon size={24} strokeWidth={1.8} />
+                </div>
+                <div className="ht-service-title">{card.title}</div>
+                <div className="ht-service-sub">{card.sub}</div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* MODALS */}
+      {/* ═══════════════ OUR SERVICES ═══════════════ */}
+      <div className="ht-section">
+        <div className="ht-grid-3">
+          {SERVICE_CARDS.map((card) => {
+            const Icon = card.icon;
+            return (
+              <button
+                key={card.key}
+                type="button"
+                className="ht-service-card"
+                onClick={() => handleServiceClick(card.key)}
+              >
+                <div className="ht-service-icon" style={{ color: accentColor }}>
+                  <Icon size={26} strokeWidth={1.8} />
+                </div>
+                <div className="ht-service-title">{card.title}</div>
+                <div className="ht-service-sub">{card.sub}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ═══════════════ FEATURED BANNER ═══════════════ */}
+      <div className="ht-featured">
+        <img
+          className="ht-featured-bg"
+          src={settings.hero_photo || (coverPhotos?.[0] ? imageUrl(coverPhotos[0].url) : '/avant.png')}
+          alt=""
+        />
+        <div className="ht-featured-overlay" />
+
+        <div className="ht-featured-content">
+          <div className="ht-featured-tag" style={{ color: accentColor }}>
+            EXPERIENCE COMFORT
+          </div>
+          <h2 className="ht-featured-title">
+            Luxury, Comfort
+            <br />& Wellness
+          </h2>
+          <p className="ht-featured-desc">
+            Experience the perfect blend of relaxation and elegance during your stay.
+          </p>
+          <button
+            type="button"
+            className="ht-featured-btn"
+            style={{ background: accentColor }}
+            onClick={() => onTabChange?.('explore')}
+          >
+            Explore Hotel
+            <ChevronRight size={16} strokeWidth={2.4} />
+          </button>
+        </div>
+      </div>
+
+      {/* ═══════════════ MODALS ═══════════════ */}
       {showCallModal && (
         <CallModal
           isOpen={true}
@@ -235,7 +365,7 @@ const HomeTab: React.FC<HomeTabProps> = ({
           roomNumber={room.number}
         />
       )}
-    </>
+    </div>
   );
 };
 

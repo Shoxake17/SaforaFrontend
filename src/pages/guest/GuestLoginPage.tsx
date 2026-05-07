@@ -1,20 +1,22 @@
 // src/pages/guest/GuestLoginPage.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { fetchGuestSession } from '@services/guest';
-import { getCurrentGuest, sendHeartbeat } from '@services/guestAuth';
+import {
+  getCurrentGuest,
+  sendHeartbeat,
+  clearLocalSession,
+} from '@services/guestAuth';
 import { getSocket } from '@services/socket';
 import { guestTokenService } from '@services/guestToken';
 import { useGuestIncomingPolling } from '@hooks/calls/useGuestIncomingPolling';
 import GuestIncomingCallModal from '@components/GuestIncomingCallModal/GuestIncomingCallModal';
 import useForceTheme from '@hooks/useForceTheme';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
+import { useGuestSessionMonitor } from '@hooks/useGuestSessionMonitor';
 
-import GuestHeader from './components/GuestHeader';
-import GuestIntroScreen from './components/GuestIntroScreen';
 import GuestMainScreen from './components/GuestMainScreen';
-import GuestLangSwitcher from './components/GuestLangSwitcher';
 
 import './GuestLoginPage.css';
 
@@ -26,8 +28,10 @@ const GuestLoginPage: React.FC = () => {
     roomNumber: string;
   }>();
 
-  useForceTheme('light');
+  const navigate = useNavigate();
 
+  useForceTheme('light');
+  useGuestSessionMonitor();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +43,7 @@ const GuestLoginPage: React.FC = () => {
   const [showMain, setShowMain] = useState(false);
 
   // ═══════════════════════════════════════════════════
-  // ⭐ Socket.IO + Polling fallback
+  // Socket.IO + Polling fallback
   // ═══════════════════════════════════════════════════
   const { incomingCall, dismissCall, socketConnected } =
     useGuestIncomingPolling(showMain, slug, roomNumber);
@@ -60,6 +64,7 @@ const GuestLoginPage: React.FC = () => {
   // ═══════════════════════════════════════════════════
   // 1) Hotel + Room ma'lumotlari
   // 2) Token bo'lsa — auto-login
+  // 3) Token yo'q yoki muddati o'tgan — /g/register'ga
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     if (!slug || !roomNumber) return;
@@ -93,9 +98,12 @@ const GuestLoginPage: React.FC = () => {
           console.log('[GuestLoginPage] Auto-login:', guest.fullName);
           setGuestName(guest.fullName);
           setShowMain(true);
-          document.body.classList.remove('guest-intro-mode');
         } else {
-          document.body.classList.add('guest-intro-mode');
+          // ⭐ Session yo'q yoki muddati o'tgan — register'ga qaytarish
+          console.log('[GuestLoginPage] No active session, redirecting to /g/register');
+          clearLocalSession();
+          navigate('/g/register', { replace: true });
+          return;
         }
       } catch (err) {
         console.error('[GuestLoginPage] Load error:', err);
@@ -114,10 +122,10 @@ const GuestLoginPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [slug, roomNumber]);
+  }, [slug, roomNumber, navigate]);
 
   // ═══════════════════════════════════════════════════
-  // ⭐ HEARTBEAT — Socket asosiy, REST fallback
+  // HEARTBEAT — Socket asosiy, REST fallback
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     if (!showMain) return;
@@ -178,30 +186,6 @@ const GuestLoginPage: React.FC = () => {
   }, [showMain, slug, roomNumber]);
 
   // ═══════════════════════════════════════════════════
-  // Cleanup — FAQAT body class
-  // ⚠️ disconnectSocket() OLIB TASHLANDI — StrictMode bilan muammo yaratardi
-  // Socket o'zining lifecycle'ini boshqaradi
-  // ═══════════════════════════════════════════════════
-  useEffect(() => {
-    return () => {
-      document.body.classList.remove('guest-intro-mode');
-    };
-  }, []);
-
-  // ═══════════════════════════════════════════════════
-  // Register dan keyin
-  // ═══════════════════════════════════════════════════
-  const handleRegisterSuccess = (
-    name: string,
-    _phone: string,
-    _email: string
-  ) => {
-    setGuestName(name);
-    setShowMain(true);
-    document.body.classList.remove('guest-intro-mode');
-  };
-
-  // ═══════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════
   if (loading) {
@@ -216,7 +200,7 @@ const GuestLoginPage: React.FC = () => {
     return (
       <div className="guest-error">
         <h2>Hotel or Room not found</h2>
-        <p>{error || 'Please check the QR code and try again'}</p>
+        <p>{error || 'Please try again'}</p>
       </div>
     );
   }
@@ -224,9 +208,6 @@ const GuestLoginPage: React.FC = () => {
   if (showMain) {
     return (
       <div className="guest-page guest-page-main">
-        <GuestLangSwitcher />
-
-       
 
         <GuestMainScreen
           hotel={hotel}
@@ -249,30 +230,7 @@ const GuestLoginPage: React.FC = () => {
     );
   }
 
-  return (
-    <div className="guest-page">
-      <div className="guest-bg-decor">
-        <div className="guest-bg-shape" />
-        <div className="guest-bg-shape" />
-        <div className="guest-bg-shape" />
-      </div>
-
-      <GuestLangSwitcher />
-
-      <div className="guest-container">
-        <GuestHeader hotel={hotel} room={room} settings={settings} />
-
-        <div className="guest-body">
-          <GuestIntroScreen
-            hotel={hotel}
-            room={room}
-            settings={settings}
-            onRegistered={handleRegisterSuccess}
-          />
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 };
 
 export default GuestLoginPage;

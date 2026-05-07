@@ -1,9 +1,10 @@
 // src/services/socket.ts
 import { io, Socket } from 'socket.io-client';
+import { Capacitor } from '@capacitor/core';
 
-const SOCKET_URL =
-  import.meta.env.VITE_API_URL?.replace('/api', '') ||
-  'http://localhost:5000';
+const SOCKET_URL = Capacitor.isNativePlatform()
+  ? 'https://v1kmtz97-5000.euw.devtunnels.ms'   // mobile
+  : (import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000');
 
 // ═══════════════════════════════════════════════════════
 // Socket Singleton — bitta connection butun app uchun

@@ -19,6 +19,7 @@ import './HotelPortal.css';
 
 // ✅ Path alias — toza importlar
 import { API_URL } from '@config/api';
+import { imageUrl } from '@utils/imageUrl';
 import { fetchHotelBySlug } from '@services/auth';
 import type { Hotel } from '@apptypes/hotel';
 
@@ -100,7 +101,7 @@ const HotelPortal: React.FC = () => {
             >
               {hotel.images!.map((img, i) => (
                 <div key={i} className="carousel-slide">
-                  <img src={`${API_URL}${img.url}`} alt={hotel.name} />
+                    <img src={imageUrl(img.url)} alt={hotel.name} />
                   <div className="carousel-overlay" />
                 </div>
               ))}

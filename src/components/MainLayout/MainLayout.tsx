@@ -48,7 +48,6 @@ const getPageTitle = (pathname: string): string => {
     case 'dashboard':    return 'Dashboard';
     case 'staff':        return 'Staff';
     case 'rooms':        return 'Rooms';
-    case 'qrcodes':      return 'QR Codes';
     case 'qrrooms':      return 'QR Rooms';
     case 'services':     return 'Services';
     case 'settings':     return 'Settings';

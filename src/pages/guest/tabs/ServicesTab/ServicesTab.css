@@ -1,0 +1,443 @@
+/* ═══════════════════════════════════════════════════════
+   ServicesTab — HomeTab style bilan bir xil
+═══════════════════════════════════════════════════════ */
+
+.sv-screen,
+.sv-screen * {
+  box-sizing: border-box;
+}
+
+.sv-screen {
+  background: #f8fafc;
+  padding-bottom: 90px;
+  margin: -16px -16px 0 -16px;
+  margin-top: -32px;
+  padding-top: 0;
+}
+
+/* ═══════════════ HERO — HomeTab kabi ═══════════════ */
+.sv-hero {
+  position: relative;
+  height: 250px;        /* HomeTab'da 250px */
+  overflow: hidden;
+  width: 100vw;
+  border-bottom-left-radius: 28px;
+  border-bottom-right-radius: 28px;
+}
+
+.sv-hero-carousel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sv-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+}
+
+.sv-hero-bg.active {
+  opacity: 1;
+}
+
+.sv-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.2) 0%, rgba(15,23,42,0.7) 100%);
+}
+
+.sv-hero-content {
+  position: relative;
+  height: 100%;
+  padding: 14px 14px 24px;
+  padding-top: calc(28px + env(safe-area-inset-top, 0));
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+/* ═══════════════ GREETING — HomeTab kabi ═══════════════ */
+.sv-greeting {
+  margin-bottom: 4px;
+}
+
+.sv-greet-small {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 1px;
+}
+
+.sv-greet-name {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  margin: 0;
+  line-height: 1;
+}
+
+.sv-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+/* ═══════════════ INFO CHIPS — HomeTab kabi ═══════════════ */
+.sv-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+  width: 65%;
+}
+
+.sv-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  min-width: 0;
+}
+
+.sv-chip-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sv-chip-emoji {
+  font-size: 16px;
+}
+
+.sv-chip-text {
+  min-width: 0;
+}
+
+.sv-chip-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sv-chip-sub {
+  font-size: 10px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ═══════════════ HERO PAGINATION DOTS ═══════════════ */
+.sv-hero-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+}
+
+.sv-hero-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.sv-hero-dot.active {
+  width: 18px;
+  border-radius: 4px;
+}
+
+
+/* ═══════════════ SECTION ═══════════════ */
+.sv-section {
+  margin: 12px 14px;
+}
+
+.sv-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.sv-section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sv-view-all {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ═══════════════ SEARCH ═══════════════ */
+.sv-search-wrap {
+  margin: 0 12px 12px;
+}
+
+.sv-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.sv-search-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.sv-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #0f172a;
+  font-family: inherit;
+  min-width: 0;
+  width: 100%;
+}
+
+.sv-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.sv-filter-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ═══════════════ GRID — 3 column (HomeTab kabi) ═══════════════ */
+.sv-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.sv-service-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 8px;
+  background: white;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sv-service-card:active {
+  transform: scale(0.97);
+}
+
+.sv-service-icon {
+  margin-bottom: 4px;
+}
+
+.sv-service-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.sv-service-sub {
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+/* ═══════════════ EMPTY STATE ═══════════════ */
+.sv-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+  color: #94a3b8;
+  background: white;
+  border-radius: 14px;
+  margin: 0 12px 14px;
+}
+
+.sv-empty p {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 4px;
+  color: #64748b;
+}
+
+.sv-empty small {
+  font-size: 12px;
+}
+
+/* ═══════════════ FEATURED BANNER — HomeTab kabi ═══════════════ */
+.sv-featured {
+  position: relative;
+  margin: 14px 12px 20px;
+  height: 180px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.sv-featured-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sv-featured-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0) 100%);
+}
+
+.sv-featured-content {
+  position: relative;
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  max-width: 65%;
+}
+
+.sv-featured-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.sv-featured-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+}
+
+.sv-featured-desc {
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.4;
+  margin: 0 0 10px;
+}
+
+.sv-featured-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 14px;
+  border: none;
+  color: white;
+  border-radius: 22px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  align-self: flex-start;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sv-featured-btn:active {
+  transform: scale(0.97);
+}
+
+/* ═══════════════ RESPONSIVE — HomeTab kabi ═══════════════ */
+@media (max-width: 360px) {
+  .sv-hero {
+    height: 260px;
+  }
+  .sv-greet-name {
+    font-size: 26px;
+  }
+  .sv-grid-3 {
+    gap: 6px;
+  }
+  .sv-service-card {
+    padding: 14px 6px;
+  }
+  .sv-service-title {
+    font-size: 11px;
+  }
+  .sv-service-sub {
+    font-size: 9px;
+  }
+  .sv-featured {
+    height: 170px;
+  }
+  .sv-chips {
+    width: 80%;
+  }
+}
+
+@media (min-width: 500px) {
+  .sv-hero {
+    width: 100%;
+  }
+}

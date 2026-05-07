@@ -1,53 +1,59 @@
 // src/services/guest.ts
-import { api } from './api';
+import { API_URL } from '@config/api';
+import type { FetchGuestSessionResult } from '@apptypes/guest';
 
-interface FetchSessionResponse {
-  success: boolean;
-  hotel?: any;
-  room?: any;
-  settings?: any;
-  error?: string;
-}
-
-interface RegisterResponse {
-  success: boolean;
-  guest_token?: string;
-  error?: string;
-}
-
-/**
- * Get hotel + room info by slug + room number (public, no auth)
- */
-export const fetchGuestSession = async (
-  slug: string,
-  roomNumber: string,
-): Promise<FetchSessionResponse> => {
-  const res = await api.get(`/guest/${slug}/${roomNumber}`, { skipAuth: true });
-  if (!res.success) {
-    return { success: false, error: res.error };
+const safeJson = async (res: Response): Promise<any> => {
+  try {
+    return await res.json();
+  } catch {
+    return { success: false, error: `HTTP ${res.status}` };
   }
-  return {
-    success: true,
-    hotel: res.data?.hotel,
-    room: res.data?.room,
-    settings: res.data?.settings || {},
-  };
 };
 
-/**
- * Register a guest (creates a session)
- */
-export const registerGuest = async (payload: {
-  hotel_slug: string;
-  room_number: string;
-  name: string;
-  phone: string;
-  email?: string;
-  language?: string;
-}): Promise<RegisterResponse> => {
-  const res = await api.post('/guest/register', payload, { skipAuth: true });
-  if (!res.success) {
-    return { success: false, error: res.error };
-  }
-  return { success: true, guest_token: res.data?.guest_token };
+const authHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('safora_guest_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
+
+// ═══════════════════════════════════════════════════════
+// Fetch Guest Session — hotel + room + settings
+// ═══════════════════════════════════════════════════════
+export async function fetchGuestSession(
+  hotelSlug: string,
+  roomNumber: string
+): Promise<FetchGuestSessionResult> {
+  try {
+    const res = await fetch(
+      `${API_URL}/guest/${hotelSlug}/${roomNumber}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders(),
+        },
+      }
+    );
+
+    const data = await safeJson(res);
+
+    if (!res.ok || !data.success) {
+      return {
+        success: false,
+        error: data.error || 'Hotel or Room not found',
+      };
+    }
+
+    return {
+      success: true,
+      hotel: data.hotel,
+      room: data.room,
+      settings: data.settings,
+    };
+  } catch (err: any) {
+    console.error('[guest] fetchGuestSession error:', err);
+    return {
+      success: false,
+      error: err?.message || 'Network error',
+    };
+  }
+}
