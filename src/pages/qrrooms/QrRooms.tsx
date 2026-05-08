@@ -1,6 +1,6 @@
 // src/pages/qrrooms/QrRooms.tsx
 // ⭐ SOCKET-ONLY VERSION — No polling, real-time updates
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   ShoppingCart,
   HandHelping,
@@ -23,6 +23,7 @@ import CallsPanel from './panels/CallsPanel';
 import ReviewsPanel from './panels/ReviewsPanel';
 
 import { getCallHistory } from '@services/calls';
+import { listRequests } from '@services/requests';   // ⭐ yangi
 import { getSocket } from '@services/socket';
 import { tokenService } from '@services/auth';
 
@@ -61,40 +62,57 @@ const QrRooms: React.FC = () => {
   // ═════ Counts (real va hardcoded) ═════
   const [counts, setCounts] = useState({
     orders: 0,
-    requests: 9,    // TODO: API
+    requests: 0,    // ⭐ endi real-time
     messages: 0,    // TODO: API
     calls: 0,       // ✅ Socket orqali real-time
     reviews: 2,     // TODO: API
   });
 
   // ═══════════════════════════════════════════════════════
-  // ⭐ Calls count — Socket-based real-time updates
+  // ⭐ Calls count
+  // ═══════════════════════════════════════════════════════
+  const loadCallsCount = useCallback(async () => {
+    try {
+      const result = await getCallHistory('all', 200);
+      if (result.success) {
+        setCounts((prev) => ({ ...prev, calls: result.total }));
+      }
+    } catch (err) {
+      console.warn('[QrRooms] Failed to load calls count:', err);
+    }
+  }, []);
+
+  // ═══════════════════════════════════════════════════════
+  // ⭐ Requests count (faqat pending)
+  // ═══════════════════════════════════════════════════════
+  const loadRequestsCount = useCallback(async () => {
+    if (!slug) return;
+    try {
+      const result = await listRequests(slug, 'pending', 1);
+      if (result.success) {
+        setCounts((prev) => ({
+          ...prev,
+          requests: result.pending ?? result.total ?? 0,
+        }));
+      }
+    } catch (err) {
+      console.warn('[QrRooms] Failed to load requests count:', err);
+    }
+  }, [slug]);
+
+  // ═══════════════════════════════════════════════════════
+  // ⭐ Initial load + Socket listeners
   // ═══════════════════════════════════════════════════════
   useEffect(() => {
-    let cancelled = false;
-
-    const loadCallsCount = async () => {
-      try {
-        const result = await getCallHistory('all', 200);
-        if (cancelled) return;
-
-        if (result.success) {
-          setCounts(prev => ({ ...prev, calls: result.total }));
-        }
-      } catch (err) {
-        console.warn('[QrRooms] Failed to load calls count:', err);
-      }
-    };
-
-    // 1) Birinchi yuklash
     loadCallsCount();
+    loadRequestsCount();
 
-    // 2) Socket event listener (real-time)
     const token = tokenService.get();
     if (!token) return;
 
     const socket = getSocket(token);
 
+    // Calls events
     const handleCallEnded = () => {
       console.log('[QrRooms] 📡 call:ended — refreshing calls count');
       loadCallsCount();
@@ -105,15 +123,29 @@ const QrRooms: React.FC = () => {
       loadCallsCount();
     };
 
+    // ⭐ Requests events
+    const handleNewRequest = () => {
+      console.log('[QrRooms] 📡 new-request — refreshing requests count');
+      loadRequestsCount();
+    };
+
+    const handleRequestStatusChanged = () => {
+      console.log('[QrRooms] 📡 request:status_changed — refreshing requests count');
+      loadRequestsCount();
+    };
+
     socket.on('call:ended', handleCallEnded);
     socket.on('new-call', handleNewCall);
+    socket.on('new-request', handleNewRequest);
+    socket.on('request:status_changed', handleRequestStatusChanged);
 
     return () => {
-      cancelled = true;
       socket.off('call:ended', handleCallEnded);
       socket.off('new-call', handleNewCall);
+      socket.off('new-request', handleNewRequest);
+      socket.off('request:status_changed', handleRequestStatusChanged);
     };
-  }, []);
+  }, [loadCallsCount, loadRequestsCount]);
 
   // ═════ Hash-based tab switching (notification clicks) ═════
   useEffect(() => {

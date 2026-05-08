@@ -64,14 +64,52 @@ export interface TouristRecommendation {
   order?: number;
 }
 
-// ⭐ Universal Service Detail — Gym, Spa, Pool, Laundry
+// ⭐ Universal Service Detail
 export interface ServiceDetail {
-  images: string[];         // ⭐ "images" — PLURAL!
+  images: string[];
   description: string;
   open_time: string;
   close_time: string;
   is_24_hours: boolean;
   location: string;
+}
+
+// ⭐ LAUNDRY
+export type LaundryCategory = 'men' | 'women' | 'children';
+
+export interface LaundryItem {
+  _id?: string;
+  category: LaundryCategory;
+  name: string;
+  price: number;
+}
+
+export interface LaundryDetail extends ServiceDetail {
+  items: LaundryItem[];
+}
+
+// ⭐⭐⭐ RESTAURANT
+export interface RestaurantCategory {
+  _id?: string;
+  name: string;
+  icon: string;        // emoji
+  order: number;
+}
+
+export interface RestaurantItem {
+  _id?: string;
+  category_id: string;
+  name: string;
+  price: number;
+  description: string;
+  image: string;
+  available: boolean;
+  order: number;
+}
+
+export interface RestaurantDetail extends ServiceDetail {
+  categories: RestaurantCategory[];
+  items: RestaurantItem[];
 }
 
 export type GymDetails = ServiceDetail;
@@ -92,7 +130,9 @@ export interface HotelSettings {
   gym: ServiceDetail;
   spa: ServiceDetail;
   pool: ServiceDetail;
-  laundry: ServiceDetail;
+  laundry: LaundryDetail;
+  yandex_taxi: ServiceDetail;
+  restaurant: RestaurantDetail;   // ⭐ YANGI
 }
 
 export interface SettingsResponse {
@@ -114,42 +154,53 @@ export interface UploadImageResponse {
   url?: string;
 }
 
-// ⭐ Defaults — "images" PLURAL!
+// ═══════════════════════════════════════════
+// Defaults
+// ═══════════════════════════════════════════
 export const DEFAULT_GYM: ServiceDetail = {
-  images: [],             // ⭐ images
-  description: '',
-  open_time: '06:00',
-  close_time: '23:00',
-  is_24_hours: false,
-  location: '',
+  images: [], description: '', open_time: '06:00', close_time: '23:00', is_24_hours: false, location: '',
 };
 
 export const DEFAULT_SPA: ServiceDetail = {
-  images: [],
-  description: '',
-  open_time: '09:00',
-  close_time: '21:00',
-  is_24_hours: false,
-  location: '',
+  images: [], description: '', open_time: '09:00', close_time: '21:00', is_24_hours: false, location: '',
 };
 
 export const DEFAULT_POOL: ServiceDetail = {
+  images: [], description: '', open_time: '08:00', close_time: '22:00', is_24_hours: false, location: '',
+};
+
+export const DEFAULT_LAUNDRY: LaundryDetail = {
+  images: [], description: '', open_time: '09:00', close_time: '20:00',
+  is_24_hours: false, location: '', items: [],
+};
+
+export const DEFAULT_YANDEX_TAXI: ServiceDetail = {
+  images: [], description: '', open_time: '00:00', close_time: '23:59', is_24_hours: true, location: '',
+};
+
+// ⭐⭐⭐ RESTAURANT default
+export const DEFAULT_RESTAURANT: RestaurantDetail = {
   images: [],
   description: '',
   open_time: '08:00',
-  close_time: '22:00',
+  close_time: '23:00',
   is_24_hours: false,
   location: '',
+  categories: [],
+  items: [],
 };
 
-export const DEFAULT_LAUNDRY: ServiceDetail = {
-  images: [],
-  description: '',
-  open_time: '09:00',
-  close_time: '20:00',
-  is_24_hours: false,
-  location: '',
-};
+// ⭐⭐⭐ Default category templates (yangi hotel uchun)
+export const RESTAURANT_CATEGORY_TEMPLATES = [
+  { name: 'Breakfast',   icon: '🍳', order: 1 },
+  { name: 'Starters',    icon: '🥗', order: 2 },
+  { name: 'Main Course', icon: '🍽️', order: 3 },
+  { name: 'Desserts',    icon: '🍰', order: 4 },
+  { name: 'Beverages',   icon: '🥤', order: 5 },
+  { name: 'Hot Drinks',  icon: '☕', order: 6 },
+  { name: 'Water',       icon: '💧', order: 7 },
+  { name: 'Snacks',      icon: '🍿', order: 8 },
+];
 
 export const DEFAULT_SETTINGS: HotelSettings = {
   cover_photos: [],
@@ -166,13 +217,17 @@ export const DEFAULT_SETTINGS: HotelSettings = {
   directions: { google_maps: '', yandex_maps: '', twogis: '' },
   tourist_recommendations: [],
   active_services: ['roomService', 'concierge', 'wifi'],
-  gym:     { ...DEFAULT_GYM },
-  spa:     { ...DEFAULT_SPA },
-  pool:    { ...DEFAULT_POOL },
-  laundry: { ...DEFAULT_LAUNDRY },
+  gym:         { ...DEFAULT_GYM },
+  spa:         { ...DEFAULT_SPA },
+  pool:        { ...DEFAULT_POOL },
+  laundry:     { ...DEFAULT_LAUNDRY, items: [] },
+  yandex_taxi: { ...DEFAULT_YANDEX_TAXI },
+  restaurant:  { ...DEFAULT_RESTAURANT, categories: [], items: [] },   // ⭐
 };
 
-// ⭐ Helper — har service uchun xavfsiz merge
+// ═══════════════════════════════════════════
+// Helpers
+// ═══════════════════════════════════════════
 const mergeServiceDetail = (raw: any, defaults: ServiceDetail): ServiceDetail => {
   if (!raw) return defaults;
   return {
@@ -183,6 +238,58 @@ const mergeServiceDetail = (raw: any, defaults: ServiceDetail): ServiceDetail =>
     is_24_hours: !!raw.is_24_hours,
     location: raw.location || '',
   };
+};
+
+const mergeLaundryDetail = (raw: any): LaundryDetail => {
+  if (!raw) return { ...DEFAULT_LAUNDRY, items: [] };
+  const base = mergeServiceDetail(raw, DEFAULT_LAUNDRY);
+  const items: LaundryItem[] = Array.isArray(raw.items)
+    ? raw.items
+        .filter((it: any) => it && typeof it.name === 'string')
+        .map((it: any) => ({
+          _id: it._id ? String(it._id) : undefined,
+          category: ['men', 'women', 'children'].includes(it.category) ? it.category : 'men',
+          name: String(it.name).trim().slice(0, 100),
+          price: Math.max(0, Number(it.price) || 0),
+        }))
+    : [];
+  return { ...base, items };
+};
+
+// ⭐⭐⭐ RESTAURANT merge
+const mergeRestaurantDetail = (raw: any): RestaurantDetail => {
+  if (!raw) return { ...DEFAULT_RESTAURANT, categories: [], items: [] };
+  const base = mergeServiceDetail(raw, DEFAULT_RESTAURANT);
+
+  const categories: RestaurantCategory[] = Array.isArray(raw.categories)
+    ? raw.categories
+        .filter((c: any) => c && typeof c.name === 'string')
+        .map((c: any) => ({
+          _id: c._id ? String(c._id) : undefined,
+          name: String(c.name).trim().slice(0, 50),
+          icon: c.icon || '🍽️',
+          order: Number(c.order) || 0,
+        }))
+        .sort((a: RestaurantCategory, b: RestaurantCategory) => a.order - b.order)
+    : [];
+
+  const items: RestaurantItem[] = Array.isArray(raw.items)
+    ? raw.items
+        .filter((it: any) => it && typeof it.name === 'string' && it.category_id)
+        .map((it: any) => ({
+          _id: it._id ? String(it._id) : undefined,
+          category_id: String(it.category_id),
+          name: String(it.name).trim().slice(0, 100),
+          price: Math.max(0, Number(it.price) || 0),
+          description: it.description ? String(it.description).slice(0, 500) : '',
+          image: it.image || '',
+          available: it.available !== false,
+          order: Number(it.order) || 0,
+        }))
+        .sort((a: RestaurantItem, b: RestaurantItem) => a.order - b.order)
+    : [];
+
+  return { ...base, categories, items };
 };
 
 // ═══════════════════════════════════════════
@@ -214,11 +321,12 @@ export async function fetchSettings(slug: string): Promise<HotelSettings | null>
         ...DEFAULT_SETTINGS.directions,
         ...(data.settings.directions || {}),
       },
-      // ⭐ HAR BIR service uchun xavfsiz merge
-      gym:     mergeServiceDetail(data.settings.gym,     DEFAULT_GYM),
-      spa:     mergeServiceDetail(data.settings.spa,     DEFAULT_SPA),
-      pool:    mergeServiceDetail(data.settings.pool,    DEFAULT_POOL),
-      laundry: mergeServiceDetail(data.settings.laundry, DEFAULT_LAUNDRY),
+      gym:         mergeServiceDetail(data.settings.gym,         DEFAULT_GYM),
+      spa:         mergeServiceDetail(data.settings.spa,         DEFAULT_SPA),
+      pool:        mergeServiceDetail(data.settings.pool,        DEFAULT_POOL),
+      laundry:     mergeLaundryDetail(data.settings.laundry),
+      yandex_taxi: mergeServiceDetail(data.settings.yandex_taxi, DEFAULT_YANDEX_TAXI),
+      restaurant:  mergeRestaurantDetail(data.settings.restaurant),   // ⭐ YANGI
       active_services: data.settings.active_services || DEFAULT_SETTINGS.active_services,
     };
   } catch (err) {
@@ -308,6 +416,7 @@ export async function uploadRecommendationImage(
   }
 }
 
+// ⭐ Restaurant item rasmi shu funksiya orqali yuklanadi
 export async function uploadServiceImage(
   slug: string,
   file: File

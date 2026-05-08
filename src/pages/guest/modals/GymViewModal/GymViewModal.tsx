@@ -78,7 +78,7 @@ const GymViewModal: React.FC<GymViewModalProps> = ({
             </div>
           </div>
         )}
-
+  
         {/* CONTENT */}
         <div className="gv-content">
           <h2 className="gv-title">Gym & Fitness</h2>

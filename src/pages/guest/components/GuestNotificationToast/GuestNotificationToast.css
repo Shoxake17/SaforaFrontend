@@ -1,0 +1,109 @@
+/* GuestNotificationToast.css */
+
+.gnt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 2000;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0));
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+.gnt-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+  padding: 14px 14px 14px 14px;
+  background: white;
+  border-radius: 16px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
+  transform: translateY(-120%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.gnt-overlay.is-visible .gnt-toast {
+  transform: translateY(0);
+  opacity: 1;
+  animation: gnt-pulse 1.5s ease 0.4s 2;
+}
+
+@keyframes gnt-pulse {
+  0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03); }
+  50% { box-shadow: 0 10px 30px rgba(249,115,22,0.25), 0 4px 12px rgba(249,115,22,0.15), 0 0 0 2px rgba(249,115,22,0.2); }
+}
+
+.gnt-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.3);
+  animation: gnt-icon-bounce 0.6s ease 0.4s;
+}
+
+@keyframes gnt-icon-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15) rotate(-5deg); }
+}
+
+.gnt-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.gnt-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.gnt-message {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+.gnt-close {
+  width: 28px;
+  height: 28px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.gnt-close:active {
+  transform: scale(0.9);
+  background: #e2e8f0;
+}

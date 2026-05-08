@@ -20,13 +20,13 @@ export interface HotelServiceDef {
 export const HOTEL_SERVICES: HotelServiceDef[] = [
   { key: 'wake_up',       title: 'Wake-up Call',       sub: 'Alarm',         icon: AlarmClock,      color: '#f97316' },
   { key: 'spa',           title: 'Spa & Wellness',     sub: 'Relax',         icon: Sparkles,        color: '#f97316', hasDetails: true },
-  { key: 'yandex_taxi',   title: 'Yandex Taxi',        sub: 'Car Service',   icon: Car,             color: '#f97316' },
+  { key: 'yandex_taxi',   title: 'Yandex Taxi',        sub: 'Car Service',   icon: Car,             color: '#f97316', hasDetails: true },
   { key: 'pool',          title: 'Swimming Pool',      sub: 'Relaxation',    icon: Waves,           color: '#f97316', hasDetails: true },
   { key: 'luggage',       title: 'Luggage Storage',    sub: 'Workspace',     icon: Luggage,         color: '#f97316' },
   { key: 'currency',      title: 'Currency Exchange',  sub: 'Exchange',      icon: BadgeDollarSign, color: '#f97316' },
   { key: 'laundry',       title: 'Laundry',            sub: 'Cleaning',      icon: WashingMachine,  color: '#f97316', hasDetails: true },
-  { key: 'restaurant',    title: 'Restaurant',         sub: 'Dining',        icon: Utensils,        color: '#f97316' },
-  { key: 'roomService',   title: 'Room Service',       sub: '24/7',          icon: ConciergeBell,   color: '#f97316' },
+  { key: 'restaurant',    title: 'Restaurant',         sub: 'Dining',        icon: Utensils,        color: '#f97316', hasDetails: true },
+  // { key: 'roomService',   title: 'Room Service',       sub: '24/7',          icon: ConciergeBell,   color: '#f97316' },
   { key: 'gym',           title: 'Gym & Fitness',      sub: 'Workout',       icon: Dumbbell,        color: '#f97316', hasDetails: true },   
   { key: 'wifi',          title: 'Wi-Fi',              sub: 'Internet',      icon: Wifi,            color: '#f97316' },
 ];

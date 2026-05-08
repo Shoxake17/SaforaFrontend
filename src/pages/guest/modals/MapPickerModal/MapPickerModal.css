@@ -1,0 +1,318 @@
+/* MapPickerModal — Yandex-style map picker */
+
+.mpm-overlay,
+.mpm-overlay * {
+  box-sizing: border-box;
+}
+
+.mpm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+  display: flex;
+  font-family: 'Inter', -apple-system, sans-serif;
+  animation: mpm-fade 0.2s ease;
+}
+
+@keyframes mpm-fade { from { opacity: 0 } to { opacity: 1 } }
+
+.mpm-modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* TOP BAR */
+.mpm-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0));
+  background: white;
+  z-index: 5;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.mpm-back {
+  width: 36px;
+  height: 36px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mpm-back:active {
+  transform: scale(0.92);
+  background: #e2e8f0;
+}
+
+.mpm-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+/* SEARCH */
+.mpm-search-wrap {
+  position: relative;
+  padding: 10px 14px;
+  background: white;
+  z-index: 4;
+}
+
+.mpm-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mpm-search-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.mpm-search-input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #0f172a;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.mpm-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.mpm-search-input:focus {
+  background: white;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+}
+
+/* SEARCH RESULTS */
+.mpm-search-results {
+  position: absolute;
+  top: 100%;
+  left: 14px;
+  right: 14px;
+  background: white;
+  border-radius: 12px;
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+}
+
+.mpm-search-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 14px;
+  background: white;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mpm-search-result:last-child {
+  border-bottom: none;
+}
+
+.mpm-search-result:active {
+  background: #f8fafc;
+}
+
+.mpm-search-result-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mpm-search-result-text {
+  font-size: 13px;
+  color: #0f172a;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* MAP */
+.mpm-map-wrap {
+  flex: 1;
+  position: relative;
+  background: #e2e8f0;
+}
+
+.mpm-map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Hide leaflet attribution */
+.leaflet-control-attribution { display: none !important; }
+
+/* CENTER PIN */
+.mpm-center-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mpm-pin-marker {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    0 0 0 4px rgba(255, 255, 255, 0.95);
+  animation: mpm-bounce 0.6s ease;
+}
+
+@keyframes mpm-bounce {
+  0% { transform: translateY(-10px); opacity: 0; }
+  60% { transform: translateY(2px); opacity: 1; }
+  100% { transform: translateY(0); }
+}
+
+.mpm-pin-shadow {
+  width: 8px;
+  height: 4px;
+  border-radius: 50%;
+  margin-top: 4px;
+  opacity: 0.4;
+  filter: blur(2px);
+}
+
+/* MY LOCATION BUTTON */
+.mpm-my-location {
+  position: absolute;
+  bottom: 16px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mpm-my-location:active {
+  transform: scale(0.92);
+  background: #f8fafc;
+}
+
+/* BOTTOM SHEET */
+.mpm-bottom {
+  background: white;
+  padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0));
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 5;
+}
+
+.mpm-address-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  min-height: 50px;
+}
+
+.mpm-address-text {
+  font-size: 13.5px;
+  color: #0f172a;
+  line-height: 1.4;
+  font-weight: 500;
+  word-break: break-word;
+  flex: 1;
+}
+
+.mpm-address-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.mpm-spin {
+  animation: mpm-spin 0.8s linear infinite;
+}
+
+@keyframes mpm-spin { to { transform: rotate(360deg) } }
+
+.mpm-confirm-btn {
+  width: 100%;
+  padding: 14px;
+  background: #f97316;
+  border: none;
+  color: white;
+  border-radius: 14px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+  transition: transform 0.1s ease;
+}
+
+.mpm-confirm-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.mpm-confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,24 +1,33 @@
 // src/pages/services/HotelServices.tsx
 import React, { useEffect, useState } from 'react';
-import { ConciergeBell, Search, Save, Loader2, Settings as SettingsIcon } from 'lucide-react';
+import {
+  ConciergeBell, Search, Save, Loader2,
+  Settings as SettingsIcon, Shirt, Utensils,   // ⭐ Utensils
+} from 'lucide-react';
 import useAuthGuard from '@hooks/useAuthGuard';
 import PortalLayout from '@components/PortalLayout/PortalLayout';
 import Alert from '@components/Alert';
 import {
   fetchSettings, updateSettings, DEFAULT_SETTINGS,
   DEFAULT_GYM, DEFAULT_SPA, DEFAULT_POOL, DEFAULT_LAUNDRY,
+  DEFAULT_YANDEX_TAXI, DEFAULT_RESTAURANT,                 // ⭐ Restaurant default
   type HotelSettings, type ServiceDetail,
+  type RestaurantDetail,                                   // ⭐ Restaurant type
 } from '@services/settings';
 import { HOTEL_SERVICES, type HotelServiceDef } from '@constants/hotelServices';
 import WifiManageModal from '@components/WifiManageModal/WifiManageModal';
 import ServiceManageModal from '@components/ServiceManageModal/ServiceManageModal';
+import LaundryItemsModal, { type LaundryItem } from '@components/LaundryItemsModal/LaundryItemsModal';
+import RestaurantMenuModal from '@components/RestaurantMenuModal/RestaurantMenuModal';   // ⭐
 import './HotelServices.css';
 
 const SERVICE_CONFIGS: Record<string, { defaultOpen: string; defaultClose: string }> = {
-  gym:     { defaultOpen: '06:00', defaultClose: '23:00' },
-  spa:     { defaultOpen: '09:00', defaultClose: '21:00' },
-  pool:    { defaultOpen: '08:00', defaultClose: '22:00' },
-  laundry: { defaultOpen: '09:00', defaultClose: '20:00' },
+  gym:         { defaultOpen: '06:00', defaultClose: '23:00' },
+  spa:         { defaultOpen: '09:00', defaultClose: '21:00' },
+  pool:        { defaultOpen: '08:00', defaultClose: '22:00' },
+  laundry:     { defaultOpen: '09:00', defaultClose: '20:00' },
+  yandex_taxi: { defaultOpen: '00:00', defaultClose: '23:59' },
+  restaurant:  { defaultOpen: '08:00', defaultClose: '23:00' },   // ⭐
 };
 
 const HotelServices: React.FC = () => {
@@ -37,12 +46,23 @@ const HotelServices: React.FC = () => {
   const [wifiList, setWifiList] = useState<Array<{ network_name: string; password: string; description?: string }>>([]);
 
   const [activeServiceModal, setActiveServiceModal] = useState<HotelServiceDef | null>(null);
-  const [serviceData, setServiceData] = useState<Record<string, ServiceDetail>>({
-    gym: DEFAULT_GYM,
-    spa: DEFAULT_SPA,
-    pool: DEFAULT_POOL,
-    laundry: DEFAULT_LAUNDRY,
+
+  // ⭐ serviceData any-typed (chunki LaundryDetail/RestaurantDetail extends ServiceDetail)
+  const [serviceData, setServiceData] = useState<Record<string, any>>({
+    gym:         DEFAULT_GYM,
+    spa:         DEFAULT_SPA,
+    pool:        DEFAULT_POOL,
+    laundry:     DEFAULT_LAUNDRY,
+    yandex_taxi: DEFAULT_YANDEX_TAXI,
+    restaurant:  DEFAULT_RESTAURANT,                              // ⭐
   });
+
+  // ⭐ LAUNDRY ITEMS — alohida state
+  const [laundryItems, setLaundryItems] = useState<LaundryItem[]>([]);
+  const [showLaundryItemsModal, setShowLaundryItemsModal] = useState(false);
+
+  // ⭐⭐⭐ RESTAURANT MENU MODAL state
+  const [showRestaurantMenuModal, setShowRestaurantMenuModal] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
@@ -54,11 +74,15 @@ const HotelServices: React.FC = () => {
         setActiveServices(new Set(data.active_services || []));
         setWifiList(Array.isArray(data.wifi) ? data.wifi : []);
         setServiceData({
-          gym: data.gym || DEFAULT_GYM,
-          spa: data.spa || DEFAULT_SPA,
-          pool: data.pool || DEFAULT_POOL,
-          laundry: data.laundry || DEFAULT_LAUNDRY,
+          gym:         data.gym         || DEFAULT_GYM,
+          spa:         data.spa         || DEFAULT_SPA,
+          pool:        data.pool        || DEFAULT_POOL,
+          laundry:     data.laundry     || DEFAULT_LAUNDRY,
+          yandex_taxi: data.yandex_taxi || DEFAULT_YANDEX_TAXI,
+          restaurant:  data.restaurant  || DEFAULT_RESTAURANT,    // ⭐
         });
+        // Laundry items'ni alohida state'ga
+        setLaundryItems((data.laundry as any)?.items || []);
       }
       setLoading(false);
     };
@@ -96,6 +120,61 @@ const HotelServices: React.FC = () => {
     });
   };
 
+  // ⭐ LAUNDRY ITEMS — saqlash (darhol backend'ga)
+  const handleLaundryItemsSave = async (items: LaundryItem[]) => {
+    if (!slug) return;
+
+    const updatedLaundry = {
+      ...(serviceData.laundry || DEFAULT_LAUNDRY),
+      items,
+    };
+
+    const result = await updateSettings(slug, {
+      laundry: updatedLaundry as any,
+    });
+
+    if (result.success) {
+      setLaundryItems(items);
+      setServiceData((prev) => ({ ...prev, laundry: updatedLaundry as any }));
+      setSettings((prev) => ({ ...prev, laundry: updatedLaundry as any }));
+      flashSuccess(`${items.length} ta kiyim saqlandi`);
+    } else {
+      setError(result.error || 'Saqlashda xato');
+      throw new Error(result.error || 'Save failed');
+    }
+  };
+
+  // ⭐⭐⭐ RESTAURANT MENU — saqlash (darhol backend'ga)
+  const handleRestaurantMenuSave = async (
+    updatedRestaurant: RestaurantDetail
+  ): Promise<void> => {
+    if (!slug) return;
+
+    const result = await updateSettings(slug, {
+      restaurant: updatedRestaurant as any,
+    });
+
+    if (result.success) {
+      setServiceData((prev) => ({
+        ...prev,
+        restaurant: updatedRestaurant,
+      }));
+      setSettings((prev) => ({
+        ...prev,
+        restaurant: updatedRestaurant,
+      }));
+
+      const catCount = updatedRestaurant.categories.length;
+      const itemCount = updatedRestaurant.items.length;
+      flashSuccess(
+        `Menyu saqlandi: ${catCount} kategoriya, ${itemCount} taom`
+      );
+    } else {
+      setError(result.error || 'Saqlashda xato');
+      throw new Error(result.error || 'Save failed');
+    }
+  };
+
   const handleSave = async () => {
     if (!slug) return;
     setSaving(true);
@@ -104,10 +183,12 @@ const HotelServices: React.FC = () => {
     const result = await updateSettings(slug, {
       active_services: Array.from(activeServices),
       wifi: wifiList,
-      gym: serviceData.gym,
-      spa: serviceData.spa,
-      pool: serviceData.pool,
-      laundry: serviceData.laundry,
+      gym:         serviceData.gym,
+      spa:         serviceData.spa,
+      pool:        serviceData.pool,
+      laundry:     { ...serviceData.laundry, items: laundryItems } as any,
+      yandex_taxi: serviceData.yandex_taxi,
+      restaurant:  serviceData.restaurant as any,                 // ⭐
     });
 
     setSaving(false);
@@ -117,10 +198,12 @@ const HotelServices: React.FC = () => {
         ...settings,
         active_services: Array.from(activeServices),
         wifi: wifiList,
-        gym: serviceData.gym,
-        spa: serviceData.spa,
-        pool: serviceData.pool,
-        laundry: serviceData.laundry,
+        gym:         serviceData.gym,
+        spa:         serviceData.spa,
+        pool:        serviceData.pool,
+        laundry:     { ...serviceData.laundry, items: laundryItems } as any,
+        yandex_taxi: serviceData.yandex_taxi,
+        restaurant:  serviceData.restaurant,                      // ⭐
       });
     } else {
       setError(result.error || 'Saqlashda xato');
@@ -144,21 +227,22 @@ const HotelServices: React.FC = () => {
   const wifiChanged = JSON.stringify(wifiList) !==
                       JSON.stringify(Array.isArray(settings.wifi) ? settings.wifi : []);
   const detailsChanged =
-    JSON.stringify(serviceData.gym)     !== JSON.stringify(settings.gym     || DEFAULT_GYM)     ||
-    JSON.stringify(serviceData.spa)     !== JSON.stringify(settings.spa     || DEFAULT_SPA)     ||
-    JSON.stringify(serviceData.pool)    !== JSON.stringify(settings.pool    || DEFAULT_POOL)    ||
-    JSON.stringify(serviceData.laundry) !== JSON.stringify(settings.laundry || DEFAULT_LAUNDRY);
+    JSON.stringify(serviceData.gym)         !== JSON.stringify(settings.gym         || DEFAULT_GYM)         ||
+    JSON.stringify(serviceData.spa)         !== JSON.stringify(settings.spa         || DEFAULT_SPA)         ||
+    JSON.stringify(serviceData.pool)        !== JSON.stringify(settings.pool        || DEFAULT_POOL)        ||
+    JSON.stringify(serviceData.laundry)     !== JSON.stringify(settings.laundry     || DEFAULT_LAUNDRY)     ||
+    JSON.stringify(serviceData.yandex_taxi) !== JSON.stringify(settings.yandex_taxi || DEFAULT_YANDEX_TAXI) ||
+    JSON.stringify(serviceData.restaurant)  !== JSON.stringify(settings.restaurant  || DEFAULT_RESTAURANT);  // ⭐
 
   const hasChanges = servicesChanged || wifiChanged || detailsChanged;
 
-  // ⭐ TUZATILDI: detail?.images (PLURAL!)
   const getManageText = (service: HotelServiceDef): string => {
     if (service.key === 'wifi') {
       return wifiList.length > 0 ? `${wifiList.length} network${wifiList.length > 1 ? 's' : ''}` : 'Manage';
     }
     if (service.hasDetails) {
       const detail = serviceData[service.key];
-      const count = detail?.images?.length || 0;        // ⭐ images PLURAL!
+      const count = detail?.images?.length || 0;
       const hasContent = !!(count || detail?.description || detail?.location);
       return count > 0 ? `${count} photo${count > 1 ? 's' : ''}` : (hasContent ? 'Edit' : 'Manage');
     }
@@ -232,6 +316,8 @@ const HotelServices: React.FC = () => {
           const Icon = service.icon;
           const isActive = activeServices.has(service.key);
           const isWifi = service.key === 'wifi';
+          const isLaundry = service.key === 'laundry';
+          const isRestaurant = service.key === 'restaurant';        // ⭐
           const hasManage = isWifi || service.hasDetails;
 
           return (
@@ -282,6 +368,50 @@ const HotelServices: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* ⭐ LAUNDRY — Manage Items button */}
+              {isLaundry && (
+                <button
+                  type="button"
+                  className="hs-laundry-items-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowLaundryItemsModal(true);
+                  }}
+                  style={{
+                    borderColor: service.color,
+                    color: service.color,
+                  }}
+                >
+                  <Shirt size={13} strokeWidth={2.2} />
+                  <span>Manage Items</span>
+                  <span className="hs-laundry-count" style={{ background: service.color }}>
+                    {laundryItems.length}
+                  </span>
+                </button>
+              )}
+
+              {/* ⭐⭐⭐ RESTAURANT — Manage Menu button */}
+              {isRestaurant && (
+                <button
+                  type="button"
+                  className="hs-laundry-items-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowRestaurantMenuModal(true);
+                  }}
+                  style={{
+                    borderColor: service.color,
+                    color: service.color,
+                  }}
+                >
+                  <Utensils size={13} strokeWidth={2.2} />
+                  <span>Manage Menu</span>
+                  <span className="hs-laundry-count" style={{ background: service.color }}>
+                    {(serviceData.restaurant as RestaurantDetail)?.items?.length || 0}
+                  </span>
+                </button>
+              )}
             </div>
           );
         })}
@@ -316,6 +446,31 @@ const HotelServices: React.FC = () => {
           onSave={handleServiceDetailSave}
           defaultOpenTime={SERVICE_CONFIGS[activeServiceModal.key]?.defaultOpen || '09:00'}
           defaultCloseTime={SERVICE_CONFIGS[activeServiceModal.key]?.defaultClose || '21:00'}
+        />
+      )}
+
+      {/* ⭐ LAUNDRY ITEMS MODAL */}
+      {showLaundryItemsModal && (
+        <LaundryItemsModal
+          isOpen={showLaundryItemsModal}
+          onClose={() => setShowLaundryItemsModal(false)}
+          items={laundryItems}
+          onSave={handleLaundryItemsSave}
+          accentColor="#06b6d4"
+        />
+      )}
+
+      {/* ⭐⭐⭐ RESTAURANT MENU MODAL */}
+      {showRestaurantMenuModal && slug && (
+        <RestaurantMenuModal
+          isOpen={showRestaurantMenuModal}
+          onClose={() => setShowRestaurantMenuModal(false)}
+          slug={slug}
+          restaurant={
+            (serviceData.restaurant as RestaurantDetail) || DEFAULT_RESTAURANT
+          }
+          onSave={handleRestaurantMenuSave}
+          accentColor="#f97316"
         />
       )}
     </PortalLayout>

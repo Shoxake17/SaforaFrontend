@@ -10,6 +10,18 @@ import { imageUrl } from '@utils/imageUrl';
 import { HOTEL_SERVICES, type HotelServiceDef } from '@constants/hotelServices';
 import WifiModal from '../../modals/WifiModal/WifiModal';
 import ServiceViewModal from '../../modals/ServiceViewModal/ServiceViewModal';
+
+// ⭐ Yandex Taxi, Laundry va Restaurant
+import YandexTaxiModal from '../../modals/YandexTaxiModal/YandexTaxiModal';
+import LaundryGuestModal from '../../modals/LaundryGuestModal/LaundryGuestModal';
+import RestaurantGuestModal from '../../modals/RestaurantGuestModal/RestaurantGuestModal';   // ⭐⭐⭐ YANGI
+
+import GuestNotificationToast, {
+  type GuestNotification,
+} from '../../components/GuestNotificationToast/GuestNotificationToast';
+import { getSocket } from '@services/socket';
+import { tokenService } from '@services/auth';
+
 import './ServicesTab.css';
 
 interface ServicesTabProps {
@@ -39,8 +51,53 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
 
   // Modals
   const [showWifiModal, setShowWifiModal] = useState(false);
-  // ⭐ Universal active view modal — qaysi service ekanini ushlab turadi
+  const [showYandexModal, setShowYandexModal] = useState(false);
+  const [showLaundryModal, setShowLaundryModal] = useState(false);
+  const [showRestaurantModal, setShowRestaurantModal] = useState(false);   // ⭐⭐⭐ YANGI
   const [activeViewService, setActiveViewService] = useState<HotelServiceDef | null>(null);
+
+  const [notification, setNotification] = useState<GuestNotification | null>(null);
+
+  // ═════════════════════════════════════════════
+  // SOCKET — guest:join + listen for request:approved
+  // ═════════════════════════════════════════════
+  useEffect(() => {
+    const token = tokenService.get();
+    if (!token || !hotel.slug || !room.number) return;
+
+    const socket = getSocket(token);
+
+    const joinRoom = () => {
+      socket.emit('guest:join', {
+        hotelSlug: hotel.slug,
+        roomNumber: room.number,
+      });
+      console.log(`[ServicesTab] 🏠 guest:join → ${hotel.slug}:${room.number}`);
+    };
+
+    if (socket.connected) {
+      joinRoom();
+    } else {
+      socket.once('connect', joinRoom);
+    }
+
+    const handleApproved = (data: any) => {
+      console.log('[ServicesTab] 🔔 request:approved:', data);
+      setNotification({
+        id: data.request_id,
+        service_type: data.service_type,
+        message: data.message || 'So\'rovingiz tasdiqlandi!',
+        timestamp: Date.now(),
+      });
+    };
+
+    socket.on('request:approved', handleApproved);
+
+    return () => {
+      socket.off('connect', joinRoom);
+      socket.off('request:approved', handleApproved);
+    };
+  }, [hotel.slug, room.number]);
 
   const coverPhotos = (settings.cover_photos && settings.cover_photos.length > 0)
     ? settings.cover_photos
@@ -70,14 +127,26 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
 
   const firstName = guestName.split(' ')[0] || guestName;
 
-  // ⭐ Universal click handler
   const handleServiceClick = (service: HotelServiceDef) => {
     if (service.key === 'wifi') {
       setShowWifiModal(true);
       return;
     }
+    if (service.key === 'yandex_taxi') {
+      setShowYandexModal(true);
+      return;
+    }
+    // ⭐ LAUNDRY
+    if (service.key === 'laundry') {
+      setShowLaundryModal(true);
+      return;
+    }
+    // ⭐⭐⭐ RESTAURANT
+    if (service.key === 'restaurant') {
+      setShowRestaurantModal(true);
+      return;
+    }
     if (service.hasDetails) {
-      // Gym, Spa, Pool, Laundry — universal view modal
       setActiveViewService(service);
       return;
     }
@@ -90,7 +159,6 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
 
   const wifiNetworks = Array.isArray(settings.wifi) ? settings.wifi : [];
 
-  // ⭐ Active service detail — dynamic
   const getActiveDetail = () => {
     if (!activeViewService) return {};
     return (settings as any)[activeViewService.key] || {};
@@ -297,7 +365,7 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
         />
       )}
 
-      {/* ⭐ UNIVERSAL SERVICE VIEW MODAL — Gym, Spa, Pool, Laundry */}
+      {/* UNIVERSAL SERVICE VIEW MODAL — Gym, Spa, Pool */}
       {activeViewService && (
         <ServiceViewModal
           isOpen={!!activeViewService}
@@ -309,6 +377,52 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
           accentColor={accentColor}
         />
       )}
+
+      {/* YANDEX TAXI MODAL */}
+      {showYandexModal && (
+        <YandexTaxiModal
+          isOpen={showYandexModal}
+          onClose={() => setShowYandexModal(false)}
+          hotelSlug={hotel.slug}
+          roomNumber={room.number}
+          guestName={guestName}
+          accentColor={accentColor}
+          serviceDetail={(settings as any).yandex_taxi}
+        />
+      )}
+
+      {/* ⭐ LAUNDRY MODAL — items bilan */}
+      {showLaundryModal && (
+        <LaundryGuestModal
+          isOpen={showLaundryModal}
+          onClose={() => setShowLaundryModal(false)}
+          hotelSlug={hotel.slug}
+          roomNumber={room.number}
+          guestName={guestName}
+          accentColor={accentColor}
+          serviceDetail={(settings as any).laundry}
+        />
+      )}
+
+      {/* ⭐⭐⭐ RESTAURANT MODAL — categories + items + cart */}
+      {showRestaurantModal && (
+        <RestaurantGuestModal
+          isOpen={showRestaurantModal}
+          onClose={() => setShowRestaurantModal(false)}
+          hotelSlug={hotel.slug}
+          roomNumber={room.number}
+          guestName={guestName}                  
+          accentColor={accentColor}              
+          serviceDetail={(settings as any).restaurant}
+        />
+      )}
+
+      {/* NOTIFICATION TOAST */}
+      <GuestNotificationToast
+        notification={notification}
+        accentColor={accentColor}
+        onDismiss={() => setNotification(null)}
+      />
     </div>
   );
 };

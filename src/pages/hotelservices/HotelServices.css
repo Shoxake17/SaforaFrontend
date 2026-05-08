@@ -202,6 +202,8 @@
   cursor: pointer;
   transition: all 0.18s ease;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .hs-card::before {
@@ -302,6 +304,7 @@
 /* ═══════════════ CARD BODY ═══════════════ */
 .hs-card-body {
   margin-bottom: 12px;
+  flex: 1;
 }
 
 .hs-card-title {
@@ -330,6 +333,97 @@
 
 .hs-card-status.is-active {
   color: #22c55e;
+}
+
+/* ═══════════════ CARD FOOTER ═══════════════ */
+.hs-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hs-card-manage {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  text-transform: uppercase;
+  transition: all 0.15s ease;
+}
+
+.hs-card.has-manage {
+  position: relative;
+}
+
+.hs-card.has-manage:hover .hs-card-manage {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.05);
+}
+
+.hs-card.has-manage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  border-radius: 14px;
+}
+
+.hs-card.has-manage:hover::before {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ⭐⭐⭐ MANAGE ITEMS BUTTON
+   Used by: LAUNDRY (Manage Items), RESTAURANT (Manage Menu)
+═══════════════════════════════════════════════════════ */
+.hs-laundry-items-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px dashed currentColor;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  letter-spacing: 0.2px;
+}
+
+.hs-laundry-items-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-style: solid;
+  transform: translateY(-1px);
+}
+
+.hs-laundry-items-btn:active {
+  transform: scale(0.97);
+}
+
+.hs-laundry-count {
+  color: white;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  margin-left: auto;
+  min-width: 22px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 /* ═══════════════ EMPTY STATE ═══════════════ */
@@ -396,55 +490,9 @@
     width: 38px;
     height: 38px;
   }
-}
 
-/* ═══════════════ HotelServices.css ga qo'shish ═══════════════ */
-/* Mavjud kodingiz oxiriga qo'shing — eski qismni o'zgartirmang */
-
-/* Card footer — status va manage badge'larni gorizontal qiladi */
-.hs-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-/* WiFi card uchun "Manage" badge */
-.hs-card-manage {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  text-transform: uppercase;
-  transition: all 0.15s ease;
-}
-
-.hs-card.has-manage {
-  position: relative;
-}
-
-.hs-card.has-manage:hover .hs-card-manage {
-  background: rgba(255, 255, 255, 0.12);
-  transform: scale(1.05);
-}
-
-/* Click hint for WiFi card */
-.hs-card.has-manage::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-  border-radius: 14px;
-}
-
-.hs-card.has-manage:hover::before {
-  opacity: 1;
+  .hs-laundry-items-btn {
+    font-size: 11.5px;
+    padding: 9px 10px;
+  }
 }
