@@ -214,3 +214,39 @@
   color: var(--text-muted, #9ca3af);
   font-size: 13px;
 }
+
+
+
+.qc-row-clickable {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.qc-row-clickable:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.qc-row-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #9ca3af;
+}
+
+.qc-action-icon {
+  opacity: 0.7;
+}
+
+.qc-action-arrow {
+  opacity: 0.5;
+}
+
+.qc-row-clickable:hover .qc-action-arrow {
+  opacity: 1;
+  transform: translateX(2px);
+}

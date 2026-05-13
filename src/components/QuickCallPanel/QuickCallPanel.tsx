@@ -1,22 +1,24 @@
-// src/components/QuickCallPanel.tsx
+// src/components/QuickCallPanel/QuickCallPanel.tsx
 import React, { useEffect, useState, useMemo } from 'react';
-import { Phone, Search, BedDouble } from 'lucide-react';
+import { Phone, Search, BedDouble, ChevronRight, Users } from 'lucide-react';
 import { fetchRooms } from '@services/rooms';
 import type { Room } from '@apptypes/room';
+import RoomGuestsModal from '@components/RoomGuestsModal/RoomGuestsModal';
+import type { RoomGuest } from '@services/roomGuests';
 import './QuickCallPanel.css';
 
 interface Props {
   hotelSlug: string;
   accentColor: string;
-  onCallRoom: (roomNumber: string) => void;
+  onCallGuest: (params: { roomNumber: string; guest: RoomGuest }) => void;
 }
 
-const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallRoom }) => {
+const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallGuest }) => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
 
-  // ═════ Xonalarni yuklash ═════
   useEffect(() => {
     if (!hotelSlug) return;
 
@@ -24,7 +26,6 @@ const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallRoom })
       setLoading(true);
       const result = await fetchRooms(hotelSlug);
       if (result.success) {
-        // Raqam bo'yicha tartibga solish (101, 102, 201, 202...)
         const sorted = [...result.rooms].sort((a, b) =>
           a.number.localeCompare(b.number, undefined, { numeric: true })
         );
@@ -36,16 +37,20 @@ const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallRoom })
     load();
   }, [hotelSlug]);
 
-  // ═════ Search filter ═════
   const filteredRooms = useMemo(() => {
     if (!search.trim()) return rooms;
     const q = search.trim().toLowerCase();
     return rooms.filter((r) => r.number.toLowerCase().includes(q));
   }, [rooms, search]);
 
+  const handleSelectGuest = (guest: RoomGuest) => {
+    if (!selectedRoom) return;
+    onCallGuest({ roomNumber: selectedRoom, guest });
+    setSelectedRoom(null);
+  };
+
   return (
     <div className="qc-panel">
-      {/* ═════ HEADER ═════ */}
       <div className="qc-header">
         <div
           className="qc-header-icon"
@@ -55,12 +60,11 @@ const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallRoom })
         </div>
         <div className="qc-header-text">
           <div className="qc-title">Quick Call</div>
-          <div className="qc-subtitle">Call any room directly</div>
+          <div className="qc-subtitle">Tap room to view guests</div>
         </div>
         <div className="qc-count">{filteredRooms.length} rooms</div>
       </div>
 
-      {/* ═════ SEARCH ═════ */}
       <div className="qc-search">
         <Search size={14} strokeWidth={2.4} className="qc-search-icon" />
         <input
@@ -72,7 +76,6 @@ const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallRoom })
         />
       </div>
 
-      {/* ═════ ROOMS LIST ═════ */}
       <div className="qc-list">
         {loading ? (
           <div className="qc-empty">Loading rooms...</div>
@@ -82,9 +85,17 @@ const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallRoom })
           </div>
         ) : (
           filteredRooms.map((room) => (
-            <div key={room.id || room.number} className="qc-row">
+            <button
+              key={room.id || room.number}
+              type="button"
+              className="qc-row qc-row-clickable"
+              onClick={() => setSelectedRoom(room.number)}
+            >
               <div className="qc-room-info">
-                <div className="qc-room-icon">
+                <div
+                  className="qc-room-icon"
+                  style={{ background: `${accentColor}15`, color: accentColor }}
+                >
                   <BedDouble size={14} strokeWidth={2.2} />
                 </div>
                 <span className="qc-room-number">Room {room.number}</span>
@@ -93,20 +104,25 @@ const QuickCallPanel: React.FC<Props> = ({ hotelSlug, accentColor, onCallRoom })
                 )}
               </div>
 
-              <button
-                type="button"
-                className="qc-call-btn"
-                style={{ background: accentColor }}
-                onClick={() => onCallRoom(room.number)}
-                aria-label={`Call room ${room.number}`}
-              >
-                <Phone size={13} strokeWidth={2.4} />
-                <span>Call</span>
-              </button>
-            </div>
+              <div className="qc-row-action">
+                <Users size={13} strokeWidth={2.2} className="qc-action-icon" />
+                <ChevronRight size={14} strokeWidth={2.4} className="qc-action-arrow" />
+              </div>
+            </button>
           ))
         )}
       </div>
+
+      {selectedRoom && (
+        <RoomGuestsModal
+          isOpen={!!selectedRoom}
+          hotelSlug={hotelSlug}
+          roomNumber={selectedRoom}
+          accentColor={accentColor}
+          onClose={() => setSelectedRoom(null)}
+          onSelectGuest={handleSelectGuest}
+        />
+      )}
     </div>
   );
 };

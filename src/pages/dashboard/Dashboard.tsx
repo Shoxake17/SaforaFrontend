@@ -1,12 +1,6 @@
 // src/pages/dashboard/Dashboard.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import {
-  Bed,
-  Users,
-  CircleCheck,
-  Bell,
-  ConciergeBell,
-} from 'lucide-react';
+import { Bed, Users, CircleCheck, Bell, ConciergeBell } from 'lucide-react';
 import './Dashboard.css';
 
 import StatCard from '@components/StatCard';
@@ -23,12 +17,21 @@ import { listRequests } from '@services/requests';
 import { getSocket } from '@services/socket';
 import { tokenService } from '@services/auth';
 import { getRoleConfig } from '@config/roles';
+import type { RoomGuest } from '@services/roomGuests';
 
 import useAuthGuard from '@hooks/useAuthGuard';
 import useHotel from '@hooks/useHotel';
 import usePortalNavigation from '@hooks/useNavigation';
 
 const STATE_CHECK_INTERVAL_MS = 1_000;
+
+// ⭐ Per-guest call payload
+interface CallingGuestState {
+  roomNumber: string;
+  guestId: string;
+  guestName: string;
+  guestPhone?: string;
+}
 
 const RoleDashboard: React.FC = () => {
   const { slug, roleKey, role, isAuthenticated } = useAuthGuard();
@@ -45,18 +48,16 @@ const RoleDashboard: React.FC = () => {
   const [roomsCount, setRoomsCount] = useState<number>(0);
   const [roomsLoading, setRoomsLoading] = useState(true);
 
-  // ⭐ Orders count (restaurant pending orders)
   const [ordersCount, setOrdersCount] = useState<number>(0);
   const [ordersLoading, setOrdersLoading] = useState(true);
 
-  const [callingRoom, setCallingRoom] = useState<string | null>(null);
+  // ⭐ Eski callingRoom → yangi callingGuest
+  const [callingGuest, setCallingGuest] = useState<CallingGuestState | null>(null);
   const [, setSocketConnected] = useState(false);
 
   const hasJoinedRoomRef = useRef<boolean>(false);
 
-  // ═══════════════════════════════════════════════════
-  // SOCKET.IO — Manager joins staff:<slug> room
-  // ═══════════════════════════════════════════════════
+  // ═════ SOCKET.IO ═════
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
 
@@ -106,10 +107,7 @@ const RoleDashboard: React.FC = () => {
     socket.on('new-call', handleNewCall);
 
     if (socket.connected) {
-      console.log('[Dashboard] ⚡ Socket already connected — joining immediately');
       joinRoom();
-    } else {
-      console.log('[Dashboard] ⏳ Socket not yet connected, waiting...');
     }
 
     const stateCheckInterval = setInterval(() => {
@@ -121,13 +119,11 @@ const RoleDashboard: React.FC = () => {
         return isConnected;
       });
       if (isConnected && !hasJoinedRoomRef.current) {
-        console.log('[Dashboard] 🔁 Re-joining room (state was out of sync)');
         joinRoom();
       }
     }, STATE_CHECK_INTERVAL_MS);
 
     return () => {
-      console.log('[Dashboard] 🧹 Cleanup');
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
       socket.off('connect_error', handleConnectError);
@@ -136,9 +132,7 @@ const RoleDashboard: React.FC = () => {
     };
   }, [isAuthenticated, slug]);
 
-  // ═══════════════════════════════════════════════════
-  // Staff count
-  // ═══════════════════════════════════════════════════
+  // ═════ Staff count ═════
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
     const load = async () => {
@@ -150,9 +144,7 @@ const RoleDashboard: React.FC = () => {
     load();
   }, [isAuthenticated, slug]);
 
-  // ═══════════════════════════════════════════════════
-  // Rooms count
-  // ═══════════════════════════════════════════════════
+  // ═════ Rooms count ═════
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
     const load = async () => {
@@ -164,9 +156,7 @@ const RoleDashboard: React.FC = () => {
     load();
   }, [isAuthenticated, slug]);
 
-  // ═══════════════════════════════════════════════════
-  // ⭐ Orders count (pending restaurant only)
-  // ═══════════════════════════════════════════════════
+  // ═════ Orders count ═════
   const loadOrdersCount = useCallback(async () => {
     if (!isAuthenticated || !slug) return;
     try {
@@ -189,7 +179,6 @@ const RoleDashboard: React.FC = () => {
     loadOrdersCount();
   }, [loadOrdersCount]);
 
-  // ─── Socket — orders count real-time updates ──────
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
     const token = tokenService.get();
@@ -216,9 +205,15 @@ const RoleDashboard: React.FC = () => {
   const formatCount = (count: number, loading: boolean): string | number =>
     loading ? '—' : count;
 
-  const handleCallRoom = (roomNumber: string) => {
-    console.log('[Dashboard] Call room', roomNumber);
-    setCallingRoom(roomNumber);
+  // ⭐ YANGI — Per-guest call handler
+  const handleCallGuest = ({ roomNumber, guest }: { roomNumber: string; guest: RoomGuest }) => {
+    console.log('[Dashboard] 📞 Call guest', guest.fullName, 'in room', roomNumber);
+    setCallingGuest({
+      roomNumber,
+      guestId: guest._id,
+      guestName: guest.fullName,
+      guestPhone: guest.phone,
+    });
   };
 
   return (
@@ -229,7 +224,6 @@ const RoleDashboard: React.FC = () => {
       rootClassName="rd-root"
       mainClassName="rd-main"
     >
-      {/* Title */}
       <div className="rd-title-section">
         <div>
           <h1 className="rd-title">
@@ -246,7 +240,6 @@ const RoleDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats */}
       {isDeptManager ? (
         <QrOperations hotelSlug={slug} badgeColor={config.badgeColor} />
       ) : (
@@ -283,7 +276,6 @@ const RoleDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Hotel info card */}
       {hotel && (
         <div className="rd-hotel-info-card">
           <div
@@ -336,9 +328,7 @@ const RoleDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* 3 blocks: Recent Orders / Recent Requests / Quick Call */}
       <div className="rd-three-grid">
-        {/* ⭐ Real Orders — QrRooms bilan bitta manba */}
         <RecentOrdersCard
           hotelSlug={slug || ''}
           accentColor={config.badgeColor}
@@ -353,18 +343,22 @@ const RoleDashboard: React.FC = () => {
           accentColor={config.badgeColor}
         />
 
+        {/* ⭐ Yangi: onCallGuest (eski onCallRoom o'rniga) */}
         <QuickCallPanel
           hotelSlug={slug || ''}
           accentColor={config.badgeColor}
-          onCallRoom={handleCallRoom}
+          onCallGuest={handleCallGuest}
         />
       </div>
 
-      {callingRoom && (
+      {/* ⭐ Yangi: guestId + guestName props */}
+      {callingGuest && (
         <OutgoingCallModal
           isOpen={true}
-          roomNumber={callingRoom}
-          onClose={() => setCallingRoom(null)}
+          roomNumber={callingGuest.roomNumber}
+          guestId={callingGuest.guestId}
+          guestName={callingGuest.guestName}
+          onClose={() => setCallingGuest(null)}
         />
       )}
     </PortalLayout>
