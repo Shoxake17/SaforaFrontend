@@ -1,0 +1,302 @@
+/* src/components/RecentOrdersCard/RecentOrdersCard.css */
+
+.roc-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 280px;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.roc-card:hover {
+  border-color: var(--border-hover);
+}
+
+/* ─── Header ───────────────────────────────── */
+.roc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.roc-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.roc-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.roc-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.roc-count-badge {
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  animation: roc-badge-pop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes roc-badge-pop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+.roc-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.roc-view-all:hover {
+  color: var(--text);
+  background: var(--btn-bg);
+}
+
+/* ─── Body ─────────────────────────────────── */
+.roc-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Loading */
+.roc-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+}
+
+.roc-spin {
+  animation: roc-spin-rotate 1s linear infinite;
+}
+
+@keyframes roc-spin-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Empty */
+.roc-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  text-align: center;
+  gap: 6px;
+}
+
+.roc-empty-ico {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.roc-empty-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.roc-empty-text {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* ─── List ─────────────────────────────────── */
+.roc-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 4px;
+  overflow-y: auto;
+  max-height: 420px;
+}
+
+.roc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.roc-item:hover {
+  background: var(--btn-bg);
+}
+
+.roc-item-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.roc-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.roc-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.roc-item-room {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.roc-item-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.roc-item-bot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.roc-item-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roc-item-total {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+}
+
+/* ─── Buttons ──────────────────────────────── */
+.roc-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.roc-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+  padding: 0;
+}
+
+.roc-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.roc-btn-approve:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.roc-btn-cancel {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.roc-btn-cancel:hover:not(:disabled) {
+  background: #dc2626;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ─── Responsive ───────────────────────────── */
+@media (max-width: 480px) {
+  .roc-header {
+    padding: 14px;
+  }
+  .roc-title {
+    font-size: 0.88rem;
+  }
+  .roc-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .roc-item {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+  .roc-btn {
+    width: 26px;
+    height: 26px;
+  }
+}

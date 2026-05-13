@@ -1,38 +1,5 @@
 /* src/pages/rooms/Rooms.css */
-
-.rm-root {
-  display: flex;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-}
-
-.rm-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  background: var(--bg);
-}
-
-.rm-content {
-  flex: 1;
-  padding: 24px 30px;
-  overflow-y: auto;
-  background: var(--bg);
-}
-
-/* Loading */
-.rm-loading {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: var(--bg);
-  color: var(--text-muted);
-}
+/* ⛔ .rm-root, .rm-main, .rm-content, .rm-loading OLIB TASHLANDI */
 
 .rm-spin {
   animation: rm-spin-rotate 1s linear infinite;
@@ -344,9 +311,6 @@
 
 /* ─── Responsive ─── */
 @media (max-width: 768px) {
-  .rm-content {
-    padding: 18px 16px;
-  }
   .rm-header {
     flex-direction: column;
     align-items: stretch;

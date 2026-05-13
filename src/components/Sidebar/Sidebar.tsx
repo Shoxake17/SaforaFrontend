@@ -23,7 +23,7 @@ interface SidebarProps {
   activeNav: string;
   onNavChange: (key: string) => void;
   onLogout: () => void;
-  onToggle?: () => void;       // ← YANGI prop — toggle tugma uchun
+  onToggle?: () => void;       // ← Toggle tugma uchun
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -56,10 +56,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* ─── Header: Logo + Toggle button ─── */}
       <div className="sb-header">
-        <div className="sb-logo">
-          <img src="/logo.png" alt="Safora" className="sb-logo-img" />
-          {isOpen && <span className="sb-logo-text">Safora</span>}
-        </div>
+        {/* ⭐ Logo — faqat sidebar ochilganida ko'rinadi */}
+        {isOpen && (
+          <div className="sb-logo">
+            <img src="/logo.png" alt="Safora" className="sb-logo-img" />
+            <span className="sb-logo-text">Safora</span>
+          </div>
+        )}
 
         {/* Toggle tugma — Sidebar ichida */}
         {onToggle && (
@@ -78,29 +81,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           </button>
         )}
       </div>
-
-      {/* ─── Hotel card ─── */}
-      {isOpen && hotel && (
-        <div className="sb-hotel-card">
-          <div
-            className="sb-hotel-icon"
-            style={{ background: config.badgeColor }}
-          >
-            {hotel.logo ? (
-              <img src={hotel.logo} alt={hotel.name} />
-            ) : (
-              <RoleIcon size={18} strokeWidth={2.2} color="#fff" />
-            )}
-          </div>
-          <div className="sb-hotel-info">
-            <div className="sb-hotel-name">{hotel.name}</div>
-            <div className="sb-hotel-role">{config.badge}</div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Section label ─── */}
-      {isOpen && <div className="sb-section-label">{config.badge}</div>}
 
       {/* ─── Navigation ─── */}
       <nav className="sb-nav">

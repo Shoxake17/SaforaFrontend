@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Car, Bell, CheckCircle2, X } from 'lucide-react';
 import './GuestNotificationToast.css';
 
-export interface GuestNotification {
+// ⭐ Nom o'zgartirildi: GuestNotification → ToastNotification
+// (Hook'dagi GuestNotification bilan konflikt bo'lmasligi uchun)
+export interface ToastNotification {
   id: string;
   service_type: string;
   message: string;
@@ -11,7 +13,7 @@ export interface GuestNotification {
 }
 
 interface GuestNotificationToastProps {
-  notification: GuestNotification | null;
+  notification: ToastNotification | null;
   accentColor: string;
   onDismiss: () => void;
 }
@@ -31,10 +33,9 @@ const GuestNotificationToast: React.FC<GuestNotificationToastProps> = ({
   useEffect(() => {
     if (notification) {
       setVisible(true);
-      // Auto-dismiss after 8 seconds
       const timer = setTimeout(() => {
         setVisible(false);
-        setTimeout(onDismiss, 300); // wait for exit animation
+        setTimeout(onDismiss, 300);
       }, 8000);
       return () => clearTimeout(timer);
     }

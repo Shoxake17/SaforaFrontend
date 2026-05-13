@@ -106,17 +106,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ hotel: hotelProp }) => {
 
       {/* RIGHT */}
       <div className="ml-right">
-        {hotel && (
-          <div
-            className="ml-hotel-badge"
-            style={{
-              background: `linear-gradient(135deg, ${config.badgeColor}, ${config.badgeColor}dd)`,
-            }}
-          >
-            <Hotel size={14} strokeWidth={2.4} />
-            <span>{hotel.name}</span>
-          </div>
-        )}
+        
 
         {/* Theme Toggle */}
         <ThemeToggle />

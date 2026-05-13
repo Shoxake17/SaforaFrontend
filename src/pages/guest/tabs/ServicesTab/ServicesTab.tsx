@@ -11,10 +11,13 @@ import { HOTEL_SERVICES, type HotelServiceDef } from '@constants/hotelServices';
 import WifiModal from '../../modals/WifiModal/WifiModal';
 import ServiceViewModal from '../../modals/ServiceViewModal/ServiceViewModal';
 
-// ⭐ Yandex Taxi, Laundry va Restaurant
 import YandexTaxiModal from '../../modals/YandexTaxiModal/YandexTaxiModal';
 import LaundryGuestModal from '../../modals/LaundryGuestModal/LaundryGuestModal';
-import RestaurantGuestModal from '../../modals/RestaurantGuestModal/RestaurantGuestModal';   // ⭐⭐⭐ YANGI
+import RestaurantGuestModal from '../../modals/RestaurantGuestModal/RestaurantGuestModal';
+import CurrencyExchangeModal from '../../modals/CurrencyExchangeModal/CurrencyExchangeModal';
+
+// ⭐⭐⭐ WAKE-UP — YANGI
+import WakeUpModal from '../../modals/WakeUpModal/WakeUpModal';
 
 import GuestNotificationToast, {
   type GuestNotification,
@@ -53,7 +56,9 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
   const [showWifiModal, setShowWifiModal] = useState(false);
   const [showYandexModal, setShowYandexModal] = useState(false);
   const [showLaundryModal, setShowLaundryModal] = useState(false);
-  const [showRestaurantModal, setShowRestaurantModal] = useState(false);   // ⭐⭐⭐ YANGI
+  const [showRestaurantModal, setShowRestaurantModal] = useState(false);
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+  const [showWakeUpModal, setShowWakeUpModal] = useState(false);   // ⭐⭐⭐ YANGI
   const [activeViewService, setActiveViewService] = useState<HotelServiceDef | null>(null);
 
   const [notification, setNotification] = useState<GuestNotification | null>(null);
@@ -136,14 +141,21 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
       setShowYandexModal(true);
       return;
     }
-    // ⭐ LAUNDRY
     if (service.key === 'laundry') {
       setShowLaundryModal(true);
       return;
     }
-    // ⭐⭐⭐ RESTAURANT
     if (service.key === 'restaurant') {
       setShowRestaurantModal(true);
+      return;
+    }
+    if (service.key === 'currency') {
+      setShowCurrencyModal(true);
+      return;
+    }
+    // ⭐⭐⭐ WAKE-UP CALL — YANGI
+    if (service.key === 'wake_up') {
+      setShowWakeUpModal(true);
       return;
     }
     if (service.hasDetails) {
@@ -355,7 +367,7 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
         </div>
       </div>
 
-      {/* WIFI MODAL */}
+      {/* MODALS */}
       {showWifiModal && (
         <WifiModal
           isOpen={showWifiModal}
@@ -365,7 +377,6 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
         />
       )}
 
-      {/* UNIVERSAL SERVICE VIEW MODAL — Gym, Spa, Pool */}
       {activeViewService && (
         <ServiceViewModal
           isOpen={!!activeViewService}
@@ -378,7 +389,6 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
         />
       )}
 
-      {/* YANDEX TAXI MODAL */}
       {showYandexModal && (
         <YandexTaxiModal
           isOpen={showYandexModal}
@@ -391,7 +401,6 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
         />
       )}
 
-      {/* ⭐ LAUNDRY MODAL — items bilan */}
       {showLaundryModal && (
         <LaundryGuestModal
           isOpen={showLaundryModal}
@@ -404,20 +413,35 @@ const ServicesTab: React.FC<ServicesTabProps> = ({
         />
       )}
 
-      {/* ⭐⭐⭐ RESTAURANT MODAL — categories + items + cart */}
       {showRestaurantModal && (
         <RestaurantGuestModal
           isOpen={showRestaurantModal}
           onClose={() => setShowRestaurantModal(false)}
           hotelSlug={hotel.slug}
           roomNumber={room.number}
-          guestName={guestName}                  
-          accentColor={accentColor}              
+          guestName={guestName}
+          accentColor={accentColor}
           serviceDetail={(settings as any).restaurant}
         />
       )}
 
-      {/* NOTIFICATION TOAST */}
+      {showCurrencyModal && (
+        <CurrencyExchangeModal
+          isOpen={showCurrencyModal}
+          onClose={() => setShowCurrencyModal(false)}
+          accentColor={accentColor}
+        />
+      )}
+
+      {/* ⭐⭐⭐ WAKE-UP MODAL — YANGI */}
+      {showWakeUpModal && (
+        <WakeUpModal
+          isOpen={showWakeUpModal}
+          onClose={() => setShowWakeUpModal(false)}
+          accentColor={accentColor}
+        />
+      )}
+
       <GuestNotificationToast
         notification={notification}
         accentColor={accentColor}

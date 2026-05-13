@@ -1,11 +1,9 @@
 // src/pages/dashboard/Dashboard.tsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Bed,
   Users,
   CircleCheck,
-  QrCode,
-  ShoppingCart,
   Bell,
   ConciergeBell,
 } from 'lucide-react';
@@ -17,11 +15,13 @@ import PortalLayout from '@components/PortalLayout';
 import QrOperations from '@components/QrOperations';
 import QuickCallPanel from '@components/QuickCallPanel';
 import OutgoingCallModal from '@components/OutgoingCallModal';
+import RecentOrdersCard from '@components/RecentOrdersCard';
 
 import { fetchStaff } from '@services/staff';
 import { fetchRooms } from '@services/rooms';
+import { listRequests } from '@services/requests';
 import { getSocket } from '@services/socket';
-import { tokenService } from '@services/auth';  // ⭐ Manager token uchun
+import { tokenService } from '@services/auth';
 import { getRoleConfig } from '@config/roles';
 
 import useAuthGuard from '@hooks/useAuthGuard';
@@ -44,18 +44,22 @@ const RoleDashboard: React.FC = () => {
 
   const [roomsCount, setRoomsCount] = useState<number>(0);
   const [roomsLoading, setRoomsLoading] = useState(true);
+
+  // ⭐ Orders count (restaurant pending orders)
+  const [ordersCount, setOrdersCount] = useState<number>(0);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
   const [callingRoom, setCallingRoom] = useState<string | null>(null);
-  const [socketConnected, setSocketConnected] = useState(false);
+  const [, setSocketConnected] = useState(false);
 
   const hasJoinedRoomRef = useRef<boolean>(false);
 
   // ═══════════════════════════════════════════════════
-  // ⭐ SOCKET.IO — Manager o'z otelining "lobby"siga ulanadi
+  // SOCKET.IO — Manager joins staff:<slug> room
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     if (!isAuthenticated || !slug) return;
 
-    // ⭐ Manager token (auth.ts'dan)
     const token = tokenService.get();
     if (!token) {
       console.warn('[Dashboard] No staff token, Socket disabled');
@@ -66,49 +70,41 @@ const RoleDashboard: React.FC = () => {
     const socket = getSocket(token);
     hasJoinedRoomRef.current = false;
 
-    // ─── Join staff room ─────────────────────────────
     const joinRoom = () => {
       if (!socket.connected) return;
       if (hasJoinedRoomRef.current) return;
-
       socket.emit('staff:join', { hotelSlug: slug });
       hasJoinedRoomRef.current = true;
       console.log(`[Dashboard] ✅ Joined staff room: staff:${slug}`);
       setSocketConnected(true);
     };
 
-    // ─── Connect handler ─────────────────────────────
     const handleConnect = () => {
       console.log('[Dashboard] 🔌 Socket connected!');
       hasJoinedRoomRef.current = false;
       joinRoom();
     };
 
-    // ─── Disconnect handler ──────────────────────────
     const handleDisconnect = (reason: string) => {
       console.log('[Dashboard] 🔌 Disconnected:', reason);
       hasJoinedRoomRef.current = false;
       setSocketConnected(false);
     };
 
-    // ─── New call from guest ─────────────────────────
     const handleNewCall = (data: any) => {
       console.log('[Dashboard] 📞 New call from guest:', data);
     };
 
-    // ─── Connect error ───────────────────────────────
     const handleConnectError = (err: Error) => {
       console.warn('[Dashboard] ⚠️ Connection error:', err.message);
       setSocketConnected(false);
     };
 
-    // ⭐ Listener'larni avval qo'shish, keyin connected'ni tekshirish
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
     socket.on('connect_error', handleConnectError);
     socket.on('new-call', handleNewCall);
 
-    // ⭐ Agar allaqachon ulangan bo'lsa darhol join
     if (socket.connected) {
       console.log('[Dashboard] ⚡ Socket already connected — joining immediately');
       joinRoom();
@@ -116,17 +112,14 @@ const RoleDashboard: React.FC = () => {
       console.log('[Dashboard] ⏳ Socket not yet connected, waiting...');
     }
 
-    // ⭐ State sync — har 1 sek tekshiruv
     const stateCheckInterval = setInterval(() => {
       const isConnected = socket.connected;
-
-      setSocketConnected(prev => {
+      setSocketConnected((prev) => {
         if (prev !== isConnected) {
           console.log(`[Dashboard] 🔄 State sync: ${prev} → ${isConnected}`);
         }
         return isConnected;
       });
-
       if (isConnected && !hasJoinedRoomRef.current) {
         console.log('[Dashboard] 🔁 Re-joining room (state was out of sync)');
         joinRoom();
@@ -171,10 +164,58 @@ const RoleDashboard: React.FC = () => {
     load();
   }, [isAuthenticated, slug]);
 
+  // ═══════════════════════════════════════════════════
+  // ⭐ Orders count (pending restaurant only)
+  // ═══════════════════════════════════════════════════
+  const loadOrdersCount = useCallback(async () => {
+    if (!isAuthenticated || !slug) return;
+    try {
+      const result = await listRequests(slug, 'pending', 200);
+      if (result.success && result.requests) {
+        const restaurantCount = result.requests.filter(
+          (r) => r.service_type === 'restaurant'
+        ).length;
+        setOrdersCount(restaurantCount);
+      }
+    } catch (err) {
+      console.warn('[Dashboard] Failed to load orders count:', err);
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, [isAuthenticated, slug]);
+
+  useEffect(() => {
+    setOrdersLoading(true);
+    loadOrdersCount();
+  }, [loadOrdersCount]);
+
+  // ─── Socket — orders count real-time updates ──────
+  useEffect(() => {
+    if (!isAuthenticated || !slug) return;
+    const token = tokenService.get();
+    if (!token) return;
+
+    const socket = getSocket(token);
+
+    const handleNewRequest = (data: any) => {
+      if (data?.service_type === 'restaurant' || !data?.service_type) {
+        loadOrdersCount();
+      }
+    };
+    const handleStatusChanged = () => loadOrdersCount();
+
+    socket.on('new-request', handleNewRequest);
+    socket.on('request:status_changed', handleStatusChanged);
+
+    return () => {
+      socket.off('new-request', handleNewRequest);
+      socket.off('request:status_changed', handleStatusChanged);
+    };
+  }, [isAuthenticated, slug, loadOrdersCount]);
+
   const formatCount = (count: number, loading: boolean): string | number =>
     loading ? '—' : count;
 
-  // ═════ Call tugmasi handler ═════
   const handleCallRoom = (roomNumber: string) => {
     console.log('[Dashboard] Call room', roomNumber);
     setCallingRoom(roomNumber);
@@ -188,9 +229,7 @@ const RoleDashboard: React.FC = () => {
       rootClassName="rd-root"
       mainClassName="rd-main"
     >
-      
-
-      {/* Title section */}
+      {/* Title */}
       <div className="rd-title-section">
         <div>
           <h1 className="rd-title">
@@ -217,12 +256,16 @@ const RoleDashboard: React.FC = () => {
             let value: string | number = 0;
             let isLoading = false;
 
-            if (stat.label.toLowerCase().includes('staff')) {
+            const label = stat.label.toLowerCase();
+            if (label.includes('staff')) {
               value = staffCount;
               isLoading = staffLoading;
-            } else if (stat.label.toLowerCase().includes('rooms')) {
+            } else if (label.includes('rooms')) {
               value = roomsCount;
               isLoading = roomsLoading;
+            } else if (label.includes('order')) {
+              value = ordersCount;
+              isLoading = ordersLoading;
             }
 
             return (
@@ -274,8 +317,6 @@ const RoleDashboard: React.FC = () => {
           </div>
 
           <div className="rd-quick-actions">
-            
-
             <button
               type="button"
               className="rd-quick-btn"
@@ -295,13 +336,14 @@ const RoleDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* 3 ta blok */}
+      {/* 3 blocks: Recent Orders / Recent Requests / Quick Call */}
       <div className="rd-three-grid">
-        <EmptyStateCard
-          headerIcon={ShoppingCart}
-          title="Recent Activity"
-          message="No recent activity yet"
+        {/* ⭐ Real Orders — QrRooms bilan bitta manba */}
+        <RecentOrdersCard
+          hotelSlug={slug || ''}
           accentColor={config.badgeColor}
+          onViewAll={() => goTo('qrrooms')}
+          maxItems={5}
         />
 
         <EmptyStateCard
@@ -318,7 +360,6 @@ const RoleDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Outgoing Call Modal */}
       {callingRoom && (
         <OutgoingCallModal
           isOpen={true}

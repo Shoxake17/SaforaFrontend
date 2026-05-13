@@ -65,15 +65,10 @@ const StaffPage: React.FC = () => {
   const getKey = (member: StaffMember) => member._id || member.id || '';
 
   return (
-    <PortalLayout
-      activeNav="staff"
-      contentClassName="st-content"
-      rootClassName="st-root"
-      mainClassName="st-main"
-    >
-      <div className="st-header">
+    <PortalLayout activeNav="staff">
+      <div className="stf-header">
         <div>
-          <h1 className="st-title">
+          <h1 className="stf-title">
             <Users
               size={22}
               strokeWidth={2.2}
@@ -81,14 +76,14 @@ const StaffPage: React.FC = () => {
             />
             My Staff
           </h1>
-          <p className="st-subtitle">
+          <p className="stf-subtitle">
             {staff.length} staff member{staff.length !== 1 ? 's' : ''} in your department
           </p>
         </div>
 
         <Link
           to={`/portal/${slug}/${roleKey}/staff/add`}
-          className="st-add-btn"
+          className="stf-add-btn"
           style={{
             background: `linear-gradient(135deg, ${config.badgeColor}, ${config.badgeColor}dd)`,
           }}
@@ -99,33 +94,33 @@ const StaffPage: React.FC = () => {
       </div>
 
       {staffError && (
-        <div className="st-error">
+        <div className="stf-error">
           <span>{staffError}</span>
         </div>
       )}
 
       {staffLoading ? (
-        <div className="st-loading-inner">
-          <Loader2 size={28} color={config.badgeColor} className="st-spin" />
+        <div className="stf-loading-inner">
+          <Loader2 size={28} color={config.badgeColor} className="stf-spin" />
         </div>
       ) : staff.length === 0 ? (
-        <div className="st-empty">
+        <div className="stf-empty">
           <Users size={40} strokeWidth={1.6} />
           <p>No staff members yet</p>
           <span>Click "Add Staff" to add your first team member</span>
         </div>
       ) : (
-        <div className="st-grid">
+        <div className="stf-grid">
           {staff.map((member) => {
             const memberId = getKey(member);
             const photoUrl = getPhotoUrl(member.profile_photo);
 
             return (
-              <div key={memberId} className="st-card">
-                <div className="st-card-stripe" style={{ background: config.badgeColor }} />
-                <div className="st-card-top">
+              <div key={memberId} className="stf-card">
+                <div className="stf-card-stripe" style={{ background: config.badgeColor }} />
+                <div className="stf-card-top">
                   <div
-                    className="st-avatar"
+                    className="stf-avatar"
                     style={{
                       background: `${config.badgeColor}20`,
                       border: `2px solid ${config.badgeColor}50`,
@@ -144,11 +139,11 @@ const StaffPage: React.FC = () => {
                       getInitials(member)
                     )}
                   </div>
-                  <h3 className="st-name">
+                  <h3 className="stf-name">
                     {member.first_name} {member.last_name}
                   </h3>
                   <div
-                    className="st-role-badge"
+                    className="stf-role-badge"
                     style={{
                       background: `${config.badgeColor}15`,
                       color: config.badgeColor,
@@ -159,20 +154,20 @@ const StaffPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="st-info">
+                <div className="stf-info">
                   {member.phone && (
-                    <div className="st-info-row">
+                    <div className="stf-info-row">
                       <Phone size={13} strokeWidth={2.2} style={{ color: config.badgeColor }} />
                       <span>{member.phone}</span>
                     </div>
                   )}
                   {member.email && (
-                    <div className="st-info-row">
+                    <div className="stf-info-row">
                       <Mail size={13} strokeWidth={2.2} style={{ color: config.badgeColor }} />
                       <span>{member.email}</span>
                     </div>
                   )}
-                  <div className="st-info-row">
+                  <div className="stf-info-row">
                     <Calendar size={13} strokeWidth={2.2} style={{ color: config.badgeColor }} />
                     <span>Joined {formatJoined(member.joined_at || member.createdAt)}</span>
                   </div>
@@ -180,7 +175,7 @@ const StaffPage: React.FC = () => {
 
                 <button
                   type="button"
-                  className="st-edit-btn"
+                  className="stf-edit-btn"
                   onClick={() =>
                     navigate(`/portal/${slug}/${roleKey}/staff/${memberId}/edit`)
                   }

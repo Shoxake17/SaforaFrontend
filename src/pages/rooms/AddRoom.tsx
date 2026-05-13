@@ -41,7 +41,6 @@ const AddRoom: React.FC = () => {
 
   const [photo, setPhoto] = useState<File | null>(null);
   const [photo2, setPhoto2] = useState<File | null>(null);
-  const [video, setVideo] = useState<File | null>(null);
 
   // Load room types
   useEffect(() => {
@@ -77,7 +76,6 @@ const AddRoom: React.FC = () => {
     fd.append('notes', notes);
     if (photo) fd.append('photo', photo);
     if (photo2) fd.append('photo2', photo2);
-    if (video) fd.append('video', video);
 
     const result = await addRoom(slug, fd);
     setSubmitting(false);
@@ -213,35 +211,6 @@ const AddRoom: React.FC = () => {
             />
           </div>
 
-          <div className="ar-field">
-            <label className="ar-label">Photo</label>
-            <input
-              type="file"
-              className="ar-input ar-file"
-              accept="image/*"
-              onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-            />
-          </div>
-
-          <div className="ar-field">
-            <label className="ar-label">Photo 2</label>
-            <input
-              type="file"
-              className="ar-input ar-file"
-              accept="image/*"
-              onChange={(e) => setPhoto2(e.target.files?.[0] || null)}
-            />
-          </div>
-
-          <div className="ar-field ar-field-full">
-            <label className="ar-label">Video</label>
-            <input
-              type="file"
-              className="ar-input ar-file"
-              accept="video/*"
-              onChange={(e) => setVideo(e.target.files?.[0] || null)}
-            />
-          </div>
         </div>
 
         <div className="ar-actions">

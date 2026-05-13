@@ -175,7 +175,7 @@ export const ROLE_CONFIG: Record<RoleKey, RoleConfig> = {
 
   // 🌹 DEPT MANAGER / QR MANAGER
   'dept-manager': {
-    badge: 'QR MANAGER ACCESS',
+    badge: 'QR MANAGER',
     badgeColor: '#ef4444',
     icon: QrCode,
     theme: 'rose',

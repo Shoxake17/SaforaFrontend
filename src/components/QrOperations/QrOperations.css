@@ -1,10 +1,4 @@
 /* src/components/QrOperations/QrOperations.css */
-
-/* ═══════════════════════════════════════════════════════
-   QR Operations — 4 ta StatCard uchun grid wrapper
-   (Kart stillari StatCard.css'da)
-═══════════════════════════════════════════════════════ */
-
 .qro-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -12,7 +6,7 @@
   margin-bottom: 24px;
 }
 
-/* Responsive */
+/* ─── Responsive ─── */
 @media (max-width: 1024px) {
   .qro-grid {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

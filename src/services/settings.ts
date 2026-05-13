@@ -132,7 +132,8 @@ export interface HotelSettings {
   pool: ServiceDetail;
   laundry: LaundryDetail;
   yandex_taxi: ServiceDetail;
-  restaurant: RestaurantDetail;   // ⭐ YANGI
+  restaurant: RestaurantDetail;
+  luggage_storage: ServiceDetail;   // ⭐⭐⭐ YANGI
 }
 
 export interface SettingsResponse {
@@ -190,6 +191,16 @@ export const DEFAULT_RESTAURANT: RestaurantDetail = {
   items: [],
 };
 
+// ⭐⭐⭐ LUGGAGE STORAGE default — YANGI
+export const DEFAULT_LUGGAGE_STORAGE: ServiceDetail = {
+  images: [],
+  description: '',
+  open_time: '00:00',
+  close_time: '23:59',
+  is_24_hours: true,
+  location: '',
+};
+
 // ⭐⭐⭐ Default category templates (yangi hotel uchun)
 export const RESTAURANT_CATEGORY_TEMPLATES = [
   { name: 'Breakfast',   icon: '🍳', order: 1 },
@@ -217,12 +228,13 @@ export const DEFAULT_SETTINGS: HotelSettings = {
   directions: { google_maps: '', yandex_maps: '', twogis: '' },
   tourist_recommendations: [],
   active_services: ['roomService', 'concierge', 'wifi'],
-  gym:         { ...DEFAULT_GYM },
-  spa:         { ...DEFAULT_SPA },
-  pool:        { ...DEFAULT_POOL },
-  laundry:     { ...DEFAULT_LAUNDRY, items: [] },
-  yandex_taxi: { ...DEFAULT_YANDEX_TAXI },
-  restaurant:  { ...DEFAULT_RESTAURANT, categories: [], items: [] },   // ⭐
+  gym:             { ...DEFAULT_GYM },
+  spa:             { ...DEFAULT_SPA },
+  pool:            { ...DEFAULT_POOL },
+  laundry:         { ...DEFAULT_LAUNDRY, items: [] },
+  yandex_taxi:     { ...DEFAULT_YANDEX_TAXI },
+  restaurant:      { ...DEFAULT_RESTAURANT, categories: [], items: [] },
+  luggage_storage: { ...DEFAULT_LUGGAGE_STORAGE },   // ⭐⭐⭐ YANGI
 };
 
 // ═══════════════════════════════════════════
@@ -321,12 +333,13 @@ export async function fetchSettings(slug: string): Promise<HotelSettings | null>
         ...DEFAULT_SETTINGS.directions,
         ...(data.settings.directions || {}),
       },
-      gym:         mergeServiceDetail(data.settings.gym,         DEFAULT_GYM),
-      spa:         mergeServiceDetail(data.settings.spa,         DEFAULT_SPA),
-      pool:        mergeServiceDetail(data.settings.pool,        DEFAULT_POOL),
-      laundry:     mergeLaundryDetail(data.settings.laundry),
-      yandex_taxi: mergeServiceDetail(data.settings.yandex_taxi, DEFAULT_YANDEX_TAXI),
-      restaurant:  mergeRestaurantDetail(data.settings.restaurant),   // ⭐ YANGI
+      gym:             mergeServiceDetail(data.settings.gym,             DEFAULT_GYM),
+      spa:             mergeServiceDetail(data.settings.spa,             DEFAULT_SPA),
+      pool:            mergeServiceDetail(data.settings.pool,            DEFAULT_POOL),
+      laundry:         mergeLaundryDetail(data.settings.laundry),
+      yandex_taxi:     mergeServiceDetail(data.settings.yandex_taxi,     DEFAULT_YANDEX_TAXI),
+      restaurant:      mergeRestaurantDetail(data.settings.restaurant),
+      luggage_storage: mergeServiceDetail(data.settings.luggage_storage, DEFAULT_LUGGAGE_STORAGE),   // ⭐⭐⭐ YANGI
       active_services: data.settings.active_services || DEFAULT_SETTINGS.active_services,
     };
   } catch (err) {

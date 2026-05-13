@@ -1,13 +1,9 @@
-/* Settings page styles — Theme-aware (Light + Dark) */
-
-.st-content {
-  padding: 20px 24px 60px;
-  background: var(--bg);
-  color: var(--text);
-}
+/* src/pages/settings/Settings.css */
+/* ⛔ .st-content layout OLIB TASHLANDI — endi .pl-content ishlaydi
+   ⚠️ Class prefix .st- → .set- (Staff page bilan konflikt yo'qotish uchun) */
 
 /* Header */
-.st-header {
+.set-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -15,7 +11,22 @@
   gap: 16px;
 }
 
-.st-title {
+.set-inline-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 12px;
+  color: var(--text-muted);
+}
+ 
+.set-inline-loading p {
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 500;
+}
+.set-title {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -25,17 +36,17 @@
   color: var(--text);
 }
 
-.st-title-icon {
-  color: #8b5cf6;
+.set-title-icon {
+  color: #ef4444;
 }
 
-.st-subtitle {
+.set-subtitle {
   font-size: 13px;
   color: var(--text-dim);
   margin: 0;
 }
 
-.st-save-btn {
+.set-save-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -51,21 +62,21 @@
   flex-shrink: 0;
 }
 
-.st-save-btn:disabled {
+.set-save-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.st-spin {
-  animation: st-spin 1s linear infinite;
+.set-spin {
+  animation: set-spin 1s linear infinite;
 }
 
-@keyframes st-spin {
+@keyframes set-spin {
   to { transform: rotate(360deg); }
 }
 
-/* Card — theme-aware */
-.st-card {
+/* Card */
+.set-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -74,14 +85,14 @@
   transition: background 0.25s ease, border-color 0.25s ease;
 }
 
-.st-card-head {
+.set-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 6px;
 }
 
-.st-card-title {
+.set-card-title {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -90,26 +101,26 @@
   color: var(--text);
 }
 
-.st-card-hint {
+.set-card-hint {
   font-size: 11px;
   color: var(--text-muted);
 }
 
-.st-card-desc {
+.set-card-desc {
   font-size: 12px;
   color: var(--text-dim);
   margin: 0 0 14px;
 }
 
 /* Photo grid */
-.st-photo-grid {
+.set-photo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
   margin-bottom: 14px;
 }
 
-.st-photo-item {
+.set-photo-item {
   position: relative;
   aspect-ratio: 1;
   border-radius: 10px;
@@ -117,13 +128,13 @@
   border: 1px solid var(--border);
 }
 
-.st-photo-item img {
+.set-photo-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.st-photo-num {
+.set-photo-num {
   position: absolute;
   top: 6px;
   left: 6px;
@@ -135,7 +146,7 @@
   border-radius: 6px;
 }
 
-.st-photo-delete {
+.set-photo-delete {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -152,12 +163,12 @@
   transition: background 0.15s;
 }
 
-.st-photo-delete:hover {
+.set-photo-delete:hover {
   background: #b91c1c;
 }
 
 /* Upload zone */
-.st-upload-zone {
+.set-upload-zone {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -172,28 +183,28 @@
   color: var(--text-dim);
 }
 
-.st-upload-zone:hover {
+.set-upload-zone:hover {
   border-color: var(--border-hover);
   background: var(--card-hover);
 }
 
-.st-upload-title {
+.set-upload-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
 }
 
-.st-upload-sub {
+.set-upload-sub {
   font-size: 11px;
   color: var(--text-muted);
 }
 
 /* Fields */
-.st-field {
+.set-field {
   margin-bottom: 14px;
 }
 
-.st-label {
+.set-label {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -204,8 +215,7 @@
   margin-bottom: 6px;
 }
 
-/* Input */
-.st-input {
+.set-input {
   width: 100%;
   padding: 10px 12px;
   background: var(--input-bg);
@@ -218,72 +228,52 @@
   transition: border-color 0.15s, background 0.25s ease;
 }
 
-.st-input:focus {
+.set-input:focus {
   border-color: #f97316;
 }
 
-.st-input::placeholder {
+.set-input::placeholder {
   color: var(--text-muted);
 }
 
-.st-textarea {
+.set-textarea {
   resize: vertical;
   min-height: 100px;
   font-family: inherit;
 }
 
-.st-field-hint {
+.set-field-hint {
   font-size: 11px;
   color: var(--text-muted);
   margin-top: 4px;
 }
 
-/* Coming soon card */
-.st-card-coming {
-  background: rgba(139, 92, 246, 0.06);
-  border: 1px dashed rgba(139, 92, 246, 0.3);
-  text-align: center;
-  padding: 24px;
-}
-
-.st-coming-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #8b5cf6;
-  margin-bottom: 4px;
-}
-
-.st-coming-desc {
-  font-size: 12px;
-  color: var(--text-dim);
-}
-
 /* ROW 2 GRID */
-.st-row-2 {
+.set-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.st-field-full {
+.set-field-full {
   grid-column: 1 / -1;
 }
 
 @media (max-width: 640px) {
-  .st-row-2 {
+  .set-row-2 {
     grid-template-columns: 1fr;
   }
 }
 
 /* ICONS */
-.st-icon-green { color: #16a34a; }
-.st-icon-blue { color: #2563eb; }
-.st-icon-red { color: #dc2626; }
-.st-icon-orange { color: #f97316; }
-.st-icon-pink { color: #ec4899; }
+.set-icon-green { color: #16a34a; }
+.set-icon-blue { color: #2563eb; }
+.set-icon-red { color: #dc2626; }
+.set-icon-orange { color: #f97316; }
+.set-icon-pink { color: #ec4899; }
 
-/* ═══════════════ TOURIST RECOMMENDATIONS ═══════════════ */
-.st-rec-item {
+/* TOURIST RECOMMENDATIONS */
+.set-rec-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -294,7 +284,7 @@
   margin-bottom: 10px;
 }
 
-.st-rec-img {
+.set-rec-img {
   width: 60px;
   height: 60px;
   border-radius: 10px;
@@ -303,19 +293,19 @@
   background: var(--card-hover);
 }
 
-.st-rec-img-placeholder {
+.set-rec-img-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
 }
 
-.st-rec-content {
+.set-rec-content {
   flex: 1;
   min-width: 0;
 }
 
-.st-rec-cat {
+.set-rec-cat {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.8px;
@@ -323,14 +313,14 @@
   margin-bottom: 2px;
 }
 
-.st-rec-name {
+.set-rec-name {
   font-size: 14px;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 2px;
 }
 
-.st-rec-addr {
+.set-rec-addr {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -338,14 +328,14 @@
   color: var(--text-dim);
 }
 
-.st-rec-actions {
+.set-rec-actions {
   display: flex;
   gap: 6px;
   flex-shrink: 0;
 }
 
-.st-rec-edit,
-.st-rec-del {
+.set-rec-edit,
+.set-rec-del {
   width: 32px;
   height: 32px;
   border: none;
@@ -357,23 +347,23 @@
   transition: opacity 0.15s;
 }
 
-.st-rec-edit {
+.set-rec-edit {
   background: rgba(249, 115, 22, 0.15);
   color: #f97316;
 }
 
-.st-rec-del {
+.set-rec-del {
   background: rgba(220, 38, 38, 0.15);
   color: #dc2626;
 }
 
-.st-rec-edit:hover,
-.st-rec-del:hover {
+.set-rec-edit:hover,
+.set-rec-del:hover {
   opacity: 0.8;
 }
 
 /* ADD/EDIT FORM */
-.st-rec-form {
+.set-rec-form {
   margin-top: 14px;
   padding: 14px;
   background: rgba(139, 92, 246, 0.04);
@@ -381,7 +371,7 @@
   border-radius: 12px;
 }
 
-.st-rec-form-title {
+.set-rec-form-title {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -391,25 +381,25 @@
   margin-bottom: 10px;
 }
 
-.st-file-input {
+.set-file-input {
   font-size: 12px;
   color: var(--text-dim);
 }
 
-.st-rec-photo-name {
+.set-rec-photo-name {
   font-size: 11px;
   color: var(--text-dim);
   margin-top: 4px;
 }
 
-.st-rec-form-actions {
+.set-rec-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 10px;
 }
 
-.st-rec-cancel {
+.set-rec-cancel {
   padding: 9px 16px;
   background: var(--btn-bg);
   border: 1px solid var(--border);
@@ -421,7 +411,7 @@
   font-family: inherit;
 }
 
-.st-rec-add {
+.set-rec-add {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -436,88 +426,7 @@
   font-family: inherit;
 }
 
-.st-rec-add:disabled {
+.set-rec-add:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-/* ═══════════════ ⭐ WIFI NETWORKS — YANGI ═══════════════ */
-.st-wifi-item {
-  background: var(--btn-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 10px;
-}
-
-.st-wifi-new {
-  background: rgba(59, 130, 246, 0.06);
-  border-color: rgba(59, 130, 246, 0.4);
-  border-style: dashed;
-}
-
-.st-wifi-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.st-wifi-num {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #3b82f6;
-  letter-spacing: 0.3px;
-}
-
-.st-wifi-del {
-  width: 28px;
-  height: 28px;
-  background: rgba(220, 38, 38, 0.12);
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  color: #dc2626;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.st-wifi-del:hover {
-  background: #dc2626;
-  color: white;
-}
-
-.st-wifi-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.st-wifi-add-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 12px;
-  background: var(--btn-bg);
-  border: 1.5px dashed var(--border);
-  border-radius: 12px;
-  color: #3b82f6;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s ease;
-}
-
-.st-wifi-add-btn:hover {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.05);
 }

@@ -1,24 +1,18 @@
 // src/pages/guest/components/GuestNavbar/GuestNavbar.tsx
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Bell } from 'lucide-react';
 import type { GuestHotel } from '@apptypes/guest';
-import { imageUrl } from '@utils/imageUrl';
+import { useGuestNotificationsContext } from '@contexts/GuestNotificationsContext';
 
 import './GuestNavbar.css';
 
 interface GuestNavbarProps {
   hotel: GuestHotel;
   accentColor: string;
-  /** transparent — hero image ustida (oq matn) | solid — oq fon (qora matn) */
   variant?: 'transparent' | 'solid';
-  /** Notification tugmasini ko'rsatish */
   showNotification?: boolean;
-  /** Notification'da qizil nuqta (yangi xabar) */
-  hasNotification?: boolean;
-  /** Hotel nomini ko'rsatish (transparent variant uchun) */
   showHotelName?: boolean;
   onLanguageClick?: () => void;
-  onNotificationClick?: () => void;
 }
 
 const GuestNavbar: React.FC<GuestNavbarProps> = ({
@@ -26,27 +20,27 @@ const GuestNavbar: React.FC<GuestNavbarProps> = ({
   accentColor,
   variant = 'solid',
   showNotification = true,
-  hasNotification = false,
   showHotelName = false,
   onLanguageClick,
-  onNotificationClick,
 }) => {
+  // ⭐ Hook chaqirilmaydi — Context'dan o'qiymiz
+  const { unreadCount, hasUnread, openPanel } = useGuestNotificationsContext();
+
   return (
     <div className={`gn-navbar gn-${variant}`}>
-      {/* ═════ LOGO (left) ═════ */}
+      {/* LOGO */}
       <div className="gn-logo">
-        
-      
+        {/* Logo content here */}
       </div>
 
-      {/* ═════ HOTEL NAME (center) ═════ */}
+      {/* HOTEL NAME */}
       {showHotelName && (
         <div className="gn-hotel-name" title={hotel.name}>
           {hotel.name}
         </div>
       )}
 
-      {/* ═════ ACTIONS (right) ═════ */}
+      {/* ACTIONS */}
       <div className="gn-actions">
         <button
           type="button"
@@ -57,7 +51,27 @@ const GuestNavbar: React.FC<GuestNavbarProps> = ({
           EN <ChevronDown size={14} strokeWidth={2.2} />
         </button>
 
-        
+        {/* ⭐ Bell — Context'dagi openPanel'ni chaqiradi */}
+        {showNotification && (
+          <button
+            type="button"
+            className="gn-notif-btn"
+            onClick={openPanel}
+            aria-label={
+              hasUnread ? `Notifications (${unreadCount} unread)` : 'Notifications'
+            }
+          >
+            <Bell size={18} strokeWidth={2.2} />
+            {hasUnread && (
+              <span
+                className="gn-notif-badge"
+                style={{ background: accentColor }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

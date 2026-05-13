@@ -76,12 +76,7 @@ const RoomsPage: React.FC = () => {
   };
 
   return (
-    <PortalLayout
-      activeNav="rooms"
-      contentClassName="rm-content"
-      rootClassName="rm-root"
-      mainClassName="rm-main"
-    >
+    <PortalLayout activeNav="rooms">
       {/* Header */}
       <div className="rm-header">
         <div>

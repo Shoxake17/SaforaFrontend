@@ -1,0 +1,605 @@
+/* WakeUpModal.css */
+
+.wkm-backdrop,
+.wkm-backdrop * {
+  box-sizing: border-box;
+}
+
+.wkm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: wkm-fade-in 0.22s ease;
+}
+
+@keyframes wkm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.wkm-modal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  border-radius: 28px 28px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: wkm-slide-up 0.32s cubic-bezier(0.32, 0.72, 0.24, 1);
+  overflow: hidden;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+}
+
+@keyframes wkm-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.wkm-drag-handle {
+  width: 40px;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+
+/* HEADER */
+.wkm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.wkm-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.wkm-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wkm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.wkm-subtitle {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 2px 0 0;
+  font-weight: 500;
+}
+
+/* QO'SHIMCHA — WakeUpModal.css ichiga qo'shing (yuqori qismga) */
+
+/* ⭐⭐⭐ TEST BUTTON */
+.wkm-test-row {
+  padding: 10px 16px 0;
+  flex-shrink: 0;
+}
+
+.wkm-test-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  background: white;
+  border: 1.5px dashed;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.wkm-test-btn:hover:not(:disabled) {
+  background: #fafafa;
+  filter: brightness(0.97);
+}
+
+.wkm-test-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wkm-close-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4b5563;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.wkm-close-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* TOAST */
+.wkm-toast {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  color: white;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 10;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  animation: wkm-toast-in 0.3s ease;
+}
+
+@keyframes wkm-toast-in {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* WARNING */
+.wkm-warning {
+  margin: 12px 16px 0;
+  padding: 12px 14px;
+  background: #fef3c7;
+  border: 1.5px solid #fbbf24;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.wkm-warning-icon {
+  color: #f59e0b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.wkm-warning-text {
+  flex: 1;
+  font-size: 12.5px;
+  color: #78350f;
+  line-height: 1.4;
+}
+
+.wkm-warning-text strong {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.wkm-warning-text p {
+  margin: 0 0 8px;
+}
+
+.wkm-warning-btn {
+  padding: 6px 12px;
+  background: white;
+  border: 1.5px solid;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+/* INFO */
+.wkm-info {
+  margin: 12px 16px 0;
+  padding: 10px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #1e40af;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.wkm-info svg {
+  color: #3b82f6;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* BODY */
+.wkm-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 16px;
+}
+
+/* EMPTY */
+.wkm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.wkm-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.wkm-empty h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.wkm-empty p {
+  font-size: 12.5px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* ALARM CARD */
+.wkm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wkm-alarm-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #fafafa;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 16px;
+  transition: all 0.15s ease;
+}
+
+.wkm-alarm-card:hover {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.wkm-alarm-time {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 70px;
+}
+
+.wkm-alarm-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wkm-alarm-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wkm-alarm-meta {
+  font-size: 11.5px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.wkm-alarm-countdown {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.wkm-alarm-delete {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #dc2626;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.wkm-alarm-delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+
+/* ADD BUTTON */
+.wkm-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 16px 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 0.15s ease;
+  flex-shrink: 0;
+}
+
+.wkm-add-btn:hover {
+  filter: brightness(1.08);
+}
+
+/* FORM */
+.wkm-form {
+  border-top: 1px solid #f1f5f9;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+  background: #fafafa;
+}
+
+.wkm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wkm-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.wkm-time-input,
+.wkm-text-input,
+.wkm-date-input {
+  padding: 12px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #111827;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.wkm-time-input {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.wkm-text-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.wkm-time-input:focus,
+.wkm-text-input:focus,
+.wkm-date-input:focus {
+  border-color: #f97316;
+}
+
+/* ⭐⭐⭐ DATE CHIPS — YANGI */
+.wkm-date-chips {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.wkm-chip {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4b5563;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.wkm-chip:hover:not(.is-active) {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+/* DATE INPUT (custom mode) */
+.wkm-date-input {
+  width: 100%;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* REPEAT */
+.wkm-repeat-group {
+  display: flex;
+  gap: 6px;
+}
+
+.wkm-repeat-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4b5563;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.wkm-repeat-btn:hover:not(.is-active) {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+/* FORM ERROR */
+.wkm-form-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.wkm-form-error svg {
+  flex-shrink: 0;
+  color: #dc2626;
+}
+
+/* FORM ACTIONS */
+.wkm-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.wkm-cancel-btn {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.wkm-cancel-btn:hover {
+  background: #f9fafb;
+  color: #111827;
+}
+
+.wkm-submit-btn {
+  flex: 2;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 0.15s ease;
+}
+
+.wkm-submit-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.wkm-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* RESPONSIVE */
+@media (max-width: 380px) {
+  .wkm-alarm-time {
+    font-size: 22px;
+    min-width: 60px;
+  }
+
+  .wkm-alarm-label {
+    font-size: 12.5px;
+  }
+
+  .wkm-time-input {
+    font-size: 20px;
+  }
+
+  .wkm-chip {
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+}

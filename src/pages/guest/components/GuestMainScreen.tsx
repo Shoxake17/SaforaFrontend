@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import {
   Home as HomeIcon,
   User,
-  Star,
   Compass,
   ConciergeBell,
   Store,
@@ -15,11 +14,15 @@ import MarketTab from '../tabs/MarketTab/MarketTab';
 import ServicesTab from '../tabs/ServicesTab/ServicesTab';
 import ProfileTab from '../tabs/ProfileTab/ProfileTab';
 
+// ⭐ YANGI IMPORT'lar
+import {
+  GuestNotificationsProvider,
+  useGuestNotificationsContext,
+} from '@contexts/GuestNotificationsContext';
+import GuestNotificationPanel from './GuestNotificationPanel/GuestNotificationPanel';
+
 import './GuestMainScreen.css';
 
-// ═══════════════════════════════════════════════════════
-// Types
-// ═══════════════════════════════════════════════════════
 type TabKey = 'home' | 'services' | 'profile' | 'market' | 'explore';
 
 interface GuestMainScreenProps {
@@ -29,35 +32,38 @@ interface GuestMainScreenProps {
   guestName: string;
 }
 
-// ═══════════════════════════════════════════════════════
-// Bottom Navigation Configuration
-// ═══════════════════════════════════════════════════════
 const BOTTOM_NAV: { key: TabKey; icon: React.ElementType; label: string }[] = [
   { key: 'home',     icon: HomeIcon,      label: 'Home' },
   { key: 'services', icon: ConciergeBell, label: 'Services' },
   { key: 'market',   icon: Store,         label: 'Market' },
   { key: 'explore',  icon: Compass,       label: 'Explore' },
-  { key: 'profile',     icon: User,          label: 'Profile' },
-
+  { key: 'profile',  icon: User,          label: 'Profile' },
 ];
 
-// ═══════════════════════════════════════════════════════
-// Component — TAB MANAGER
-// ═══════════════════════════════════════════════════════
-const GuestMainScreen: React.FC<GuestMainScreenProps> = ({
+// ⭐ Inner component — Context'ga kira oladigan qism
+const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
   hotel,
   room,
   settings,
   guestName,
 }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('home');
-
-  // Hotel accent color
   const accentColor = settings.primary_color || '#16a34a';
+
+  // ⭐ Context'dan Panel uchun kerakli qiymatlar
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+    panelOpen,
+    closePanel,
+  } = useGuestNotificationsContext();
 
   return (
     <div className="gms-screen">
-      {/* ═══════════════ TAB CONTENT ═══════════════ */}
+      {/* TAB CONTENT */}
       {activeTab === 'home' && (
         <HomeTab
           hotel={hotel}
@@ -70,44 +76,39 @@ const GuestMainScreen: React.FC<GuestMainScreenProps> = ({
       )}
 
       {activeTab === 'services' && (
-  <ServicesTab
-    hotel={hotel}
-    room={room}
-    settings={settings}
-    guestName={guestName}
-    accentColor={accentColor}
-    onTabChange={(tab) => setActiveTab(tab)}
-    onCallClick={() => setShowCallModal(true)}
-  />
-)}
+        <ServicesTab
+          hotel={hotel}
+          room={room}
+          settings={settings}
+          guestName={guestName}
+          accentColor={accentColor}
+          onTabChange={(tab) => setActiveTab(tab)}
+        />
+      )}
+
       {activeTab === 'profile' && (
-  <ProfileTab
-    hotel={hotel}
-    room={room}
-    settings={settings}
-    guestName={guestName}
-    accentColor={accentColor}
-    onLogout={() => {
-      // Logout logic — masalan:
-      localStorage.removeItem('safora_guest_session');
-      navigate('/login');
-    }}
-  />
-)}
+        <ProfileTab
+          hotel={hotel}
+          room={room}
+          settings={settings}
+          guestName={guestName}
+          accentColor={accentColor}
+          onLogout={() => {
+            localStorage.removeItem('safora_guest_session');
+            localStorage.removeItem('safora_guest_token');
+          }}
+        />
+      )}
 
       {activeTab === 'market' && (
         <MarketTab hotel={hotel} accentColor={accentColor} />
       )}
 
       {activeTab === 'explore' && (
-  <ExploreTab
-    hotel={hotel}
-    settings={settings}
-    accentColor={accentColor}
-  />
-)}
+        <ExploreTab hotel={hotel} settings={settings} accentColor={accentColor} />
+      )}
 
-      {/* ═══════════════ BOTTOM NAVIGATION ═══════════════ */}
+      {/* BOTTOM NAVIGATION */}
       <nav className="gms-bottom-nav">
         {BOTTOM_NAV.map((item) => {
           const Icon = item.icon;
@@ -139,7 +140,31 @@ const GuestMainScreen: React.FC<GuestMainScreenProps> = ({
           );
         })}
       </nav>
+
+      {/* ⭐⭐⭐ PANEL ENG YUQORI DARAJADA — endi clip bo'lmaydi */}
+      <GuestNotificationPanel
+        open={panelOpen}
+        notifications={notifications}
+        unreadCount={unreadCount}
+        accentColor={accentColor}
+        onClose={closePanel}
+        onMarkAsRead={markAsRead}
+        onMarkAllAsRead={markAllAsRead}
+        onClearAll={clearAll}
+      />
     </div>
+  );
+};
+
+// ⭐ Outer wrapper — Provider'ni o'rab beradi
+const GuestMainScreen: React.FC<GuestMainScreenProps> = (props) => {
+  return (
+    <GuestNotificationsProvider
+      hotelSlug={(props.hotel as any).slug || ''}
+      roomNumber={props.room.number}
+    >
+      <GuestMainScreenContent {...props} />
+    </GuestNotificationsProvider>
   );
 };
 

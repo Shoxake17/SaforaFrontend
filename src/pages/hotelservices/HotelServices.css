@@ -1,11 +1,24 @@
 /* ═══════════════════════════════════════════════════════
    HotelServices — Manager portal (dark theme)
+   ⛔ .hs-content layout OLIB TASHLANDI — endi .pl-content ishlaydi
 ═══════════════════════════════════════════════════════ */
 
-.hs-content {
-  padding: 24px;
-}
 
+.hs-inline-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 12px;
+  color: var(--text-muted);
+}
+ 
+.hs-inline-loading p {
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 500;
+}
 /* ═══════════════ HEADER ═══════════════ */
 .hs-header {
   display: flex;
@@ -22,18 +35,18 @@
   gap: 8px;
   font-size: 22px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
   margin: 0 0 4px;
   letter-spacing: -0.3px;
 }
 
 .hs-title-icon {
-  color: #f97316;
+  color: #ef4444;
 }
 
 .hs-subtitle {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-dim);
   margin: 0;
 }
 
@@ -69,9 +82,9 @@
   align-items: center;
   gap: 6px;
   padding: 9px 16px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--btn-border);
   border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
@@ -108,8 +121,8 @@
   gap: 16px;
   margin-bottom: 18px;
   padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 14px;
   flex-wrap: wrap;
 }
@@ -129,13 +142,13 @@
 .hs-stat-num {
   font-size: 22px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
   line-height: 1;
 }
 
 .hs-stat-lbl {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -145,7 +158,7 @@
 .hs-stat-divider {
   width: 1px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border);
 }
 
 .hs-search-wrap {
@@ -160,17 +173,17 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   pointer-events: none;
 }
 
 .hs-search {
   width: 100%;
   padding: 9px 12px 9px 36px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  color: white;
+  color: var(--text);
   font-size: 13px;
   font-family: inherit;
   outline: none;
@@ -178,12 +191,11 @@
 }
 
 .hs-search:focus {
-  background: rgba(255, 255, 255, 0.08);
   border-color: rgba(249, 115, 22, 0.5);
 }
 
 .hs-search::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
 }
 
 /* ═══════════════ SERVICES GRID ═══════════════ */
@@ -195,8 +207,8 @@
 
 .hs-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
   cursor: pointer;
@@ -206,32 +218,17 @@
   flex-direction: column;
 }
 
-.hs-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-
 .hs-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--card-hover);
+  border-color: var(--border-hover);
   transform: translateY(-1px);
 }
 
-.hs-card:hover::before {
-  opacity: 1;
-}
-
 .hs-card.is-active {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: var(--card-hover);
+  border-color: var(--border-hover);
 }
 
-/* Active glow effect */
 .hs-card.is-active::after {
   content: '';
   position: absolute;
@@ -243,7 +240,7 @@
   opacity: 0.6;
 }
 
-/* ═══════════════ CARD HEAD ═══════════════ */
+/* CARD HEAD */
 .hs-card-head {
   display: flex;
   align-items: center;
@@ -267,12 +264,12 @@
   transform: scale(1.05);
 }
 
-/* ═══════════════ TOGGLE SWITCH ═══════════════ */
+/* TOGGLE SWITCH */
 .hs-toggle {
   position: relative;
   width: 42px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--btn-bg);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -301,7 +298,7 @@
   transform: translateX(18px);
 }
 
-/* ═══════════════ CARD BODY ═══════════════ */
+/* CARD BODY */
 .hs-card-body {
   margin-bottom: 12px;
   flex: 1;
@@ -310,24 +307,24 @@
 .hs-card-title {
   font-size: 15px;
   font-weight: 700;
-  color: white;
+  color: var(--text);
   margin-bottom: 2px;
   letter-spacing: -0.2px;
 }
 
 .hs-card-sub {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
 }
 
-/* ═══════════════ CARD STATUS ═══════════════ */
+/* CARD STATUS */
 .hs-card-status {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
   letter-spacing: 0.3px;
 }
 
@@ -335,7 +332,7 @@
   color: #22c55e;
 }
 
-/* ═══════════════ CARD FOOTER ═══════════════ */
+/* CARD FOOTER */
 .hs-card-footer {
   display: flex;
   align-items: center;
@@ -351,40 +348,18 @@
   font-weight: 700;
   letter-spacing: 0.3px;
   padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--btn-bg);
   border-radius: 6px;
   text-transform: uppercase;
   transition: all 0.15s ease;
 }
 
-.hs-card.has-manage {
-  position: relative;
-}
-
 .hs-card.has-manage:hover .hs-card-manage {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--card-hover);
   transform: scale(1.05);
 }
 
-.hs-card.has-manage::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-  border-radius: 14px;
-}
-
-.hs-card.has-manage:hover::before {
-  opacity: 1;
-}
-
-/* ═══════════════════════════════════════════════════════
-   ⭐⭐⭐ MANAGE ITEMS BUTTON
-   Used by: LAUNDRY (Manage Items), RESTAURANT (Manage Menu)
-═══════════════════════════════════════════════════════ */
+/* MANAGE ITEMS BUTTON (Laundry, Restaurant) */
 .hs-laundry-items-btn {
   display: flex;
   align-items: center;
@@ -393,7 +368,7 @@
   width: 100%;
   margin-top: 12px;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--btn-bg);
   border: 1.5px dashed currentColor;
   border-radius: 10px;
   font-size: 12.5px;
@@ -405,7 +380,7 @@
 }
 
 .hs-laundry-items-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--card-hover);
   border-style: solid;
   transform: translateY(-1px);
 }
@@ -426,7 +401,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-/* ═══════════════ EMPTY STATE ═══════════════ */
+/* EMPTY STATE */
 .hs-empty {
   display: flex;
   flex-direction: column;
@@ -434,9 +409,9 @@
   justify-content: center;
   padding: 60px 20px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  background: var(--card-bg);
+  border: 1px dashed var(--border);
   border-radius: 16px;
 }
 
@@ -444,19 +419,15 @@
   font-size: 15px;
   font-weight: 600;
   margin: 14px 0 4px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text);
 }
 
 .hs-empty small {
   font-size: 12px;
 }
 
-/* ═══════════════ RESPONSIVE ═══════════════ */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  .hs-content {
-    padding: 16px;
-  }
-
   .hs-header-actions {
     width: 100%;
   }

@@ -1,24 +1,36 @@
-/* src/components/PortalLayout.css */
+/* src/components/PortalLayout/PortalLayout.css */
 
+/* ═══════════════════════════════════════════════════════
+   ROOT — Sidebar + Main wrapper
+═══════════════════════════════════════════════════════ */
 .pl-root {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bg);
+  color: var(--text);
 }
 
+/* ═══════════════════════════════════════════════════════
+   MAIN AREA — Topbar + Content
+═══════════════════════════════════════════════════════ */
 .pl-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  background: var(--bg);
   overflow-x: hidden;
 }
 
+/* ═══════════════════════════════════════════════════════
+   CONTENT — Har bir sahifa contenti shu yerda
+═══════════════════════════════════════════════════════ */
 .pl-content {
   flex: 1;
   padding: 24px 32px 40px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
 }
 
 @media (max-width: 768px) {
@@ -27,7 +39,9 @@
   }
 }
 
-/* ─── Loading State ────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   LOADING STATE
+═══════════════════════════════════════════════════════ */
 .pl-loading {
   min-height: 100vh;
   display: flex;
@@ -35,13 +49,13 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bg);
+  color: var(--text);
 }
 
 .pl-loading p {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: var(--text-dim);
   margin: 0;
 }
 

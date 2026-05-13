@@ -73,7 +73,7 @@ const COMM_CARDS = [
 ];
 
 const SERVICE_CARDS = [
-  { key: 'roomService' as ServiceKey, icon: ConciergeBell, title: 'Room Service', sub: '24/7' },
+  { key: 'roomService' as ServiceKey, icon: ConciergeBell, title: 'Restaurant', sub: '24/7' },
   { key: 'request' as ServiceKey,     icon: BrushCleaning, title: 'Request',      sub: 'Daily' },
   { key: 'explore' as ServiceKey,     icon: MapPinned,     title: 'Explore',      sub: 'Relax time' },
 ];

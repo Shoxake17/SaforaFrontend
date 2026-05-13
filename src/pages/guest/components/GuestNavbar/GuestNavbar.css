@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   GuestNavbar — Universal navbar component
-═══════════════════════════════════════════════════════ */
+/* src/pages/guest/components/GuestNavbar/GuestNavbar.css */
 
 .gn-navbar {
   display: flex;
@@ -10,7 +8,9 @@
   width: 100%;
 }
 
-/* ═══════════════ LOGO ═══════════════ */
+/* ═══════════════════════════════════════════════════════
+   LOGO
+═══════════════════════════════════════════════════════ */
 .gn-logo {
   position: relative;
   border-radius: 10px;
@@ -46,7 +46,9 @@
   display: flex;
 }
 
-/* ═══════════════ HOTEL NAME (center) ═══════════════ */
+/* ═══════════════════════════════════════════════════════
+   HOTEL NAME (center)
+═══════════════════════════════════════════════════════ */
 .gn-hotel-name {
   flex: 1;
   font-size: 14px;
@@ -60,7 +62,9 @@
   min-width: 0;
 }
 
-/* ═══════════════ ACTIONS (right) ═══════════════ */
+/* ═══════════════════════════════════════════════════════
+   ACTIONS (right)
+═══════════════════════════════════════════════════════ */
 .gn-actions {
   display: flex;
   align-items: center;
@@ -87,6 +91,7 @@
   transform: scale(0.96);
 }
 
+/* ─── Notification button ─── */
 .gn-notif-btn {
   position: relative;
   width: 36px;
@@ -105,6 +110,7 @@
   transform: scale(0.94);
 }
 
+/* Eski legacy dot — agar boshqa joyda ishlatilsa */
 .gn-notif-dot {
   position: absolute;
   top: 7px;
@@ -115,11 +121,56 @@
   border: 2px solid white;
 }
 
+/* ⭐ Notification badge — son bilan ko'rsatuvchi pulse'li chip */
+.gn-notif-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border: 2px solid white;
+  font-family: 'Inter', -apple-system, sans-serif;
+  line-height: 1;
+  letter-spacing: 0;
+  animation: gn-badge-pop 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+  pointer-events: none;
+}
+
+@keyframes gn-badge-pop {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Yangi notification kelganda — sekin pulse */
+.gn-notif-btn:has(.gn-notif-badge) {
+  animation: gn-bell-attention 2.4s ease-in-out infinite;
+}
+
+@keyframes gn-bell-attention {
+  0%, 100% { transform: rotate(0deg); }
+  3%       { transform: rotate(-12deg); }
+  6%       { transform: rotate(10deg); }
+  9%       { transform: rotate(-8deg); }
+  12%      { transform: rotate(6deg); }
+  15%      { transform: rotate(0deg); }
+}
+
 /* ═══════════════════════════════════════════════════════
    VARIANTS
 ═══════════════════════════════════════════════════════ */
 
-/* ─── TRANSPARENT (hero ustida) ─── */
+/* ─── TRANSPARENT (hero ustida — oq matn) ─── */
 .gn-transparent .gn-logo {
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -139,7 +190,16 @@
   color: #0f172a;
 }
 
-/* ─── SOLID (oq fon) ─── */
+/* Badge border'i — transparent variantda chiroyli ko'rinishi uchun */
+.gn-transparent .gn-notif-badge {
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
+.gn-transparent .gn-notif-dot {
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
+/* ─── SOLID (oq fon — qora matn) ─── */
 .gn-solid .gn-logo {
   background: rgba(249, 115, 22, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -159,4 +219,12 @@
   background: white;
   color: #0f172a;
   border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.gn-solid .gn-notif-badge {
+  border-color: white;
+}
+
+.gn-solid .gn-notif-dot {
+  border-color: white;
 }

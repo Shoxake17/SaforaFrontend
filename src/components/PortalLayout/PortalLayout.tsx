@@ -1,4 +1,4 @@
-// src/components/PortalLayout.tsx
+// src/components/PortalLayout/PortalLayout.tsx
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import './PortalLayout.css';
@@ -15,9 +15,6 @@ interface PortalLayoutProps {
   children: React.ReactNode;
   pageLoading?: boolean;
   loadingText?: string;
-  contentClassName?: string;
-  rootClassName?: string;
-  mainClassName?: string;
 }
 
 const PortalLayout: React.FC<PortalLayoutProps> = ({
@@ -25,16 +22,31 @@ const PortalLayout: React.FC<PortalLayoutProps> = ({
   children,
   pageLoading = false,
   loadingText = 'Loading...',
-  contentClassName = '',
-  rootClassName = '',
-  mainClassName = '',
 }) => {
   const { slug, roleKey, role, isAuthenticated, isAuthLoading, handleLogout } =
     useAuthGuard();
   const { hotel, hotelLoading } = useHotel(slug, isAuthenticated);
   const { goTo } = usePortalNavigation(slug, roleKey);
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // ⭐ Sidebar holati localStorage'da saqlanadi
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('safora_sidebar_open');
+      return stored === null ? true : stored === 'true';
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('safora_sidebar_open', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const config = getRoleConfig(role);
   const isLoading = isAuthLoading || hotelLoading || pageLoading;
@@ -42,20 +54,16 @@ const PortalLayout: React.FC<PortalLayoutProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className={`pl-loading ${rootClassName}`}>
+      <div className="pl-loading">
         <Loader2 size={36} color={config.badgeColor} className="pl-spin" />
         <p>{loadingText}</p>
       </div>
     );
   }
 
-  // Auth check failed (redirect happens in useAuthGuard)
   if (!isAuthenticated) return null;
 
-  // ═══════════════════════════════════════════════════════
-  // Call qabul qila oladigan rolelar
-  // Role'larni har xil formatda qabul qilish (dept-manager, dept_manager)
-  // ═══════════════════════════════════════════════════════
+  // ─── Call qabul qila oladigan rolelar ───
   const normalizedRole = String(role || roleKey || '')
     .toLowerCase()
     .replace(/[-\s]/g, '_');
@@ -66,33 +74,22 @@ const PortalLayout: React.FC<PortalLayoutProps> = ({
     normalizedRole === 'dept_manager' ||
     normalizedRole.startsWith('dept_manager');
 
-  // DEBUG (vaqtinchalik — keyin o'chirish mumkin)
-  console.log(
-    '[PortalLayout]',
-    'role:', role,
-    '| roleKey:', roleKey,
-    '| normalized:', normalizedRole,
-    '| canReceiveCalls:', canReceiveCalls
-  );
-
   return (
-    <div className={`pl-root ${rootClassName}`}>
+    <div className={`pl-root ${sidebarOpen ? 'pl-open' : 'pl-closed'}`}>
       <Sidebar
         isOpen={sidebarOpen}
         hotel={hotel}
         activeNav={activeNav}
         onNavChange={goTo}
         onLogout={handleLogout}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onToggle={toggleSidebar}
       />
 
-      <main className={`pl-main ${mainClassName}`}>
+      <main className="pl-main">
         <MainLayout hotel={hotel} />
-
-        <div className={`pl-content ${contentClassName}`}>{children}</div>
+        <div className="pl-content">{children}</div>
       </main>
 
-      {/* ═══ Global Incoming Call Overlay ═══ */}
       {canReceiveCalls && <IncomingCallOverlay />}
     </div>
   );
