@@ -41,45 +41,7 @@
   padding-top: calc(28px + env(safe-area-inset-top, 0));
 }
 
-/* Top bar */
-.ht-topbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.ht-topbar-logo {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.ht-topbar-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ht-topbar-name {
-  flex: 1;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* ═══════════════ HERO CAROUSEL ═══════════════ */
-
 .ht-hero-carousel {
   position: absolute;
   inset: 0;
@@ -88,7 +50,6 @@
   overflow: hidden;
 }
 
-/* ⭐ Crossfade transition */
 .ht-hero-bg {
   position: absolute;
   inset: 0;
@@ -104,14 +65,12 @@
   opacity: 1;
 }
 
-/* Single image (fallback) — to'liq ko'rinishi kerak */
 .ht-hero > .ht-hero-bg.active:only-child,
 .ht-hero > .ht-hero-bg:not(.ht-hero-carousel .ht-hero-bg) {
   opacity: 1;
 }
 
 /* ═══════════════ PAGINATION DOTS ═══════════════ */
-
 .ht-hero-dots {
   position: absolute;
   bottom: 12px;
@@ -140,49 +99,6 @@
 .ht-hero-dot.active {
   width: 18px;
   border-radius: 4px;
-}
-
-.ht-topbar-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.ht-lang-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.95);
-  border: none;
-  border-radius: 18px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #0f172a;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.ht-notif-btn {
-  position: relative;
-  width: 34px;
-  height: 34px;
-  background: rgba(255, 255, 255, 0.95);
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #0f172a;
-}
-
-.ht-notif-dot {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
 }
 
 /* Greeting */
@@ -306,11 +222,9 @@
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-dim, #64748b);
-  
   max-height: calc(1.5em * 3);
   overflow-y: auto;
   padding-right: 8px;
-  
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
@@ -332,111 +246,43 @@
   background: rgba(255, 255, 255, 0.4);
 }
 
-.ht-rules-side {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-/* ═══════════════ SECTIONS ═══════════════ */
-.ht-section {
-  margin: 14px 14px;
-}
-
-.ht-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  padding: 0 2px;
-}
-
-.ht-section-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.ht-view-all {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: transparent;
-  border: none;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* ═══════════════ GRID — 3 column ═══════════════ */
-.ht-grid-3 {
+/* ═══════════════════════════════════════════════════════
+   ⭐⭐⭐ BENTO SERVICE GRID (YANGI) ⭐⭐⭐
+═══════════════════════════════════════════════════════ */
+.ht-bento {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  grid-template-rows: 1fr 0.8fr;
+  gap: 10px;
+  height: 280px;
+  margin: 14px 14px 20px;
 }
 
-.ht-service-card,
-.ht-comm-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 16px 8px;
-  background: white;
+.ht-bento-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
   border: none;
-  border-radius: 14px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   cursor: pointer;
+  background: #1f2937;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
   font-family: inherit;
-  transition: transform 0.1s;
+  text-align: left;
   -webkit-tap-highlight-color: transparent;
 }
 
-.ht-service-card:active,
-.ht-comm-card:active {
-  transform: scale(0.97);
+.ht-bento-card:active {
+  transform: scale(0.98);
 }
 
-.ht-service-icon,
-.ht-comm-icon {
-  margin-bottom: 4px;
+/* Katta Rooms card — chap ustun, 2 qator */
+.ht-bento-large {
+  grid-column: 1;
+  grid-row: 1 / 3;
 }
 
-.ht-service-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #0f172a;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.ht-service-sub {
-  font-size: 10px;
-  color: #94a3b8;
-  text-align: center;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-/* ═══════════════ FEATURED BANNER ═══════════════ */
-.ht-featured {
-  position: relative;
-  margin: 14px 14px 20px;
-  height: 180px;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-.ht-featured-bg {
+.ht-bento-img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -444,64 +290,78 @@
   object-fit: cover;
 }
 
-.ht-featured-overlay {
+.ht-bento-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0.3) 55%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
 }
 
-.ht-featured-content {
-  position: relative;
-  padding: 16px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  max-width: 65%;
+/* Kichik card'larda text TOP'da */
+.ht-bento-content {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 2;
 }
 
-.ht-featured-tag {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  margin-bottom: 4px;
+/* Katta Rooms card'da text BOTTOM'da (rasmga mos) */
+.ht-bento-large .ht-bento-content {
+  top: auto;
+  bottom: 52px;
+  left: 16px;
+  right: 16px;
 }
 
-.ht-featured-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 6px;
-  line-height: 1.15;
-  letter-spacing: -0.3px;
-}
-
-.ht-featured-desc {
-  font-size: 11px;
-  color: #475569;
-  line-height: 1.4;
-  margin: 0 0 10px;
-}
-
-.ht-featured-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 9px 14px;
-  border: none;
-  color: white;
-  border-radius: 22px;
+.ht-bento-title {
   font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  align-self: flex-start;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
-  -webkit-tap-highlight-color: transparent;
+  font-weight: 400;
+  color: #ffffff;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
-.ht-featured-btn:active {
-  transform: scale(0.97);
+.ht-bento-sub {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.ht-bento-large .ht-bento-title {
+  font-size: 18px;
+}
+
+.ht-bento-large .ht-bento-sub {
+  font-size: 12.5px;
+}
+
+/* Pastdagi oq doiraviy arrow tugma */
+.ht-bento-arrow {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  z-index: 2;
+  transition: transform 0.2s;
+}
+
+.ht-bento-card:active .ht-bento-arrow {
+  transform: translateX(2px);
 }
 
 /* ═══════════════ RESPONSIVE ═══════════════ */
@@ -512,24 +372,22 @@
   .ht-greet-name {
     font-size: 26px;
   }
-  .ht-grid-3 {
-    gap: 6px;
-  }
-  .ht-service-card,
-  .ht-comm-card {
-    padding: 14px 6px;
-  }
-  .ht-service-title {
-    font-size: 11px;
-  }
-  .ht-service-sub {
-    font-size: 9px;
-  }
-  .ht-featured {
-    height: 170px;
-  }
   .ht-chips {
     width: 80%;
+  }
+  .ht-bento {
+    height: 340px;
+    gap: 8px;
+    margin: 12px 12px 16px;
+  }
+  .ht-bento-title {
+    font-size: 14px;
+  }
+  .ht-bento-large .ht-bento-title {
+    font-size: 16px;
+  }
+  .ht-bento-sub {
+    font-size: 10.5px;
   }
 }
 

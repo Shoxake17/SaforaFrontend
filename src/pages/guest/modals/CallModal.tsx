@@ -1,4 +1,4 @@
-// src/pages/guest/modals/CallModal.tsx
+// src/pages/guest/modals/CallModall/CallModal.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import { Phone, PhoneOff, AlertCircle } from 'lucide-react';
 import { useGuestCall } from '@hooks/calls/useGuestCall';
@@ -33,45 +33,52 @@ const CallModal: React.FC<CallModalProps> = ({
     onEnded: onClose,
   });
 
-  // Timer state — originalAnsweredAt'dan hisoblanadi
   const [timerSec, setTimerSec] = useState<number>(0);
   const [originalAnsweredAt, setOriginalAnsweredAt] = useState<number | null>(
     null
   );
 
-  // ✅ React StrictMode double-mount himoyasi
-  // useEffect StrictMode'da 2 marta ishlaydi, lekin hasStartedRef ikkala instance'da ham
-  // birinchi mount'dan keyin true bo'ladi (chunki React useRef ni saqlaydi remount paytida)
+  // StrictMode double-mount himoyasi
   const hasStartedRef = useRef<boolean>(false);
 
-  // ═════ Modal mount → call boshlash (FAQAT 1 MARTA!) ═════
+  // ═════ Modal mount → call boshlash (1 marta) ═════
   useEffect(() => {
+    if (!isOpen) return;
     if (hasStartedRef.current) {
-      console.log('[CallModal] startCall already called, skipping (StrictMode protection)');
+      console.log('[CallModal] startCall already called, skipping');
       return;
     }
     hasStartedRef.current = true;
     startCall();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isOpen]);
+
+  // ═════ Modal yopilganda — flag reset ═════
+  useEffect(() => {
+    if (!isOpen) {
+      hasStartedRef.current = false;
+    }
+  }, [isOpen]);
 
   // ═════ ESC tugma ═════
   useEffect(() => {
+    if (!isOpen) return;
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') hangUp();
     };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-  }, [hangUp]);
+  }, [hangUp, isOpen]);
 
   // ═════ Body scroll lock ═════
   useEffect(() => {
+    if (!isOpen) return;
     const original = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = original;
     };
-  }, []);
+  }, [isOpen]);
 
   // ═════ Failed bo'lsa avtomatik yopish ═════
   useEffect(() => {
@@ -81,7 +88,7 @@ const CallModal: React.FC<CallModalProps> = ({
     }
   }, [status, onClose]);
 
-  // ═════ Connected bo'lganda — backend'dan originalAnsweredAt olish ═════
+  // ═════ Connected bo'lganda — originalAnsweredAt olish ═════
   useEffect(() => {
     if (status !== 'connected') return;
 
@@ -111,7 +118,7 @@ const CallModal: React.FC<CallModalProps> = ({
     };
   }, [status]);
 
-  // ═════ Timer — originalAnsweredAt'dan hisoblash ═════
+  // ═════ Timer ═════
   useEffect(() => {
     if (status !== 'connected' || !originalAnsweredAt) return;
 

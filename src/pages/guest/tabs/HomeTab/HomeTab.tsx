@@ -1,20 +1,10 @@
 // src/pages/guest/tabs/HomeTab/HomeTab.tsx
 import React, { useEffect, useState } from 'react';
 import {
-  PhoneOutgoing,
-  MessageCircleMore,
-  Bot,
-  ConciergeBell,
-  BrushCleaning,
-  Bell,
   MapPin,
-  ChevronDown,
-  ChevronRight,
-  ArrowRight,
   ShieldAlert,
   BedDouble,
-  Ban,
-  MapPinned,
+  ArrowRight,
 } from 'lucide-react';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
 import GuestNavbar from '../../components/GuestNavbar/GuestNavbar';
@@ -23,9 +13,6 @@ import { useWeather } from '../../hooks/useWeather';
 import { imageUrl } from '@utils/imageUrl';
 
 import './HomeTab.css';
-
-type ActionKey = 'call' | 'message' | 'ai';
-type ServiceKey = 'roomService' | 'request' | 'explore';
 
 interface HomeTabProps {
   hotel: GuestHotel;
@@ -38,7 +25,7 @@ interface HomeTabProps {
 
 const STORAGE_KEY = 'safora_active_call';
 const RECONNECT_TIMEOUT_MS = 60000;
-const CAROUSEL_INTERVAL_MS = 4500;  // ⭐ Carousel almashinuv vaqti
+const CAROUSEL_INTERVAL_MS = 4500;
 
 const checkActiveCallInStorage = (
   hotelSlug: string,
@@ -66,17 +53,58 @@ const checkActiveCallInStorage = (
   }
 };
 
-const COMM_CARDS = [
-  { key: 'call' as ActionKey,    icon: PhoneOutgoing,     title: 'Call',         sub: 'Quick connect' },
-  { key: 'message' as ActionKey, icon: MessageCircleMore, title: 'Message',      sub: 'Chat with us' },
-  { key: 'ai' as ActionKey,      icon: Bot,               title: 'AI Concierge', sub: 'Smart assistant' },
+// ⭐ 5 ta bento card — public papkadagi local rasmlar
+// Fayllar joylashuvi: SaforaFrontend/public/services/...
+interface BentoCard {
+  key: string;
+  title: string;
+  sub: string;
+  image: string;
+  tab: 'services' | 'explore';
+  isLarge?: boolean;
+}
+
+const BENTO_CARDS: BentoCard[] = [
+  {
+    key: 'rooms',
+    title: 'Safora AI',
+    sub: '',
+    image: '/services/saforaai.png',
+    tab: 'services',
+    isLarge: true,
+  },
+  {
+    key: 'taxi',
+    title: 'Taxi & Transport',
+    sub: '',
+    image: '/services/taxi.png',
+    tab: 'services',
+  },
+  {
+    key: 'dining',
+    title: 'Restaurant',
+    sub: '',
+    image: '/services/restaurant.png',
+    tab: 'services',
+  },
+  {
+    key: 'exchange',
+    title: 'Exchange',
+    sub: "",
+    image: '/services/concierge.jpg',
+    tab: 'services',
+  },
+  {
+    key: 'market',
+    title: 'Market',
+    sub: '',
+    image: '/services/market.png',
+    tab: 'explore',
+  },
 ];
 
-const SERVICE_CARDS = [
-  { key: 'roomService' as ServiceKey, icon: ConciergeBell, title: 'Restaurant', sub: '24/7' },
-  { key: 'request' as ServiceKey,     icon: BrushCleaning, title: 'Request',      sub: 'Daily' },
-  { key: 'explore' as ServiceKey,     icon: MapPinned,     title: 'Explore',      sub: 'Relax time' },
-];
+// ⭐ Agar rasm yo'q bo'lsa — fallback (avant.png yoki gradient)
+const FALLBACK_IMAGE = '/avant.png';
 
 const HomeTab: React.FC<HomeTabProps> = ({
   hotel,
@@ -92,15 +120,13 @@ const HomeTab: React.FC<HomeTabProps> = ({
     checkActiveCallInStorage(hotel.slug, room.number, guestName)
   );
 
-  // ⭐ YANGI — Carousel state
   const [currentPhoto, setCurrentPhoto] = useState(0);
 
-  // ⭐ Cover photos array (fallback'lar bilan)
-  const coverPhotos = (settings.cover_photos && settings.cover_photos.length > 0)
-    ? settings.cover_photos
-    : null;
+  const coverPhotos =
+    settings.cover_photos && settings.cover_photos.length > 0
+      ? settings.cover_photos
+      : null;
 
-  // ⭐ Auto-cycle carousel
   useEffect(() => {
     if (!coverPhotos || coverPhotos.length <= 1) return;
     const interval = setInterval(() => {
@@ -109,37 +135,19 @@ const HomeTab: React.FC<HomeTabProps> = ({
     return () => clearInterval(interval);
   }, [coverPhotos]);
 
-  const handleCommClick = (key: ActionKey) => {
-    switch (key) {
-      case 'call':
-        setShowCallModal(true);
-        break;
-      case 'message':
-        if (settings.whatsapp) {
-          window.open(`https://wa.me/${settings.whatsapp}`, '_blank');
-        }
-        break;
-      case 'ai':
-        console.log('AI Concierge — coming soon');
-        break;
-    }
-  };
-
-  const handleServiceClick = (key: ServiceKey) => {
-    if (key === 'explore') {
-      onTabChange?.('explore');
-    } else {
-      onTabChange?.('services');
-    }
-  };
-
   const firstName = guestName.split(' ')[0] || guestName;
+
+  // ⭐ Rasm yuklanmasa — fallback ko'rsatish
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (img.src.endsWith(FALLBACK_IMAGE)) return; // loop'dan saqlanish
+    img.src = FALLBACK_IMAGE;
+  };
 
   return (
     <div className="ht-screen">
       {/* ═══════════════ HERO — CAROUSEL ═══════════════ */}
       <div className="ht-hero">
-        {/* ⭐ YANGI — Carousel rasmlari */}
         {coverPhotos ? (
           <div className="ht-hero-carousel">
             {coverPhotos.map((photo, idx) => (
@@ -152,7 +160,6 @@ const HomeTab: React.FC<HomeTabProps> = ({
             ))}
           </div>
         ) : (
-          // Fallback — eski hero_photo yoki default
           <img
             className="ht-hero-bg active"
             src={settings.hero_photo || '/avant.png'}
@@ -163,21 +170,18 @@ const HomeTab: React.FC<HomeTabProps> = ({
         <div className="ht-hero-overlay" />
 
         <div className="ht-hero-content">
-<GuestNavbar
-  hotel={hotel}
-  accentColor={accentColor}
-  variant="transparent"
-  showHotelName={false}
-  hasNotification={false}
-/>
+          <GuestNavbar
+            hotel={hotel}
+            accentColor={accentColor}
+            variant="transparent"
+            showHotelName={false}
+          />
 
-          {/* Greeting */}
           <div className="ht-greeting">
             <div className="ht-greet-small">Welcome back,</div>
             <h1 className="ht-greet-name">{firstName}</h1>
           </div>
 
-          {/* Location */}
           {(hotel.city || hotel.country) && (
             <div className="ht-location">
               <MapPin size={14} strokeWidth={2.2} />
@@ -188,7 +192,6 @@ const HomeTab: React.FC<HomeTabProps> = ({
             </div>
           )}
 
-          {/* Info chips */}
           <div className="ht-chips">
             <div className="ht-chip">
               <div
@@ -212,13 +215,14 @@ const HomeTab: React.FC<HomeTabProps> = ({
               </div>
               <div className="ht-chip-text">
                 <div className="ht-chip-title">Room {room.number}</div>
-                <div className="ht-chip-sub">{room.room_type_name || 'Standard'}</div>
+                <div className="ht-chip-sub">
+                  {room.room_type_name || 'Standard'}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ⭐ YANGI — Carousel pagination dots */}
         {coverPhotos && coverPhotos.length > 1 && (
           <div className="ht-hero-dots">
             {coverPhotos.map((_, idx) => (
@@ -237,6 +241,34 @@ const HomeTab: React.FC<HomeTabProps> = ({
             ))}
           </div>
         )}
+      </div>
+
+      {/* ═══════════════ BENTO SERVICE GRID — LOCAL RASMLAR ═══════════════ */}
+      <div className="ht-bento">
+        {BENTO_CARDS.map((card) => (
+          <button
+            key={card.key}
+            type="button"
+            className={`ht-bento-card ${card.isLarge ? 'ht-bento-large' : ''}`}
+            onClick={() => onTabChange?.(card.tab)}
+          >
+            <img
+              className="ht-bento-img"
+              src={card.image}
+              alt={card.title}
+              loading="lazy"
+              onError={handleImageError}
+            />
+            <div className="ht-bento-overlay" />
+            <div className="ht-bento-content">
+              <h3 className="ht-bento-title">{card.title}</h3>
+              <p className="ht-bento-sub">{card.sub}</p>
+            </div>
+            <div className="ht-bento-arrow">
+              <ArrowRight size={15} strokeWidth={2.6} color="#1f2937" />
+            </div>
+          </button>
+        ))}
       </div>
 
       {/* ═══════════════ HOTEL RULES ═══════════════ */}
@@ -262,96 +294,7 @@ const HomeTab: React.FC<HomeTabProps> = ({
         </div>
       )}
 
-      {/* ═══════════════ COMMUNICATION ═══════════════ */}
-      <div className="ht-section">
-        <div className="ht-section-head">
-          <h2 className="ht-section-title">Our Services</h2>
-          <button
-            type="button"
-            className="ht-view-all"
-            style={{ color: accentColor }}
-            onClick={() => onTabChange?.('services')}
-          >
-            View all <ArrowRight size={14} strokeWidth={2.4} />
-          </button>
-        </div>
-        <div className="ht-grid-3">
-          {COMM_CARDS.map((card) => {
-            const Icon = card.icon;
-            return (
-              <button
-                key={card.key}
-                type="button"
-                className="ht-comm-card"
-                onClick={() => handleCommClick(card.key)}
-              >
-                <div className="ht-comm-icon" style={{ color: accentColor }}>
-                  <Icon size={24} strokeWidth={1.8} />
-                </div>
-                <div className="ht-service-title">{card.title}</div>
-                <div className="ht-service-sub">{card.sub}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ═══════════════ OUR SERVICES ═══════════════ */}
-      <div className="ht-section">
-        <div className="ht-grid-3">
-          {SERVICE_CARDS.map((card) => {
-            const Icon = card.icon;
-            return (
-              <button
-                key={card.key}
-                type="button"
-                className="ht-service-card"
-                onClick={() => handleServiceClick(card.key)}
-              >
-                <div className="ht-service-icon" style={{ color: accentColor }}>
-                  <Icon size={26} strokeWidth={1.8} />
-                </div>
-                <div className="ht-service-title">{card.title}</div>
-                <div className="ht-service-sub">{card.sub}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ═══════════════ FEATURED BANNER ═══════════════ */}
-      <div className="ht-featured">
-        <img
-          className="ht-featured-bg"
-          src={settings.hero_photo || (coverPhotos?.[0] ? imageUrl(coverPhotos[0].url) : '/avant.png')}
-          alt=""
-        />
-        <div className="ht-featured-overlay" />
-
-        <div className="ht-featured-content">
-          <div className="ht-featured-tag" style={{ color: accentColor }}>
-            EXPERIENCE COMFORT
-          </div>
-          <h2 className="ht-featured-title">
-            Luxury, Comfort
-            <br />& Wellness
-          </h2>
-          <p className="ht-featured-desc">
-            Experience the perfect blend of relaxation and elegance during your stay.
-          </p>
-          <button
-            type="button"
-            className="ht-featured-btn"
-            style={{ background: accentColor }}
-            onClick={() => onTabChange?.('explore')}
-          >
-            Explore Hotel
-            <ChevronRight size={16} strokeWidth={2.4} />
-          </button>
-        </div>
-      </div>
-
-      {/* ═══════════════ MODALS ═══════════════ */}
+      {/* ═══════════════ CALL MODAL (active call resume) ═══════════════ */}
       {showCallModal && (
         <CallModal
           isOpen={true}

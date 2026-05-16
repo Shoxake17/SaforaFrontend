@@ -1,6 +1,8 @@
 /* src/pages/guest/components/GuestMainScreen.css */
 
-/* ═══════════════ MAIN CONTAINER ═══════════════ */
+/* ═══════════════════════════════════════════════════════
+   MAIN CONTAINER
+═══════════════════════════════════════════════════════ */
 .gms-screen {
   display: flex;
   flex-direction: column;
@@ -8,13 +10,15 @@
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  padding: 28px 18px 110px;
+  padding: 28px 18px 120px;
   position: relative;
   min-height: 100vh;
   box-sizing: border-box;
 }
 
-/* ═══════════════ TAB PLACEHOLDER ═══════════════ */
+/* ═══════════════════════════════════════════════════════
+   TAB PLACEHOLDER
+═══════════════════════════════════════════════════════ */
 .gms-placeholder {
   width: 100%;
   text-align: center;
@@ -24,32 +28,9 @@
   font-weight: 500;
 }
 
-/* ═══════════════ BOTTOM NAVIGATION ═══════════════ */
-.gms-bottom-nav {
-  position: fixed;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  gap: 2px;
-  width: calc(100% - 24px);
-  max-width: 460px;
-  padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 100px;
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.04),
-    0 16px 48px rgba(0, 0, 0, 0.08);
-  z-index: 100;
-}
-
-
-/* ═══ FLOATING BELL ═══ */
+/* ═══════════════════════════════════════════════════════
+   FLOATING BELL (yuqori o'ng burchak)
+═══════════════════════════════════════════════════════ */
 .gms-bell {
   position: fixed;
   top: 16px;
@@ -100,6 +81,44 @@
   border: 2px solid #ffffff;
 }
 
+/* ═══════════════════════════════════════════════════════
+   BOTTOM NAVIGATION — PILL STYLE
+═══════════════════════════════════════════════════════ */
+.gms-bottom-nav {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 2px;
+  width: calc(100% - 24px);
+  max-width: 460px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 100px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.04),
+    0 16px 48px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  /* ⭐ CALL button pill'dan tashqariga chiqishi uchun MUHIM */
+  overflow: visible;
+}
+
+/* iOS safe-area uchun */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .gms-bottom-nav {
+    bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   REGULAR NAV BUTTON (4 ta tab)
+═══════════════════════════════════════════════════════ */
 .gms-nav-btn {
   display: flex;
   flex-direction: column;
@@ -131,6 +150,10 @@
   background: rgba(15, 23, 42, 0.04);
 }
 
+.gms-nav-btn:active .gms-nav-icon-wrap {
+  transform: scale(0.92);
+}
+
 .gms-nav-label {
   font-size: 0.65rem;
   font-weight: 600;
@@ -143,10 +166,86 @@
   font-weight: 700;
 }
 
-/* ═══════════════ DESKTOP ═══════════════ */
+/* ═══════════════════════════════════════════════════════
+   ⭐⭐⭐ ELEVATED CALL BUTTON (markazda)
+═══════════════════════════════════════════════════════ */
+.gms-call-btn {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 6px;
+  flex-shrink: 0;
+  /* ⭐ Pill'dan yuqoriga ko'tarilish */
+  transform: translateY(-16px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  /* box-shadow JSX'da inline'da accentColor bilan beriladi */
+}
+
+.gms-call-btn:hover {
+  transform: translateY(-20px);
+}
+
+.gms-call-btn:active {
+  transform: translateY(-13px) scale(0.94);
+}
+
+/* Optional: incoming call paytida pulse effect */
+.gms-call-btn.gms-call-pulse {
+  animation: callPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes callPulse {
+  0%, 100% { transform: translateY(-16px) scale(1); }
+  50%      { transform: translateY(-18px) scale(1.04); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   DESKTOP
+═══════════════════════════════════════════════════════ */
 @media (min-width: 768px) {
   .gms-screen {
     max-width: 520px;
-    padding: 36px 20px 110px;
+    padding: 36px 20px 120px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE — kichik ekranlar
+═══════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .gms-bottom-nav {
+    padding: 6px 8px;
+    width: calc(100% - 16px);
+  }
+
+  .gms-nav-icon-wrap {
+    width: 32px;
+    height: 32px;
+  }
+
+  .gms-nav-label {
+    font-size: 0.62rem;
+  }
+
+  .gms-call-btn {
+    width: 52px;
+    height: 52px;
+    transform: translateY(-14px);
+    margin: 0 4px;
+  }
+
+  .gms-call-btn:hover {
+    transform: translateY(-18px);
+  }
+
+  .gms-call-btn:active {
+    transform: translateY(-11px) scale(0.94);
   }
 }

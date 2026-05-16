@@ -5,25 +5,27 @@ import {
   User,
   Compass,
   ConciergeBell,
-  Store,
+  Phone,
 } from 'lucide-react';
 import type { GuestHotel, GuestRoom, GuestSettings } from '@apptypes/guest';
 import HomeTab from '../tabs/HomeTab/HomeTab';
 import ExploreTab from '../tabs/ExploreTab/ExploreTab';
-import MarketTab from '../tabs/MarketTab/MarketTab';
 import ServicesTab from '../tabs/ServicesTab/ServicesTab';
 import ProfileTab from '../tabs/ProfileTab/ProfileTab';
 
-// ⭐ YANGI IMPORT'lar
 import {
   GuestNotificationsProvider,
   useGuestNotificationsContext,
 } from '@contexts/GuestNotificationsContext';
 import GuestNotificationPanel from './GuestNotificationPanel/GuestNotificationPanel';
 
+// ⭐ CALL MODAL — ishlovchi versiya
+import CallModal from '../modals/CallModal';
+
 import './GuestMainScreen.css';
 
-type TabKey = 'home' | 'services' | 'profile' | 'market' | 'explore';
+// ⭐ 'market' o'chirildi
+type TabKey = 'home' | 'services' | 'explore' | 'profile';
 
 interface GuestMainScreenProps {
   hotel: GuestHotel;
@@ -32,15 +34,19 @@ interface GuestMainScreenProps {
   guestName: string;
 }
 
-const BOTTOM_NAV: { key: TabKey; icon: React.ElementType; label: string }[] = [
+// Chap 2 ta tab — CALL button'gacha
+const LEFT_TABS: { key: TabKey; icon: React.ElementType; label: string }[] = [
   { key: 'home',     icon: HomeIcon,      label: 'Home' },
   { key: 'services', icon: ConciergeBell, label: 'Services' },
-  { key: 'market',   icon: Store,         label: 'Market' },
-  { key: 'explore',  icon: Compass,       label: 'Explore' },
-  { key: 'profile',  icon: User,          label: 'Profile' },
 ];
 
-// ⭐ Inner component — Context'ga kira oladigan qism
+// O'ng 2 ta tab — CALL button'dan keyin
+const RIGHT_TABS: { key: TabKey; icon: React.ElementType; label: string }[] = [
+  { key: 'explore', icon: Compass, label: 'Explore' },
+  { key: 'profile', icon: User,    label: 'Profile' },
+];
+
+// ⭐ Inner component
 const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
   hotel,
   room,
@@ -48,9 +54,11 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
   guestName,
 }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('home');
-  const accentColor = settings.primary_color || '#16a34a';
+  const [showCallModal, setShowCallModal] = useState(false);
 
-  // ⭐ Context'dan Panel uchun kerakli qiymatlar
+  const accentColor = settings.primary_color || '#f97316';
+
+  // Context — notification panel
   const {
     notifications,
     unreadCount,
@@ -61,9 +69,15 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
     closePanel,
   } = useGuestNotificationsContext();
 
+  // ⭐ CALL button bosilganda — modal ochiladi
+  const handleCallReception = () => {
+    console.log('[GuestApp] 📞 Opening call modal');
+    setShowCallModal(true);
+  };
+
   return (
     <div className="gms-screen">
-      {/* TAB CONTENT */}
+      {/* ═════════════ TAB CONTENT ═════════════ */}
       {activeTab === 'home' && (
         <HomeTab
           hotel={hotel}
@@ -71,7 +85,7 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
           settings={settings}
           guestName={guestName}
           accentColor={accentColor}
-          onTabChange={(tab) => setActiveTab(tab)}
+          onTabChange={(tab) => setActiveTab(tab as TabKey)}
         />
       )}
 
@@ -82,7 +96,7 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
           settings={settings}
           guestName={guestName}
           accentColor={accentColor}
-          onTabChange={(tab) => setActiveTab(tab)}
+          onTabChange={(tab) => setActiveTab(tab as TabKey)}
         />
       )}
 
@@ -100,17 +114,18 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
         />
       )}
 
-      {activeTab === 'market' && (
-        <MarketTab hotel={hotel} accentColor={accentColor} />
-      )}
-
       {activeTab === 'explore' && (
-        <ExploreTab hotel={hotel} settings={settings} accentColor={accentColor} />
+        <ExploreTab
+          hotel={hotel}
+          settings={settings}
+          accentColor={accentColor}
+        />
       )}
 
-      {/* BOTTOM NAVIGATION */}
+      {/* ═════════════ BOTTOM NAVIGATION ═════════════ */}
       <nav className="gms-bottom-nav">
-        {BOTTOM_NAV.map((item) => {
+        {/* CHAP 2 TA tab */}
+        {LEFT_TABS.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.key;
           return (
@@ -122,7 +137,56 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
             >
               <div
                 className="gms-nav-icon-wrap"
-                style={isActive ? { background: `${accentColor}15` } : undefined}
+                style={
+                  isActive ? { background: `${accentColor}15` } : undefined
+                }
+              >
+                <Icon
+                  size={20}
+                  strokeWidth={2.2}
+                  color={isActive ? accentColor : '#94a3b8'}
+                />
+              </div>
+              <span
+                className="gms-nav-label"
+                style={isActive ? { color: accentColor } : undefined}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* ⭐⭐⭐ MARKAZ — ELEVATED CALL BUTTON ⭐⭐⭐ */}
+        <button
+          type="button"
+          className="gms-call-btn"
+          onClick={handleCallReception}
+          aria-label="Call reception"
+          style={{
+            background: '#22c55e',
+            boxShadow: '0 6px 20px rgba(34, 197, 94, 0.45), 0 0 0 4px #ffffff',
+          }}
+        >
+          <Phone size={26} strokeWidth={2.4} color="#ffffff" />
+        </button>
+
+        {/* O'NG 2 TA tab */}
+        {RIGHT_TABS.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              className={`gms-nav-btn ${isActive ? 'gms-nav-active' : ''}`}
+              onClick={() => setActiveTab(item.key)}
+            >
+              <div
+                className="gms-nav-icon-wrap"
+                style={
+                  isActive ? { background: `${accentColor}15` } : undefined
+                }
               >
                 <Icon
                   size={20}
@@ -141,7 +205,7 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
         })}
       </nav>
 
-      {/* ⭐⭐⭐ PANEL ENG YUQORI DARAJADA — endi clip bo'lmaydi */}
+      {/* ═════ NOTIFICATION PANEL ═════ */}
       <GuestNotificationPanel
         open={panelOpen}
         notifications={notifications}
@@ -152,11 +216,22 @@ const GuestMainScreenContent: React.FC<GuestMainScreenProps> = ({
         onMarkAllAsRead={markAllAsRead}
         onClearAll={clearAll}
       />
+
+      {/* ═════ ⭐ CALL MODAL ═════ */}
+      <CallModal
+        isOpen={showCallModal}
+        onClose={() => setShowCallModal(false)}
+        hotelName={hotel.name}
+        hotelSlug={(hotel as any).slug || ''}
+        roomNumber={room.number}
+        guestName={guestName}
+        accentColor={accentColor}
+      />
     </div>
   );
 };
 
-// ⭐ Outer wrapper — Provider'ni o'rab beradi
+// ⭐ Outer wrapper — Provider
 const GuestMainScreen: React.FC<GuestMainScreenProps> = (props) => {
   return (
     <GuestNotificationsProvider
