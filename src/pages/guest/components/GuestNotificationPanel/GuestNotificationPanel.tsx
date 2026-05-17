@@ -16,6 +16,7 @@ import {
   CheckCheck,
   Trash2,
   HandHelping,
+  Megaphone,
 } from 'lucide-react';
 import type { GuestNotification } from '@hooks/useGuestNotifications';
 import './GuestNotificationPanel.css';
@@ -29,6 +30,7 @@ const SERVICE_ICONS: Record<string, typeof Bell> = {
   laundry:     WashingMachine,
   wake_up:     AlarmClock,
   concierge:   ConciergeBell,
+  broadcast:   Megaphone,
 };
 
 const SERVICE_COLORS: Record<string, string> = {
@@ -40,6 +42,7 @@ const SERVICE_COLORS: Record<string, string> = {
   laundry:     '#2563eb',
   wake_up:     '#f59e0b',
   concierge:   '#16a34a',
+  broadcast:   '#f15a22',
 };
 
 const formatTime = (iso: string): string => {
@@ -183,6 +186,7 @@ const GuestNotificationPanel: React.FC<GuestNotificationPanelProps> = ({
               const Icon = SERVICE_ICONS[notif.serviceType] || HandHelping;
               const color = SERVICE_COLORS[notif.serviceType] || accentColor;
               const isApproved = notif.type === 'approved';
+              const isBroadcast = notif.type === 'broadcast';
 
               return (
                 <div
@@ -201,9 +205,14 @@ const GuestNotificationPanel: React.FC<GuestNotificationPanelProps> = ({
                     <div className="gnp-item-head">
                       <div className="gnp-item-title">{notif.serviceLabel}</div>
                       <div
-                        className={`gnp-item-status ${isApproved ? 'is-ok' : 'is-bad'}`}
+                        className={`gnp-item-status ${isBroadcast ? 'is-info' : isApproved ? 'is-ok' : 'is-bad'}`}
                       >
-                        {isApproved ? (
+                        {isBroadcast ? (
+                          <>
+                            <Megaphone size={11} strokeWidth={2.8} />
+                            Broadcast
+                          </>
+                        ) : isApproved ? (
                           <>
                             <Check size={11} strokeWidth={2.8} />
                             Approved
@@ -218,6 +227,11 @@ const GuestNotificationPanel: React.FC<GuestNotificationPanelProps> = ({
                     </div>
 
                     <div className="gnp-item-msg">{notif.message}</div>
+                    {isBroadcast && notif.responseMessage && (
+                      <div className="gnp-item-submsg" style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                        {notif.responseMessage}
+                      </div>
+                    )}
 
                     <div className="gnp-item-time">{formatTime(notif.timestamp)}</div>
                   </div>

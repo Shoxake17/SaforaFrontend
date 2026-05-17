@@ -6,6 +6,8 @@ import useAuth from '@hooks/useAuth';
 import ThemeToggle from '@components/ThemeToggle';
 import { getRoleConfig } from '@config/roles';
 import type { RoleKey } from '@config/roles';
+import { useStaffNotificationsContext } from '@contexts/StaffNotificationsContext';
+import StaffNotificationPanel from '../StaffNotificationPanel/StaffNotificationPanel';
 import './MainLayout.css';
 
 interface HotelType {
@@ -66,6 +68,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ hotel: hotelProp }) => {
   const { role } = useParams<{ slug: string; role: RoleKey }>();
   const location = useLocation();
   const { user, hotel: contextHotel } = useAuth();
+  const { unreadCount, openPanel } = useStaffNotificationsContext();
 
   const hotel = hotelProp ?? contextHotel;
   const config = getRoleConfig(role);
@@ -89,6 +92,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ hotel: hotelProp }) => {
   const userInitial = user?.first_name?.[0]?.toUpperCase() || 'U';
 
   return (
+    <>
     <header className="ml-topbar">
       {/* LEFT — Faqat sahifa nomi */}
       <div className="ml-left">
@@ -115,8 +119,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ hotel: hotelProp }) => {
           type="button"
           className="ml-icon-btn ml-icon-bell"
           title="Notifications"
+          onClick={openPanel}
+          style={{ position: 'relative' }}
         >
           <Bell size={16} strokeWidth={2.2} />
+          {unreadCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '6px',
+              right: '6px',
+              width: '8px',
+              height: '8px',
+              background: '#f15a22',
+              borderRadius: '50%',
+              border: '1.5px solid var(--card-bg)'
+            }} />
+          )}
         </button>
 
         <div className="ml-user">
@@ -134,6 +152,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ hotel: hotelProp }) => {
         </div>
       </div>
     </header>
+    <StaffNotificationPanel />
+    </>
   );
 };
 

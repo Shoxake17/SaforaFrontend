@@ -244,8 +244,13 @@
 }
 
 .gnp-item-status.is-bad {
-  background: rgba(220, 38, 38, 0.12);
-  color: #dc2626;
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.gnp-item-status.is-info {
+  background: #eff6ff;
+  color: #3b82f6;
 }
 
 .gnp-item-msg {

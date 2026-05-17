@@ -5,7 +5,7 @@ import { guestTokenService } from '@services/guestToken';   // ⭐ YANGI
 
 export interface GuestNotification {
   id: string;
-  type: 'approved' | 'cancelled';
+  type: 'approved' | 'cancelled' | 'broadcast';
   serviceType: string;
   serviceLabel: string;
   message: string;
@@ -13,6 +13,7 @@ export interface GuestNotification {
   timestamp: string;
   read: boolean;
   requestId?: string;
+  broadcastId?: string;
 }
 
 const STORAGE_PREFIX = 'guest_notifs';
@@ -161,6 +162,29 @@ export const useGuestNotifications = ({
     onNewNotification?.(newNotif);
   }, [enableSound, onNewNotification]);
 
+  const addBroadcastNotification = useCallback((data: any) => {
+    const dedupeKey = `broadcast_${data.broadcastId || data._id}`;
+    if (seenIdsRef.current.has(dedupeKey)) return;
+    seenIdsRef.current.add(dedupeKey);
+
+    const newNotif: GuestNotification = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      type: 'broadcast',
+      serviceType: 'broadcast',
+      serviceLabel: 'Safora',
+      message: data.title,
+      responseMessage: data.message,
+      broadcastId: data.broadcastId || data._id,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+
+    console.log('[GuestNotif] 📢 Broadcast received:', newNotif);
+    setNotifications((prev) => [newNotif, ...prev].slice(0, MAX_NOTIFICATIONS));
+    playFeedback(enableSound);
+    onNewNotification?.(newNotif);
+  }, [enableSound, onNewNotification]);
+
   // ⭐⭐⭐ Singleton socket + listener qo'shish
   useEffect(() => {
     // ⭐ HAR DOIM log — qaytmasdan oldin
@@ -240,6 +264,11 @@ export const useGuestNotifications = ({
       addNotification(data);
     };
 
+    const handleBroadcast = (data: any) => {
+      console.log('[GuestNotif] 📢 broadcast:guest RECEIVED:', data);
+      addBroadcastNotification(data);
+    };
+
     const handleLegacyApproved = (data: any) => {
       console.log('[GuestNotif] 🎯 request:approved (legacy):', data);
       addNotification({
@@ -247,6 +276,17 @@ export const useGuestNotifications = ({
         request_id: data.request_id,
         service_type: data.service_type,
         status: 'approved',
+        response_message: data.message,
+      });
+    };
+
+    const handleLegacyCancelled = (data: any) => {
+      console.log('[GuestNotif] 🎯 request:cancelled (legacy):', data);
+      addNotification({
+        _id: data.request_id,
+        request_id: data.request_id,
+        service_type: data.service_type,
+        status: 'cancelled',
         response_message: data.message,
       });
     };
@@ -263,15 +303,19 @@ export const useGuestNotifications = ({
     socket.on('connect_error', handleConnectError);
     socket.on('request:status_changed', handleStatusChanged);
     socket.on('request:approved', handleLegacyApproved);
+    socket.on('request:cancelled', handleLegacyCancelled);
+    socket.on('broadcast:guest', handleBroadcast);
 
     return () => {
-      console.log('[GuestNotif] 🧹 cleanup (listeners only — singleton saqlanadi)');
+      console.log('[GuestNotif] 🧹 useEffect CLEANUP');
       socket.offAny(handleAny);
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
       socket.off('connect_error', handleConnectError);
       socket.off('request:status_changed', handleStatusChanged);
       socket.off('request:approved', handleLegacyApproved);
+      socket.off('request:cancelled', handleLegacyCancelled);
+      socket.off('broadcast:guest', handleBroadcast);
       // ⚠️ socket.disconnect() CHAQIRMAYMIZ — singleton boshqa joyda kerak
     };
   }, [hotelSlug, roomNumber, token, addNotification]);

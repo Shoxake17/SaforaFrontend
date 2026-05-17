@@ -1,0 +1,180 @@
+/* src/components/StaffNotificationPanel/StaffNotificationPanel.css */
+
+.snp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 10000;
+}
+
+.snp-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 400px;
+  background: var(--card-bg);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  animation: snp-slide-in 0.3s ease-out;
+}
+
+@keyframes snp-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.snp-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.snp-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.snp-title-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f15a221a;
+  color: #f15a22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.snp-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.snp-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.snp-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.snp-actions {
+  padding: 10px 20px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.snp-action-btn {
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.snp-action-btn.snp-danger {
+  color: #ef4444;
+}
+
+.snp-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.snp-empty {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  gap: 10px;
+}
+
+.snp-item {
+  padding: 16px 20px;
+  display: flex;
+  gap: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.snp-item:hover {
+  background: var(--card-hover);
+}
+
+.snp-item.is-unread {
+  background: var(--btn-bg);
+}
+
+.snp-item-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f15a2215;
+  color: #f15a22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.snp-item-body {
+  flex: 1;
+}
+
+.snp-item-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.snp-item-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.snp-item-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.snp-item-msg {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.snp-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f15a22;
+  position: absolute;
+  top: 18px;
+  right: 12px;
+}

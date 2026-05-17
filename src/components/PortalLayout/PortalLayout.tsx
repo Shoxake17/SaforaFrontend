@@ -9,6 +9,9 @@ import useAuthGuard from '@hooks/useAuthGuard';
 import useHotel from '@hooks/useHotel';
 import usePortalNavigation from '@hooks/useNavigation';
 import { getRoleConfig } from '@config/roles';
+import { getSocket } from '@services/socket';
+import { tokenService } from '@services/auth';
+import { useEffect } from 'react';
 
 interface PortalLayoutProps {
   activeNav: string;
@@ -50,6 +53,30 @@ const PortalLayout: React.FC<PortalLayoutProps> = ({
 
   const config = getRoleConfig(role);
   const isLoading = isAuthLoading || hotelLoading || pageLoading;
+
+  // ─── Broadcast Notifications (Staff) ───
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const token = tokenService.get();
+    if (!token) return;
+
+    const socket = getSocket(token);
+
+    const handleBroadcast = (data: any) => {
+      console.log('[PortalLayout] 📢 broadcast:staff RECEIVED:', data);
+      // Browser notification
+      if (Notification.permission === 'granted') {
+        new Notification(data.title, { body: data.message });
+      }
+      // UI Notification hooki orqali add qilinadi (useStaffNotifications hooki o'zi tinglayapti)
+    };
+
+    socket.on('broadcast:staff', handleBroadcast);
+
+    return () => {
+      socket.off('broadcast:staff', handleBroadcast);
+    };
+  }, [isAuthenticated]);
 
   // Loading state
   if (isLoading) {
